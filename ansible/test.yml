@@ -1,0 +1,14 @@
+---
+- hosts: all
+  tasks:
+    - name: Run install.ps1 persistently with NoNewWindow & Wait
+      ansible.windows.win_powershell:
+        script: |
+          Start-Process -NoNewWindow -Wait powershell.exe -ArgumentList @(
+            '-NoExit'
+            '-File'
+            'C:\Users\admin\Desktop\install.ps1'
+            '-noPassword'
+            '-noGui'
+            '-noChecks'
+          )

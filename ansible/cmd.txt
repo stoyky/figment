@@ -1,0 +1,10 @@
+ansible-playbook -i "192.168.227.212," ./ansible/test.yml \
+  -e ansible_connection=ssh \
+  -e ansible_shell_type=powershell \
+  -e "ansible_ssh_args='-o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=ssh-rsa -o UserKnownHostsFile=/dev/null'" \
+  -e ansible_ssh_user=admin \
+  -e ansible_ssh_pass=password \
+  -e ansible_become_pass=password \
+  -e ansible_host_key_checking=false \
+  --forks=1 \
+  -e ansible_ssh_pipelining=false -vvv
