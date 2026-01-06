@@ -24,7 +24,7 @@ source "vmware-iso" "flarevm" {
   ssh_timeout = "4h"
   ssh_clear_authorized_keys = true
 
-  vm_name = "flarevm"
+  vm_name = "FlareVM"
   guest_os_type = "windows9-64"
   cpus = 2
   memory = 2048
@@ -35,8 +35,8 @@ source "vmware-iso" "flarevm" {
   disk_type_id = 0
 
   floppy_files = [
-    "scripts/enable-ssh.ps1",
-    "answer-files/autounattend.xml"
+    "answer-files/autounattend.xml",
+    "scripts/enable-ssh.ps1"
   ]
 
   shutdown_command = "shutdown /s /t 10 /f"
@@ -60,6 +60,7 @@ build {
       "-e", "ansible_ssh_pass=password",
       "-e", "ansible_become_pass=password",
       "-e", "ansible_host_key_checking=false",
+      "-vvv"
     ]
   }
 }
