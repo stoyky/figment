@@ -27,7 +27,7 @@ source "vmware-iso" "flarevm" {
   vm_name = "flarevm"
   guest_os_type = "windows9-64"
   cpus = 2
-  memory = 8192
+  memory = 2048
   network = "nat"
 
   disk_size = 70000
@@ -60,7 +60,6 @@ build {
       "-e", "ansible_ssh_pass=password",
       "-e", "ansible_become_pass=password",
       "-e", "ansible_host_key_checking=false",
-      "-vvvv"
     ]
   }
 }
