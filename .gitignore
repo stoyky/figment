@@ -1,2 +1,3 @@
-*.iso
+/isos/
+packer/remnux/output-packer/
 packer/output-flarevm

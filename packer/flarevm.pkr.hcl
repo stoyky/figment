@@ -5,8 +5,8 @@ packer {
       source  = "github.com/hashicorp/vmware"
     }
     ansible = {
-    	version = ">= 1.1.0"
-	    source = "github.com/hashicorp/ansible"
+      version = ">= 1.1.0"
+      source  = "github.com/hashicorp/ansible"
     }
   }
 }
@@ -15,42 +15,42 @@ source "vmware-iso" "flarevm" {
   iso_url      = "../isos/Win10_22H2_English_x64v1.iso"
   iso_checksum = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
 
-  tools_upload_flavor = "windows"
-  tools_upload_path   = "C:/Windows/Temp/VMwareTools.iso"
-
-  communicator = "ssh"
-  ssh_username = "admin"
-  ssh_password = "password"
-  ssh_timeout = "4h"
+  communicator              = "ssh"
+  ssh_username              = "admin"
+  ssh_password              = "password"
+  ssh_timeout               = "4h"
   ssh_clear_authorized_keys = true
 
-  vm_name = "FlareVM"
-  guest_os_type = "windows9-64"
-  cpus = 2
-  memory = 2048
-  network = "nat"
+  vm_name          = "flarevm"
+  guest_os_type    = "windows9-64"
+  cpus             = 2
+  memory           = 2048
+  network          = "nat"
+  output_directory = "flarevm/output-packer"
 
-  disk_size = 70000
+  disk_size         = 70000
   disk_adapter_type = "nvme"
-  disk_type_id = 0
+  disk_type_id      = 0
 
   floppy_files = [
-    "answer-files/autounattend.xml",
-    "scripts/enable-ssh.ps1"
+    "flarevm/answer-files/autounattend.xml",
+    "flarevm/scripts/enable-ssh.ps1"
   ]
 
   shutdown_command = "shutdown /s /t 10 /f"
   shutdown_timeout = "4h"
 }
 
+
+
 build {
   sources = ["source.vmware-iso.flarevm"]
-  
+
   provisioner "ansible" {
-    playbook_file    = "../ansible/install-flarevm.yml"
-    user = "admin" 
-    use_proxy = false 
-    timeout = "4h"
+    playbook_file = "../ansible/flarevm/install-flarevm.yml"
+    user          = "admin"
+    use_proxy     = false
+    timeout       = "4h"
 
     extra_arguments = [
       "-e", "ansible_connection=ssh",
@@ -63,5 +63,12 @@ build {
       "-vvv"
     ]
   }
+
+  post-processor "vagrant" {
+    keep_input_artifact = true
+    output              = "flarevm/output-vagrant/flarevm.box"
+  }
+
 }
+
 
