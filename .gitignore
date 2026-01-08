@@ -1,3 +1,5 @@
 /isos/
-packer/remnux/output-packer/
-packer/output-flarevm
+packer/flarevm/output-* 
+packer/remnux/output-*
+.vagrant
+.venv
