@@ -66,7 +66,7 @@ build {
 
   post-processor "vagrant" {
     keep_input_artifact = true
-    output              = "flarevm/output-vagrant/flarevm.box"
+    output              = "vagrant/flarevm.box"
   }
 
 }
