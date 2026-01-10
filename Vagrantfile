@@ -17,9 +17,11 @@ Vagrant.configure("2") do |config|
   config.vm.define "flarevm" do |flare|
     flare.vm.box = "flarevm"
     flare.vm.hostname = "flarevm"
+    flare.vm.guest = :windows
     flare.ssh.username = "admin"
     flare.ssh.password = "password"
     flare.ssh.shell = "powershell"
+    flare.ssh.insert_key = false
 
     # Same host-only / private network
     flare.vm.network "private_network", ip: "192.168.56.20"  # same subnet as remnux[web:11]

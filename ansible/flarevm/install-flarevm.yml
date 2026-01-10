@@ -18,12 +18,20 @@
     - name: Set ExecutionPolicy
       ansible.windows.win_shell: Set-ExecutionPolicy Unrestricted -Force
 
-    - name: Run the Flare installer script
-      ansible.windows.win_shell: ".\\install.ps1 -password password -noWait -noChecks -noGui -customConfig .\\custom-config.xml"
-      args:
-        chdir: "C:\\Users\\admin\\Desktop"
-      async: 100
-      poll: 0
+    - name: Create Flare installer task
+      community.windows.win_scheduled_task:
+        name: FlareInstallerTask
+        actions:
+          - path: powershell.exe
+            arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 -password password -noWait -noChecks -noGui -customConfig .\\custom-config.xml }\""
+            working_directory: "C:\\Users\\admin\\Desktop"
+        triggers:
+          - type: registration
+        username: admin
+        password: password
+        logon_type: interactive_token
+        run_level: highest
+        state: present
 
     - name: Wait for Flare-VM installation completion
       ansible.windows.win_stat:

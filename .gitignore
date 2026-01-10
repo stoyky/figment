@@ -3,3 +3,5 @@ packer/flarevm/output-*
 packer/remnux/output-*
 .vagrant
 .venv
+*.isos
+*.box 

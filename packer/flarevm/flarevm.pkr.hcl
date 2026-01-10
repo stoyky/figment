@@ -15,12 +15,11 @@ source "vmware-iso" "flarevm" {
   iso_url      = "../isos/Win10_22H2_English_x64v1.iso"
   iso_checksum = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
 
-  communicator              = "winrm"
-  winrm_username              = "admin"
-  winrm_password              = "password"
-  winrm_timeout               = "4h"
-  winrm_use_ssl              = false
-  winrm_insecure             = true
+  communicator              = "ssh"
+  ssh_username              = "admin"
+  ssh_password              = "password"
+  ssh_timeout               = "4h"
+  ssh_clear_authorized_keys = true
 
   vm_name          = "flarevm"
   guest_os_type    = "windows9-64"
@@ -35,8 +34,7 @@ source "vmware-iso" "flarevm" {
 
   floppy_files = [
     "flarevm/answer-files/autounattend.xml",
-    "flarevm/scripts/enable-winrm.ps1",
-    "flarevm/scripts/enable-winrm.bat"
+    "flarevm/scripts/enable-ssh.ps1"
   ]
 
   shutdown_command = "shutdown /s /t 10 /f"
@@ -54,23 +52,21 @@ build {
     use_proxy     = false
     timeout       = "4h"
 
-    # extra_arguments = [
-    #   "-e", "ansible_connection=winrm",
-    #   "-e", "ansible_shell_type=powershell",
-    #   "-e", "ansible_winrm_args='-o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=ssh-rsa -o UserKnownHostsFile=/dev/null'",
-    #   "-e", "ansible_winrm_user=admin",
-    #   "-e", "ansible_winrm_pass=password",
-    #   "-e", "ansible_become_pass=password",
-    #   "-e", "ansible_host_key_checking=false",
-    #   "-vvv"
-    # ]
+    extra_arguments = [
+      "-e", "ansible_connection=ssh",
+      "-e", "ansible_shell_type=powershell",
+      "-e", "ansible_ssh_args='-o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=ssh-rsa -o UserKnownHostsFile=/dev/null'",
+      "-e", "ansible_ssh_user=admin",
+      "-e", "ansible_ssh_pass=password",
+      "-e", "ansible_become_pass=password",
+      "-e", "ansible_host_key_checking=false",
+      "-vvv"
+    ]
   }
 
-  # post-processor "vagrant" {
-  #   keep_input_artifact = true
-  #   output              = "vagrant/flarevm.box"
-  # }
+  post-processor "vagrant" {
+    keep_input_artifact = true
+    output              = "vagrant/flarevm.box"
+  }
 
 }
-
-
