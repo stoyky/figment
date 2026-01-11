@@ -9,10 +9,10 @@
         update_cache: yes
         cache_valid_time: 86400 #One day
 
-    - name: Install ubuntu-desktop
-      ansible.builtin.apt:
-        name: ubuntu-desktop-minimal
-      become: true 
+    # - name: Install ubuntu-desktop
+    #   ansible.builtin.apt:
+    #     name: ubuntu-gnome-desktop
+    #   become: true 
 
     - name: Install remnux-cli 
       ansible.builtin.get_url:
@@ -35,3 +35,4 @@
       ansible.builtin.shell: |
         remnux install --mode=cloud
       become: true
+      
