@@ -22,8 +22,9 @@
         <env name="RAW_TOOLS_DIR" value="%SystemDrive%\Tools"/>
     </envs>
     <packages>
-        <package name="010editor.vm"/>
-        <!-- <package name="7zip.vm"/>
+        <package name="internet_detector.vm"/>
+        <!-- <package name="010editor.vm"/>
+        <package name="7zip.vm"/>
         <package name="advanced-installer.vm"/>
         <package name="angr.vm"/>
         <package name="apimonitor.vm"/>
@@ -84,7 +85,6 @@
         <package name="ilspy.vm"/>
         <package name="innoextract.vm"/>
         <package name="innounp.vm"/>
-        <package name="internet_detector.vm"/>
         <package name="ipython.vm"/>
         <package name="isd.vm"/>
         <package name="js-beautify.vm"/>

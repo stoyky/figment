@@ -1,15 +1,37 @@
 ---
 - hosts: all
-  gather_facts: no
+  gather_facts: yes
   tasks:
-    - name: Execute uptime command
-      command: uptime
-      register: uptime_result
-    - debug: var=uptime_result.stdout_lines
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #One day
 
-    - name: Check OS release
-      command: cat /etc/os-release
-      register: os_result
-    - debug: var=os_result.stdout_lines
-      
+    - name: Install ubuntu-desktop
+      ansible.builtin.apt:
+        name: ubuntu-desktop-minimal
+      become: true 
 
+    - name: Install remnux-cli 
+      ansible.builtin.get_url:
+        url: https://REMnux.org/remnux-cli
+        dest: /tmp/remnux-cli
+
+    - name: Start REMnux installer 
+      ansible.builtin.shell: |
+        mv /tmp/remnux-cli /tmp/remnux
+        chmod +x /tmp/remnux
+        mv /tmp/remnux /usr/local/bin
+      become: true
+
+    - name: Install dependencies
+      ansible.builtin.shell: |
+        apt install -y gnupg curl
+      become: true
+
+    - name: Run the REMnux Installer
+      ansible.builtin.shell: |
+        remnux install --mode=cloud
+      become: true
