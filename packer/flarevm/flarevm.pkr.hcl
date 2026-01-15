@@ -12,7 +12,7 @@ packer {
 }
 
 source "vmware-iso" "flarevm" {
-  iso_url      = "../isos/Win10_22H2_English_x64v1.iso"
+  iso_url      = "../../assets/flarevm/win10.iso"
   iso_checksum = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
 
   communicator              = "ssh"
@@ -26,15 +26,15 @@ source "vmware-iso" "flarevm" {
   cpus             = 2
   memory           = 2048
   network          = "nat"
-  output_directory = "flarevm/output-packer"
+  output_directory = "temp-output"
 
   disk_size         = 70000
   disk_adapter_type = "nvme"
   disk_type_id      = 0
 
   floppy_files = [
-    "flarevm/answer-files/autounattend.xml",
-    "flarevm/scripts/enable-ssh.ps1"
+    "autounattend/autounattend.xml",
+    "scripts/enable-ssh.ps1"
   ]
 
   shutdown_command = "shutdown /s /t 10 /f"
@@ -47,26 +47,29 @@ build {
   sources = ["source.vmware-iso.flarevm"]
 
   provisioner "ansible" {
-    playbook_file = "../ansible/flarevm/install-flarevm.yml"
+    playbook_file = "../../ansible/playbooks/flarevm.yml"
     user          = "admin"
     use_proxy     = false
     timeout       = "4h"
 
+    ansible_env_vars = ["ANSIBLE_PIPELINING=true", "ANSIBLE_SSH_PIPELINING=true"]
+
     extra_arguments = [
       "-e", "ansible_connection=ssh",
       "-e", "ansible_shell_type=powershell",
-      "-e", "ansible_ssh_args='-o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=ssh-rsa -o UserKnownHostsFile=/dev/null'",
+      "-e", "ansible_ssh_args='-o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=ssh-rsa -o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=30m'",
       "-e", "ansible_ssh_user=admin",
       "-e", "ansible_ssh_pass=password",
       "-e", "ansible_become_pass=password",
       "-e", "ansible_host_key_checking=false",
-      "-vvv"
+      "-e", "pipelining=true",
+      "--forks=20"
     ]
   }
 
   post-processor "vagrant" {
-    keep_input_artifact = true
-    output              = "flarevm/output-vagrant/flarevm.box"
+    output = "../../boxes/flarevm.box" 
+    keep_input_artifact = false
   }
 
 }

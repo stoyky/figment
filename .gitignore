@@ -1,7 +1,7 @@
-/isos/
-packer/flarevm/output-* 
-packer/remnux/output-*
 .vagrant
 .venv
-*.isos
-*.box 
+/temp
+/boxes
+/output-flarevm
+/output-remnux
+/assets

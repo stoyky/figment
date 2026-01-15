@@ -1,0 +1,49 @@
+---
+- name: Download FlareVM install.ps1 to temp
+  ansible.windows.win_get_url:
+    url: https://raw.githubusercontent.com/mandiant/flare-vm/main/install.ps1
+    dest: C:\Users\admin\Desktop\install.ps1
+
+- name: Copy FlareVM installer custom-config.xml from host to target
+  ansible.windows.win_copy:
+    src: ../files/custom-config.xml
+    dest: C:\Users\admin\Desktop\custom-config.xml
+
+- name: Unblock install.ps1
+  ansible.windows.win_shell: Unblock-File C:\Users\admin\Desktop\install.ps1
+
+- name: Set ExecutionPolicy
+  ansible.windows.win_shell: Set-ExecutionPolicy Unrestricted -Force
+
+- name: Create Flare installer task
+  community.windows.win_scheduled_task:
+    name: FlareInstallerTask
+    actions:
+      - path: powershell.exe
+        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 -password password -noWait -noChecks -noGui -customConfig .\\custom-config.xml }\""
+        working_directory: "C:\\Users\\admin\\Desktop"
+    triggers:
+      - type: registration
+    username: admin
+    password: password
+    logon_type: interactive_token
+    run_level: highest
+    state: present
+
+- name: Wait for Flare-VM installation completion
+  ansible.windows.win_stat:
+    path: C:\ProgramData\_VM\failed_packages.txt
+  register: log_file
+  retries: 240
+  delay: 60
+  until: log_file.stat.exists
+
+- name: Get failed packages content
+  win_shell: 'type C:\ProgramData\_VM\failed_packages.txt'  
+  register: content
+
+- name: Display failed packages
+  debug: 
+    var: content.stdout
+      
+
