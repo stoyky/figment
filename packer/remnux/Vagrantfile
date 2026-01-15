@@ -5,26 +5,17 @@ Vagrant.configure("2") do |config|
     remnux.vm.hostname = "remnux"
     remnux.ssh.username = "remnux"
     remnux.ssh.password = "malware"
-    # remnux.ssh.insert_key = "true"
-
-    # remnux.vm.network "public_network", adapter: 0
-    # remnux.vm.network "public_network", adapter: 2
-    # remnux.vm.network "public_network", adapter: 3
-
-    # config.vm.provision "shell",
-    #   inline: "sudo netplan apply"
-
 
     remnux.vm.provider "vmware_desktop" do |vp|
       vp.vmx["ethernet0.present"] = "TRUE"
       vp.vmx["ethernet0.virtualDev"] = "e1000"
-      vp.vmx["ethernet0.connectionType"] = "nat"
+      vp.vmx["ethernet0.connectionType"] = "hostonly"
       vp.vmx["ethernet0.startConnected"] = "TRUE"
       vp.vmx["ethernet0.addressType"] = "generated"
       vp.vmx["ethernet0.pciSlotNumber"] = "33"
       vp.memory = "2048"
       vp.gui    = true
-      # vp.ssh_info_public = true
     end
+  
   end
 end

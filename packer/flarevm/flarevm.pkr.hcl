@@ -12,7 +12,7 @@ packer {
 }
 
 source "vmware-iso" "flarevm" {
-  iso_url      = "../../assets/flarevm/win10.iso"
+  iso_url      = "assets/flarevm/win10.iso"
   iso_checksum = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
 
   communicator              = "ssh"
@@ -26,28 +26,26 @@ source "vmware-iso" "flarevm" {
   cpus             = 2
   memory           = 2048
   network          = "nat"
-  output_directory = "temp-output"
+  output_directory = "temp/flarevm"
 
   disk_size         = 70000
   disk_adapter_type = "nvme"
   disk_type_id      = 0
 
   floppy_files = [
-    "autounattend/autounattend.xml",
-    "scripts/enable-ssh.ps1"
+    "packer/flarevm/autounattend/autounattend.xml",
+    "packer/flarevm/scripts/enable-ssh.ps1"
   ]
 
   shutdown_command = "shutdown /s /t 10 /f"
   shutdown_timeout = "4h"
 }
 
-
-
 build {
   sources = ["source.vmware-iso.flarevm"]
 
   provisioner "ansible" {
-    playbook_file = "../../ansible/playbooks/flarevm.yml"
+    playbook_file = "ansible/playbooks/flarevm.yml"
     user          = "admin"
     use_proxy     = false
     timeout       = "4h"

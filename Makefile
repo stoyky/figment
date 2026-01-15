@@ -1,13 +1,14 @@
 flarevm:
 	@echo "Building FLARE VM..."
 	packer build packer/flarevm/flarevm.pkr.hcl
+	vagrant box add remnux boxes/flarevm.box --force
+	cd packer/remnux && vagrant up
 
 remnux: clean convert
 	@echo "Building REMnux..."
 	packer build packer/remnux/remnux.pkr.hcl
-# 	vagrant box add remnux boxes/remnux.box --force
-# 	cd packer/remnux
-# 	vagrant up remnux
+	vagrant box add remnux boxes/remnux.box --force
+	cd packer/remnux && vagrant up
 
 convert:
 	@echo "Converting OVA to VMX..."

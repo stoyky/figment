@@ -1,7 +1,6 @@
 .vagrant
-.venv
-/temp
+/.venv
+/temp-*
 /boxes
-/output-flarevm
-/output-remnux
+/output-*
 /assets
