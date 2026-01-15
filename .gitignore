@@ -1,5 +1,6 @@
 .vagrant
-/.venv
+.venv
+.vscode
 /temp-*
 /boxes
 /output-*
