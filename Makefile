@@ -1,8 +1,8 @@
-flarevm:
+flarevm: clean
 	@echo "Building FLARE VM..."
 	packer build packer/flarevm/flarevm.pkr.hcl
-	vagrant box add remnux boxes/flarevm.box --force
-	cd packer/remnux && vagrant up
+	vagrant box add flarevm boxes/flarevm.box --force
+	cd packer/flarevm && vagrant up
 
 remnux: clean convert
 	@echo "Building REMnux..."
