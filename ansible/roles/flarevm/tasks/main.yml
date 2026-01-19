@@ -1,11 +1,4 @@
 ---
-# - name: Enable disconnected network adapters
-#   ansible.windows.win_shell: |
-#     Get-NetAdapter | Where-Object Status -eq 'Disconnected' | Enable-NetAdapter
-#   become: yes
-#   become_user: admin
-#   become_method: runas
-
 - name: Configure static IP on Ethernet1
   ansible.windows.win_shell: |
     Get-NetIPAddress -InterfaceAlias 'Ethernet1' -AddressFamily IPv4 | 
