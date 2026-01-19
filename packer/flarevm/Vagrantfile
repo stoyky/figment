@@ -4,20 +4,18 @@ Vagrant.configure("2") do |config|
     flarevm.vm.box = "flarevm"
     flarevm.vm.hostname = "flarevm"
     flarevm.vm.guest = :windows
-    flarevm.vm.communicator = "none"
+    flarevm.ssh.username = "admin"
+    flarevm.ssh.password = "password"
+    flarevm.ssh.insert_key = false
+    
+    flarevm.vm.network "public_network", adapter: 0
+    flarevm.vm.network "private_network", ip: "172.16.53.200", adapter: 1
 
     flarevm.vm.synced_folder '.', '/vagrant', disabled: true
 
     flarevm.vm.provider "vmware_desktop" do |vp|
-      vp.vmx["ethernet0.present"] = "TRUE"
-      vp.vmx["ethernet0.virtualDev"] = "e1000"
-      vp.vmx["ethernet0.connectionType"] = "hostonly"
-      vp.vmx["ethernet0.startConnected"] = "TRUE"
-      vp.vmx["ethernet0.addressType"] = "generated"
-      vp.vmx["ethernet0.pciSlotNumber"] = "33"
       vp.memory = "4096"
       vp.gui    = true
-      vp.ssh_info_public = true
     end
   end
 end

@@ -39,6 +39,25 @@ source "vmware-iso" "flarevm" {
 
   shutdown_command = "shutdown /s /t 10 /f"
   shutdown_timeout = "4h"
+  headless = false
+
+  vmx_data = {
+    "ethernet0.present"        = "TRUE"
+    "ethernet0.connectiontype" = "nat"
+    "ethernet0.virtualdev"     = "e1000"
+    "ethernet0.connect"        = "connected"
+    "ethernet0.startconnected" = "TRUE"
+    "ethernet0.displayname"    = "nat"
+    "ethernet0.networkname"    = "nat"
+    
+    "ethernet1.present"        = "TRUE"
+    "ethernet1.connectiontype" = "hostonly"
+    "ethernet1.virtualdev"     = "e1000"
+    "ethernet1.connect"        = "connected"
+    "ethernet1.startconnected" = "TRUE"
+    "ethernet1.displayname"    = "hostonly"
+    "ethernet1.networkname"    = "hostonly"
+  }
 }
 
 build {
@@ -65,9 +84,23 @@ build {
     ]
   }
 
+  # provisioner "powershell" {
+  #   elevated = true
+  #   inline = [
+  #     "Get-NetAdapter | Where-Object Status -eq 'Disconnected' | Enable-NetAdapter",
+  #     "Get-NetIPAddress -InterfaceAlias 'Ethernet1' | Remove-NetRoute",
+  #     "Get-NetIPAddress -InterfaceAlias 'Ethernet1' | Remove-NetIpAddress",
+  #     "New-NetIPAddress -InterfaceAlias 'Ethernet1' -IPAddress 172.16.53.200 -PrefixLength 24 -DefaultGateway 172.16.53.100",
+  #     "Set-DnsClientServerAddress -InterfaceAlias 'Ethernet1' -ServerAddresses '172.16.53.100'"
+  #   ]
+  # }
+
+
   post-processor "vagrant" {
     output = "boxes/flarevm.box" 
-    keep_input_artifact = false
+    keep_input_artifact = true
+    provider_override = "vmware"
+    vagrantfile_template = "packer/flarevm/Vagrantfile"
   }
 
 }

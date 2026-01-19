@@ -27,16 +27,17 @@ source "vmware-vmx" "remnux" {
 
   vmx_remove_ethernet_interfaces = false
   skip_compaction = "true"
+  headless = false
 
   vmx_data_post = {
     "ethernet0.present"        = "TRUE"
     "ethernet0.connectionType" = "nat"
-    "ethernet0.pcislotnumber"  = "160"  # ens160 (Vagrant default)
+    "ethernet0.pcislotnumber"  = "33"  # ens160 (Vagrant default)
     "ethernet0.virtualDev"     = "e1000"
 
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
-    "ethernet1.pcislotnumber"  = "192"  # ens192 (Vagrant adapter 1 default)
+    "ethernet1.pcislotnumber"  = "36"  # ens192 (Vagrant adapter 1 default)
     "ethernet1.virtualDev"     = "e1000"
   }
 
@@ -52,9 +53,9 @@ build {
       "  version: 2",
       "  renderer: networkd",
       "  ethernets:",
-      "    ens160:",
+      "    ens33:",
       "      dhcp4: true",
-      "    ens192:",
+      "    ens36:",
       "      addresses: [172.16.53.100/24]",
       "EOF",
       "sudo netplan generate && sudo netplan apply"
@@ -63,10 +64,10 @@ build {
 
 
 
-  post-processor "vagrant" {
-      keep_input_artifact = true
-      provider_override   = "vmware"
-      output = "boxes/remnux.box"
-      vagrantfile_template = "packer/remnux/Vagrantfile"
-  }
+  # post-processor "vagrant" {
+  #     keep_input_artifact = true
+  #     provider_override   = "vmware"
+  #     output = "boxes/remnux.box"
+  #     vagrantfile_template = "packer/remnux/Vagrantfile"
+  # }
 }

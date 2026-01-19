@@ -1,4 +1,23 @@
 ---
+# - name: Enable disconnected network adapters
+#   ansible.windows.win_shell: |
+#     Get-NetAdapter | Where-Object Status -eq 'Disconnected' | Enable-NetAdapter
+#   become: yes
+#   become_user: admin
+#   become_method: runas
+
+- name: Configure static IP on Ethernet1
+  ansible.windows.win_shell: |
+    Get-NetIPAddress -InterfaceAlias 'Ethernet1' -AddressFamily IPv4 | 
+      Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
+    Get-NetIPAddress -InterfaceAlias 'Ethernet1' -AddressFamily IPv4 | 
+      Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
+    New-NetIPAddress -InterfaceAlias 'Ethernet1' -IPAddress 172.16.53.200 -PrefixLength 24 -DefaultGateway 172.16.53.100 -AddressFamily IPv4;
+    Set-DnsClientServerAddress -InterfaceAlias 'Ethernet1' -ServerAddresses '172.16.53.100'
+  become: yes
+  become_user: admin
+  become_method: runas
+
 - name: Download FlareVM install.ps1 to temp
   ansible.windows.win_get_url:
     url: https://raw.githubusercontent.com/mandiant/flare-vm/main/install.ps1
@@ -20,7 +39,7 @@
     name: FlareInstallerTask
     actions:
       - path: powershell.exe
-        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 -password password -noWait -noChecks -noGui -customConfig .\\custom-config.xml }\""
+        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 -password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml }\""
         working_directory: "C:\\Users\\admin\\Desktop"
     triggers:
       - type: registration
@@ -45,5 +64,7 @@
 - name: Display failed packages
   debug: 
     var: content.stdout
-      
+
+  
+
 

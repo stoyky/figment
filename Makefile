@@ -1,24 +1,23 @@
-flarevm: clean
+flarevm:
 	@echo "Building FLARE VM..."
 	packer build packer/flarevm/flarevm.pkr.hcl
-# 	vagrant box add flarevm boxes/flarevm.box --force
-# 	cd packer/flarevm && vagrant up
-
-remnux: clean convert
-	@echo "Building REMnux..."
-	packer build packer/remnux/remnux.pkr.hcl
-	vagrant box add remnux boxes/remnux.box --force
-	cd packer/remnux && vagrant up
 
 convert:
 	@echo "Converting OVA to VMX..."
 	packer build packer/remnux/convert.pkr.hcl
 
-clean: 
-	@echo "Cleaning temporary directories..."
-	rm -rf boxes/
-	rm -rf temp/
-	rm -rf output-remnux/
+remnux: convert
+	@echo "Building REMnux..."
+	packer build packer/remnux/remnux.pkr.hcl
+
+clean-flarevm: 
+	@echo "Cleaning temporary directories for REMnux..."
+	rm -rf temp/flarevm/
 	rm -rf output-flarevm/
+
+clean-remnux: 
+	@echo "Cleaning temporary directories for REMnux..."
+	rm -rf temp/remnux/
+	rm -rf output-remnux/
 
 all: flarevm remnux
