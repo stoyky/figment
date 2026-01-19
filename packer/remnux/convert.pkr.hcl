@@ -21,7 +21,7 @@ build {
 
   provisioner "shell-local" {
     inline = [
-      "ovftool assets/remnux/remnux-focal-amd64.ova temp/remnux.vmx"
+      "ovftool -n=remnux assets/remnux/remnux-focal-amd64.ova temp/"
     ]
   }
 }

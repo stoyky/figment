@@ -39,7 +39,7 @@ source "vmware-iso" "flarevm" {
 
   shutdown_command = "shutdown /s /t 10 /f"
   shutdown_timeout = "4h"
-  headless = false
+  headless         = false
 
   vmx_data = {
     "ethernet0.present"        = "TRUE"
@@ -49,7 +49,7 @@ source "vmware-iso" "flarevm" {
     "ethernet0.startconnected" = "TRUE"
     "ethernet0.displayname"    = "nat"
     "ethernet0.networkname"    = "nat"
-    
+
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectiontype" = "hostonly"
     "ethernet1.virtualdev"     = "e1000"
@@ -97,9 +97,9 @@ build {
 
 
   post-processor "vagrant" {
-    output = "boxes/flarevm.box" 
-    keep_input_artifact = true
-    provider_override = "vmware"
+    output               = "boxes/flarevm.box"
+    keep_input_artifact  = true
+    provider_override    = "vmware"
     vagrantfile_template = "packer/flarevm/Vagrantfile"
   }
 

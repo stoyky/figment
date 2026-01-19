@@ -4,12 +4,7 @@
   apt:
     upgrade: yes
     update_cache: yes
-    cache_valid_time: 86400 #One day
-
-# - name: Install ubuntu-desktop
-#   ansible.builtin.apt:
-#     name: ubuntu-gnome-desktop
-#   become: true 
+    cache_valid_time: 86400
 
 - name: Install remnux-cli 
   ansible.builtin.get_url:
