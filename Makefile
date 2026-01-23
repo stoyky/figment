@@ -8,7 +8,7 @@ convert:
 
 remnux: convert
 	@echo "Building REMnux..."
-	packer build packer/remnux/remnux.pkr.hcl
+	packer build -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."
