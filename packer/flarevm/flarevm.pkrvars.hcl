@@ -1,0 +1,13 @@
+iso_sha256 =        "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
+iso_url =           "assets/flarevm/win10.iso"
+user =              "admin"
+password =          "password"
+hostonly_ip =       "172.16.53.222" 
+default_gateway =   "172.16.53.111"
+dns_ip =            "172.16.53.111"
+install_args =      "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
+cpus =              2
+memory =            2048
+vm_name =           "FlareVM"
+disk_size =         70000
+enable_vagrant =    false

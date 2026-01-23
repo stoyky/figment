@@ -1,0 +1,11 @@
+---
+hostonly_ip:       "172.16.53.20" 
+default_gateway:   "172.16.53.10"
+dns_ip:            "172.16.53.10"
+install_args:      "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
+
+
+
+  
+
+

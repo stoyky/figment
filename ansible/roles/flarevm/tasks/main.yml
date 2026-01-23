@@ -5,11 +5,16 @@
       Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
     Get-NetIPAddress -InterfaceAlias 'Ethernet1' -AddressFamily IPv4 | 
       Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-    New-NetIPAddress -InterfaceAlias 'Ethernet1' -IPAddress 172.16.53.200 -PrefixLength 24 -DefaultGateway 172.16.53.100 -AddressFamily IPv4;
-    Set-DnsClientServerAddress -InterfaceAlias 'Ethernet1' -ServerAddresses '172.16.53.100'
+    New-NetIPAddress -InterfaceAlias 'Ethernet1' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
   become: yes
   become_user: admin
   become_method: runas
+
+- name: Set static DNS
+  ansible.windows.win_dns_client:
+    adapter_names: Ethernet1
+    ipv4_addresses:
+      - "{{ dns_ip }}"
 
 - name: Download FlareVM install.ps1 to temp
   ansible.windows.win_get_url:
@@ -32,7 +37,7 @@
     name: FlareInstallerTask
     actions:
       - path: powershell.exe
-        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 -password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml }\""
+        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 {{ install_args }} }\""
         working_directory: "C:\\Users\\admin\\Desktop"
     triggers:
       - type: registration
