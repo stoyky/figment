@@ -1,27 +1,28 @@
 ---
-- name: Rename NAT adapter
+- name: Rename NAT adapter (all providers)
   ansible.windows.win_shell: |
-    $natMac = '{{ mac_nat_nic }}'.Replace(':','-')
-    $natAdapter = Get-NetAdapter | where{$_.MacAddress -eq $natMac} | Select-Object -First 1
-    if ($natAdapter -and $natAdapter.Name -ne 'nat') {
-      Rename-NetAdapter -Name $natAdapter.Name -NewName 'nat' -Confirm:$false
+    $normMac = '{{ mac_nat }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
+    $normMac = $normMac.ToUpper()
+    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
+    if ($adapter -and $adapter.Name -ne 'nat') {
+      Rename-NetAdapter -Name $adapter.Name -NewName 'nat' -Confirm:$false
     }
   become: yes
   become_user: admin
   become_method: runas
 
-- name: Rename host-only adapter
+- name: Rename host-only adapter (all providers)
   ansible.windows.win_shell: |
-    $hostonlyMac = '{{ mac_hostonly_nic }}'.Replace(':','-')
-    $hostonlyAdapter = Get-NetAdapter | where{$_.MacAddress -eq $hostonlyMac} | Select-Object -First 1
-    if ($hostonlyAdapter -and $hostonlyAdapter.Name -ne 'hostonly') {
-      Rename-NetAdapter -Name $hostonlyAdapter.Name -NewName 'hostonly' -Confirm:$false
+    $normMac = '{{ mac_hostonly }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
+    $normMac = $normMac.ToUpper()
+    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
+    if ($adapter -and $adapter.Name -ne 'hostonly') {
+      Rename-NetAdapter -Name $adapter.Name -NewName 'hostonly' -Confirm:$false
     }
   become: yes
   become_user: admin
   become_method: runas
 
-# Original tasks now safe
 - name: Configure static IP on host-only adapter
   ansible.windows.win_shell: |
     Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
@@ -58,6 +59,10 @@
 
 - name: Set ExecutionPolicy
   ansible.windows.win_shell: Set-ExecutionPolicy Unrestricted -Force
+
+- name: Pause before Flare installer
+  ansible.builtin.pause:
+    seconds: 20
 
 - name: Create Flare installer task
   community.windows.win_scheduled_task:

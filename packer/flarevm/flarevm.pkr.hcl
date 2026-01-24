@@ -24,11 +24,11 @@ variable "iso_sha256" {
 }
 
 variable "user" {
-  type    = string
+  type = string
 }
 
 variable "password" {
-  type    = string
+  type      = string
   sensitive = true
 }
 
@@ -37,15 +37,15 @@ variable "vm_name" {
 }
 
 variable "cpus" {
-  type    = number
+  type = number
 }
 
 variable "memory" {
-  type    = number
+  type = number
 }
 
 variable "disk_size" {
-  type    = number
+  type = number
 }
 
 variable "hostonly_ip" {
@@ -60,12 +60,11 @@ variable "dns_ip" {
   type = string
 }
 
-variable "mac_nat_nic" {
+variable "mac_nat" {
   type = string
 }
 
-
-variable "mac_hostonly_nic" {
+variable "mac_hostonly" {
   type = string
 }
 
@@ -87,20 +86,21 @@ source "virtualbox-iso" "flarevm" {
   iso_url      = var.iso_url
   iso_checksum = var.iso_sha256
 
-  communicator     = "ssh"
-  ssh_username     = var.user
-  ssh_password     = var.password
-  ssh_timeout      = "4h"
+  communicator              = "ssh"
+  ssh_username              = var.user
+  ssh_password              = var.password
+  ssh_timeout               = "4h"
   ssh_clear_authorized_keys = true
 
-  vm_name      = var.vm_name
-  guest_os_type = "Windows10_64" 
-  cpus         = var.cpus
-  memory       = var.memory      
+  vm_name       = var.vm_name
+  guest_os_type = "Windows10_64"
+  cpus          = var.cpus
+  memory        = var.memory
+  skip_export   = false
 
   disk_size = var.disk_size
 
-  floppy_files = [ 
+  floppy_files = [
     "packer/flarevm/autounattend/autounattend.xml",
     "packer/flarevm/scripts/enable-ssh.ps1"
   ]
@@ -108,17 +108,20 @@ source "virtualbox-iso" "flarevm" {
   shutdown_command = "shutdown /s /t 10 /f"
   shutdown_timeout = "4h"
   headless         = false
-  vboxmanage = [  
+  vboxmanage = [
     ["modifyvm", "${var.vm_name}", "--memory", "${var.memory}"],
     ["modifyvm", "${var.vm_name}", "--cpus", "${var.cpus}"],
+    ["modifyvm", "${var.vm_name}", "--nic1", "nat"],
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
     ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
-    ["modifyvm", "${var.vm_name}", "--nic1", "--macaddress1 ${var.nat_mac_nic}"],
-    ["modifyvm", "${var.vm_name}", "--nic2", "--macaddress2 ${var.nat_hostonly_nic}"]
+    ["modifyvm", "${var.vm_name}", "--macaddress1", "${var.mac_nat}"],
+    ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
   ]
 
-  export_opts = ["--manifest"]  
-  format      = "ova"          
+  vboxmanage_post = [
+    ["modifyvm", "${var.vm_name}", "--nic1", "none"],
+  ]
+
   output_directory = "temp/flarevm-virtualbox"
 }
 
@@ -134,13 +137,13 @@ source "vmware-iso" "flarevm" {
   ssh_timeout               = "4h"
   ssh_clear_authorized_keys = true
 
-  vm_name          = var.vm_name
-  guest_os_type    = "windows9-64"
-  cpus             = var.cpus
-  memory           = var.memory
-  network          = "nat"
+  vm_name              = var.vm_name
+  guest_os_type        = "windows9-64"
+  cpus                 = var.cpus
+  memory               = var.memory
+  network              = "nat"
   network_adapter_type = "e1000"
-  output_directory = "temp/flarevm-vmware"
+  output_directory     = "temp/flarevm-vmware"
 
   disk_size         = var.disk_size
   disk_adapter_type = "nvme"
@@ -163,7 +166,7 @@ source "vmware-iso" "flarevm" {
     "ethernet0.startConnected" = "TRUE"
     "ethernet0.displayName"    = "nat"
     "ethernet0.addressType"    = "static"
-    "ethernet0.address"        = "${var.mac_nat_nic}"
+    "ethernet0.address"        = "${var.mac_nat}"
 
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
@@ -172,7 +175,7 @@ source "vmware-iso" "flarevm" {
     "ethernet1.startConnected" = "TRUE"
     "ethernet1.displayName"    = "hostonly"
     "ethernet1.addressType"    = "static"
-    "ethernet1.address"        = "${var.mac_hostonly_nic}"
+    "ethernet1.address"        = "${var.mac_hostonly}"
   }
 
   vmx_data_post = {
@@ -183,7 +186,10 @@ source "vmware-iso" "flarevm" {
 }
 
 build {
-  sources = ["source.vmware-iso.flarevm", "source.virtualbox-iso.flarevm"]
+  sources = [
+    "source.vmware-iso.flarevm",
+    "source.virtualbox-iso.flarevm"
+  ]
 
   provisioner "ansible" {
     playbook_file = "ansible/playbooks/flarevm.yml"
@@ -205,8 +211,8 @@ build {
       "-e", "hostonly_ip=${var.hostonly_ip}",
       "-e", "default_gateway=${var.default_gateway}",
       "-e", "dns_ip=${var.dns_ip}",
-      "-e", "mac_nat_nic=${var.mac_nat_nic}",
-      "-e", "mac_hostonly_nic=${var.mac_hostonly_nic}",
+      "-e", "mac_nat=${var.mac_nat}",
+      "-e", "mac_hostonly=${var.mac_hostonly}",
       "--forks=20"
     ]
   }
