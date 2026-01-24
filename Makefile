@@ -1,6 +1,10 @@
-flarevm:
-	@echo "Building FLARE VM..."
-	packer build -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl
+flarevm-vmware:
+	@echo "Building FLARE VM vmware..."
+	packer build --only vmware-iso.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
+
+flarevm-virtualbox:
+	@echo "Building FLARE VM virtualbox..."
+	packer build --only virtualbox-iso.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
 
 convert:
 	@echo "Converting OVA to VMX..."

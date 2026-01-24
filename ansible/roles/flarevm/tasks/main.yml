@@ -1,20 +1,47 @@
 ---
-- name: Configure static IP on Ethernet1
+- name: Rename NAT adapter
   ansible.windows.win_shell: |
-    Get-NetIPAddress -InterfaceAlias 'Ethernet1' -AddressFamily IPv4 | 
+    $natMac = '{{ mac_nat_nic }}'.Replace(':','-')
+    $natAdapter = Get-NetAdapter | where{$_.MacAddress -eq $natMac} | Select-Object -First 1
+    if ($natAdapter -and $natAdapter.Name -ne 'nat') {
+      Rename-NetAdapter -Name $natAdapter.Name -NewName 'nat' -Confirm:$false
+    }
+  become: yes
+  become_user: admin
+  become_method: runas
+
+- name: Rename host-only adapter
+  ansible.windows.win_shell: |
+    $hostonlyMac = '{{ mac_hostonly_nic }}'.Replace(':','-')
+    $hostonlyAdapter = Get-NetAdapter | where{$_.MacAddress -eq $hostonlyMac} | Select-Object -First 1
+    if ($hostonlyAdapter -and $hostonlyAdapter.Name -ne 'hostonly') {
+      Rename-NetAdapter -Name $hostonlyAdapter.Name -NewName 'hostonly' -Confirm:$false
+    }
+  become: yes
+  become_user: admin
+  become_method: runas
+
+# Original tasks now safe
+- name: Configure static IP on host-only adapter
+  ansible.windows.win_shell: |
+    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
       Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
-    Get-NetIPAddress -InterfaceAlias 'Ethernet1' -AddressFamily IPv4 | 
+    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
       Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-    New-NetIPAddress -InterfaceAlias 'Ethernet1' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
+    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
   become: yes
   become_user: admin
   become_method: runas
 
 - name: Set static DNS
   ansible.windows.win_dns_client:
-    adapter_names: Ethernet1
+    adapter_names: hostonly
     ipv4_addresses:
       - "{{ dns_ip }}"
+  become: yes
+  become_user: admin
+  become_method: runas
+
 
 - name: Download FlareVM install.ps1 to temp
   ansible.windows.win_get_url:

@@ -4,6 +4,10 @@ packer {
       version = ">= 1.0.0"
       source  = "github.com/hashicorp/vmware"
     }
+    virtualbox = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/virtualbox"
+    }
     ansible = {
       version = ">= 1.1.0"
       source  = "github.com/hashicorp/ansible"
@@ -56,10 +60,69 @@ variable "dns_ip" {
   type = string
 }
 
+variable "mac_nat_nic" {
+  type = string
+}
+
+
+variable "mac_hostonly_nic" {
+  type = string
+}
+
+variable "ethernet0_pcislotnumber" {
+  type = string
+}
+
+variable "ethernet1_pcislotnumber" {
+  type = string
+}
+
 variable "enable_vagrant" {
   type = bool
 }
 
+## VIRTUALBOX
+
+source "virtualbox-iso" "flarevm" {
+  iso_url      = var.iso_url
+  iso_checksum = var.iso_sha256
+
+  communicator     = "ssh"
+  ssh_username     = var.user
+  ssh_password     = var.password
+  ssh_timeout      = "4h"
+  ssh_clear_authorized_keys = true
+
+  vm_name      = var.vm_name
+  guest_os_type = "Windows10_64" 
+  cpus         = var.cpus
+  memory       = var.memory      
+
+  disk_size = var.disk_size
+
+  floppy_files = [ 
+    "packer/flarevm/autounattend/autounattend.xml",
+    "packer/flarevm/scripts/enable-ssh.ps1"
+  ]
+
+  shutdown_command = "shutdown /s /t 10 /f"
+  shutdown_timeout = "4h"
+  headless         = false
+  vboxmanage = [  
+    ["modifyvm", "${var.vm_name}", "--memory", "${var.memory}"],
+    ["modifyvm", "${var.vm_name}", "--cpus", "${var.cpus}"],
+    ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
+    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
+    ["modifyvm", "${var.vm_name}", "--nic1", "--macaddress1 ${var.nat_mac_nic}"],
+    ["modifyvm", "${var.vm_name}", "--nic2", "--macaddress2 ${var.nat_hostonly_nic}"]
+  ]
+
+  export_opts = ["--manifest"]  
+  format      = "ova"          
+  output_directory = "temp/flarevm-virtualbox"
+}
+
+## VMWARE 
 
 source "vmware-iso" "flarevm" {
   iso_url      = var.iso_url
@@ -76,7 +139,8 @@ source "vmware-iso" "flarevm" {
   cpus             = var.cpus
   memory           = var.memory
   network          = "nat"
-  output_directory = "temp/flarevm"
+  network_adapter_type = "e1000"
+  output_directory = "temp/flarevm-vmware"
 
   disk_size         = var.disk_size
   disk_adapter_type = "nvme"
@@ -93,25 +157,33 @@ source "vmware-iso" "flarevm" {
 
   vmx_data = {
     "ethernet0.present"        = "TRUE"
-    "ethernet0.connectiontype" = "nat"
-    "ethernet0.virtualdev"     = "e1000"
+    "ethernet0.connectionType" = "nat"
+    "ethernet0.virtualDev"     = "e1000"
     "ethernet0.connect"        = "connected"
-    "ethernet0.startconnected" = "TRUE"
-    "ethernet0.displayname"    = "nat"
-    "ethernet0.networkname"    = "nat"
+    "ethernet0.startConnected" = "TRUE"
+    "ethernet0.displayName"    = "nat"
+    "ethernet0.addressType"    = "static"
+    "ethernet0.address"        = "${var.mac_nat_nic}"
 
     "ethernet1.present"        = "TRUE"
-    "ethernet1.connectiontype" = "hostonly"
-    "ethernet1.virtualdev"     = "e1000"
+    "ethernet1.connectionType" = "hostonly"
+    "ethernet1.virtualDev"     = "e1000"
     "ethernet1.connect"        = "connected"
-    "ethernet1.startconnected" = "TRUE"
-    "ethernet1.displayname"    = "hostonly"
-    "ethernet1.networkname"    = "hostonly"
+    "ethernet1.startConnected" = "TRUE"
+    "ethernet1.displayName"    = "hostonly"
+    "ethernet1.addressType"    = "static"
+    "ethernet1.address"        = "${var.mac_hostonly_nic}"
+  }
+
+  vmx_data_post = {
+    "ethernet0.present"        = "FALSE"
+    "ethernet0.connect"        = "disconnected"
+    "ethernet0.startConnected" = "FALSE"
   }
 }
 
 build {
-  sources = ["source.vmware-iso.flarevm"]
+  sources = ["source.vmware-iso.flarevm", "source.virtualbox-iso.flarevm"]
 
   provisioner "ansible" {
     playbook_file = "ansible/playbooks/flarevm.yml"
@@ -133,16 +205,18 @@ build {
       "-e", "hostonly_ip=${var.hostonly_ip}",
       "-e", "default_gateway=${var.default_gateway}",
       "-e", "dns_ip=${var.dns_ip}",
+      "-e", "mac_nat_nic=${var.mac_nat_nic}",
+      "-e", "mac_hostonly_nic=${var.mac_hostonly_nic}",
       "--forks=20"
     ]
   }
 
-  post-processor "vagrant" {
-    output               = "boxes/flarevm.box"
-    keep_input_artifact  = true
-    provider_override    = "vmware"
-    vagrantfile_template = "packer/flarevm/Vagrantfile"
-    only = var.enable_vagrant ? ["vmware-iso.flarevm"] : []
-  }
+  # post-processor "vagrant" {
+  #   output               = "boxes/flarevm.box"
+  #   keep_input_artifact  = true
+  #   provider_override    = "vmware"
+  #   vagrantfile_template = "packer/flarevm/Vagrantfile"
+  #   only = var.enable_vagrant ? ["vmware-iso.flarevm"] : []
+  # }
 
 }
