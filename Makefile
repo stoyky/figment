@@ -10,9 +10,13 @@ convert:
 	@echo "Converting OVA to VMX..."
 	packer build -on-error=ask packer/remnux/convert.pkr.hcl
 
-remnux: convert
+remnux-vmware: convert
 	@echo "Building REMnux..."
-	packer build -on-error=ask -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
+	packer build -on-error=ask --only vmware-vmx.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
+
+remnux-virtualbox:
+	@echo "Building REMnux..."
+	packer build --force -on-error=ask --only virtualbox-ovf.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."

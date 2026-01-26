@@ -12,46 +12,68 @@ packer {
   }
 }
 
-variable "source_path" {
-  type        = string
+variable "source_path_vmware" {
+  type = string
 }
 
-variable "display_name" {
-  type        = string
+variable "source_path_virtualbox" {
+  type = string
 }
 
 variable "ssh_username" {
-  type    = string
+  type = string
 }
 
 variable "ssh_password" {
-  type        = string
-  sensitive   = true
+  type      = string
+  sensitive = true
 }
 
 variable "ssh_timeout" {
-  type    = string
+  type = string
 }
 
 variable "boot_wait" {
-  type    = string
+  type = string
 }
 
 variable "hostonly_ip" {
-  type    = string
+  type = string
 }
 
-variable "ethernet0_pcislotnumber" {
-  type    = number
+variable "vm_name" {
+  type = string
 }
 
-variable "ethernet1_pcislotnumber" {
-  type    = number
+variable "mac_nat" {
+  type = string
+}
+
+variable "mac_hostonly" {
+  type = string
 }
 
 
+variable "eth0_pcislot_vmware" {
+  type = number
+}
+
+variable "eth1_pcislot_vmware" {
+  type = number
+}
+
+variable "eth0_pcislot_virtualbox" {
+  type = number
+}
+
+variable "eth1_pcislot_virtualbox" {
+  type = number
+}
+
+
+## VMWare
 source "vmware-vmx" "remnux" {
-  source_path  = var.source_path
+  source_path  = var.source_path_vmware
   display_name = var.display_name
   ssh_username = var.ssh_username
   ssh_password = var.ssh_password
@@ -81,8 +103,35 @@ source "vmware-vmx" "remnux" {
 
 }
 
+## Virtualbox
+
+source "virtualbox-ovf" "remnux" {
+  source_path      = var.source_path_virtualbox
+
+  vm_name          = var.vm_name
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  ssh_timeout      = var.ssh_timeout
+  skip_export      = true
+  keep_registered  = true
+  shutdown_command = "sudo shutdown -h now"
+
+  headless = false
+
+  vboxmanage_post = [
+    ["modifyvm", "${var.vm_name}", "--nic1", "none"],
+    ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
+    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
+    ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
+  ]
+}
+
+
 build {
-  sources = ["source.vmware-vmx.remnux"]
+  sources = [
+    "source.vmware-vmx.remnux",
+    "source.virtualbox-ovf.remnux"
+  ]
 
   provisioner "shell" {
     inline = [
@@ -91,12 +140,30 @@ build {
       "  version: 2",
       "  renderer: networkd",
       "  ethernets:",
-      "    ens${var.ethernet0_pcislotnumber}:",
+      "    ens${var.eth0_pcislot_vmware}:",
       "      dhcp4: true",
-      "    ens${var.ethernet1_pcislotnumber}:",
+      "    ens${var.eth1_pcislot_vmware}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
       "sudo netplan generate && sudo netplan apply"
     ]
+    only = ["vmware-vmx.remnux"]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo tee /etc/netplan/99-remnux.yaml >/dev/null <<'EOF'",
+      "network:",
+      "  version: 2",
+      "  renderer: networkd",
+      "  ethernets:",
+      "    enp0s${var.eth0_pcislot_virtualbox}:",
+      "      dhcp4: true",
+      "    enp0s${var.eth1_pcislot_virtualbox}:",
+      "      addresses: [${var.hostonly_ip}/24]",
+      "EOF",
+      "sudo netplan generate && sudo netplan apply"
+    ]
+    only = ["virtualbox-ovf.remnux"]
   }
 }

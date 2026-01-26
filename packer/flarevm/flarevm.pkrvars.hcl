@@ -1,13 +1,13 @@
 # VM Configuration
-iso_sha256              = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
-iso_url                 = "assets/flarevm/win10.iso"
-user                    = "admin"
-password                = "password"
-cpus                    = 2
-memory                  = 2048
-vm_name                 = "FlareVM"
-disk_size               = 70000
-enable_vagrant          = false
+iso_sha256     = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
+iso_url        = "assets/flarevm/win10.iso"
+user           = "admin"
+password       = "password"
+cpus           = 2
+memory         = 2048
+vm_name        = "FlareVM"
+disk_size      = 70000
+enable_vagrant = false
 
 # Network Configuration
 hostonly_ip             = "192.168.56.222"
@@ -21,8 +21,8 @@ ethernet1_pcislotnumber = "36"
 # mac_hostonly            = "00:0c:29:00:00:02"
 
 # Virtualbox valid MAC
-mac_nat                 = "080027000001"
-mac_hostonly            = "080027000002"
+mac_nat      = "080027000001"
+mac_hostonly = "080027000002"
 
 # FlareVM Installer Configuration 
-install_args            = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
+install_args = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
