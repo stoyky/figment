@@ -60,11 +60,19 @@ variable "dns_ip" {
   type = string
 }
 
-variable "mac_nat" {
+variable "mac_nat_vmware" {
   type = string
 }
 
-variable "mac_hostonly" {
+variable "mac_hostonly_vmware" {
+  type = string
+}
+
+variable "mac_nat_virtualbox" {
+  type = string
+}
+
+variable "mac_hostonly_virtualbox" {
   type = string
 }
 
@@ -80,53 +88,7 @@ variable "enable_vagrant" {
   type = bool
 }
 
-## VIRTUALBOX
-
-source "virtualbox-iso" "flarevm" {
-  iso_url      = var.iso_url
-  iso_checksum = var.iso_sha256
-
-  communicator              = "ssh"
-  ssh_username              = var.user
-  ssh_password              = var.password
-  ssh_timeout               = "4h"
-  ssh_clear_authorized_keys = true
-
-  vm_name       = var.vm_name
-  guest_os_type = "Windows10_64"
-  cpus          = var.cpus
-  memory        = var.memory
-  skip_export   = false
-
-  disk_size = var.disk_size
-
-  floppy_files = [
-    "packer/flarevm/autounattend/autounattend.xml",
-    "packer/flarevm/scripts/enable-ssh.ps1"
-  ]
-
-  shutdown_command = "shutdown /s /t 10 /f"
-  shutdown_timeout = "4h"
-  headless         = false
-  vboxmanage = [
-    ["modifyvm", "${var.vm_name}", "--memory", "${var.memory}"],
-    ["modifyvm", "${var.vm_name}", "--cpus", "${var.cpus}"],
-    ["modifyvm", "${var.vm_name}", "--nic1", "nat"],
-    ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
-    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
-    ["modifyvm", "${var.vm_name}", "--macaddress1", "${var.mac_nat}"],
-    ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
-  ]
-
-  vboxmanage_post = [
-    ["modifyvm", "${var.vm_name}", "--nic1", "none"],
-  ]
-
-  output_directory = "temp/flarevm-virtualbox"
-}
-
 ## VMWARE 
-
 source "vmware-iso" "flarevm" {
   iso_url      = var.iso_url
   iso_checksum = var.iso_sha256
@@ -166,7 +128,7 @@ source "vmware-iso" "flarevm" {
     "ethernet0.startConnected" = "TRUE"
     "ethernet0.displayName"    = "nat"
     "ethernet0.addressType"    = "static"
-    "ethernet0.address"        = "${var.mac_nat}"
+    "ethernet0.address"        = "${var.mac_nat_vmware}"
 
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
@@ -175,7 +137,7 @@ source "vmware-iso" "flarevm" {
     "ethernet1.startConnected" = "TRUE"
     "ethernet1.displayName"    = "hostonly"
     "ethernet1.addressType"    = "static"
-    "ethernet1.address"        = "${var.mac_hostonly}"
+    "ethernet1.address"        = "${var.mac_hostonly_vmware}"
   }
 
   vmx_data_post = {
@@ -184,6 +146,53 @@ source "vmware-iso" "flarevm" {
     "ethernet0.startConnected" = "FALSE"
   }
 }
+
+## VIRTUALBOX
+
+source "virtualbox-iso" "flarevm" {
+  iso_url      = var.iso_url
+  iso_checksum = var.iso_sha256
+
+  communicator              = "ssh"
+  ssh_username              = var.user
+  ssh_password              = var.password
+  ssh_timeout               = "4h"
+  ssh_clear_authorized_keys = true
+
+  vm_name       = var.vm_name
+  guest_os_type = "Windows10_64"
+  cpus          = var.cpus
+  memory        = var.memory
+  skip_export   = false
+
+  disk_size = var.disk_size
+
+  floppy_files = [
+    "packer/flarevm/autounattend/autounattend.xml",
+    "packer/flarevm/scripts/enable-ssh.ps1"
+  ]
+
+  shutdown_command = "shutdown /s /t 10 /f"
+  shutdown_timeout = "4h"
+  headless         = false
+  vboxmanage = [
+    ["modifyvm", "${var.vm_name}", "--memory", "${var.memory}"],
+    ["modifyvm", "${var.vm_name}", "--cpus", "${var.cpus}"],
+    ["modifyvm", "${var.vm_name}", "--nic1", "nat"],
+    ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
+    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
+    ["modifyvm", "${var.vm_name}", "--macaddress1", "${var.mac_nat_virtualbox}"],
+    ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly_virtualbox}"]
+  ]
+
+  vboxmanage_post = [
+    ["modifyvm", "${var.vm_name}", "--nic1", "none"],
+  ]
+
+  output_directory = "temp/flarevm-virtualbox"
+}
+
+
 
 build {
   sources = [
@@ -211,8 +220,8 @@ build {
       "-e", "hostonly_ip=${var.hostonly_ip}",
       "-e", "default_gateway=${var.default_gateway}",
       "-e", "dns_ip=${var.dns_ip}",
-      "-e", "mac_nat=${var.mac_nat}",
-      "-e", "mac_hostonly=${var.mac_hostonly}",
+      "-e", "mac_nat=${source.type == "vmware-iso" ? var.mac_nat_vmware : var.mac_nat_virtualbox}",
+      "-e", "mac_hostonly=${source.type == "vmware-iso" ? var.mac_hostonly_vmware : var.mac_hostonly_virtualbox}",
       "--forks=20"
     ]
   }

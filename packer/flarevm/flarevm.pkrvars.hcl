@@ -17,12 +17,12 @@ ethernet0_pcislotnumber = "33"
 ethernet1_pcislotnumber = "36"
 
 # VMWare valid MAC
-# mac_nat                 = "00:0c:29:00:00:01"
-# mac_hostonly            = "00:0c:29:00:00:02"
+mac_nat_vmware      = "00:0c:29:00:00:01"
+mac_hostonly_vmware = "00:0c:29:00:00:02"
 
 # Virtualbox valid MAC
-mac_nat      = "080027000001"
-mac_hostonly = "080027000002"
+mac_nat_virtualbox      = "080027000001"
+mac_hostonly_virtualbox = "080027000002"
 
 # FlareVM Installer Configuration 
 install_args = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
