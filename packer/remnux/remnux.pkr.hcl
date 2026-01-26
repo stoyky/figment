@@ -145,6 +145,7 @@ build {
       "    ens${var.eth1_pcislot_vmware}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
+      "sudo chmod 600 /etc/netplan/99-remnux.yaml",
       "sudo netplan generate && sudo netplan apply"
     ]
     only = ["vmware-vmx.remnux"]
@@ -162,6 +163,7 @@ build {
       "    enp0s${var.eth1_pcislot_virtualbox}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
+      "sudo chmod 600 /etc/netplan/99-remnux.yaml",
       "sudo netplan generate && sudo netplan apply"
     ]
     only = ["virtualbox-ovf.remnux"]
