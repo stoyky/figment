@@ -82,6 +82,7 @@ source "null" "remnux" {
 ## VMWare
 source "vmware-vmx" "remnux" {
   source_path     = var.source_path_vmware
+  display_name    = var.display_name
   vm_name         = var.vm_name
   ssh_username    = var.ssh_username
   ssh_password    = var.ssh_password
