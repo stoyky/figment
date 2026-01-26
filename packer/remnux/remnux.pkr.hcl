@@ -95,18 +95,17 @@ source "vmware-vmx" "remnux" {
   headless                       = false
 
   vmx_data_post = {
-    "ethernet0.present"        = "false"
+    "ethernet0.present" = "false"
 
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
-    "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware # ens192 (Vagrant adapter 1 default)
+    "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
     "ethernet1.virtualDev"     = "e1000"
   }
 
 }
 
 ## Virtualbox
-
 source "virtualbox-ovf" "remnux" {
   source_path = var.source_path_virtualbox
 
@@ -128,7 +127,6 @@ source "virtualbox-ovf" "remnux" {
   ]
 }
 
-
 build {
   sources = [
     "source.null.remnux",
@@ -140,7 +138,7 @@ build {
     inline = [
       "ovftool -n=${var.vm_name} ${var.source_path_vmware_raw} temp/"
     ]
-    only=["null.remnux"]
+    only = ["null.remnux"]
   }
 
   provisioner "shell" {
