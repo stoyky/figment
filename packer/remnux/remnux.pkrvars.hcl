@@ -1,6 +1,6 @@
-source_path_vmware      = "assets/remnux/remnux-focal-amd64.ova"
+source_path_vmware_raw  = "assets/remnux/remnux-noble-amd64.ova"
+source_path_vmware      = "temp/remnux/remnux.vmx"
 source_path_virtualbox  = "assets/remnux/remnux-noble-amd64-virtualbox.ova"
-enable_provisioning     = false
 vm_name                 = "remnux"
 display_name            = "remnux"
 ssh_username            = "remnux"

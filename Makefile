@@ -8,7 +8,7 @@ flarevm-virtualbox:
 
 convert:
 	@echo "Converting OVA to VMX..."
-	packer build -on-error=ask packer/remnux/convert.pkr.hcl
+	packer build -on-error=ask --only null.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 remnux-vmware: convert
 	@echo "Building REMnux..."

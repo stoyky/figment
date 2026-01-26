@@ -16,6 +16,10 @@ variable "source_path_vmware" {
   type = string
 }
 
+variable "source_path_vmware_raw" {
+  type = string
+}
+
 variable "source_path_virtualbox" {
   type = string
 }
@@ -70,34 +74,32 @@ variable "eth1_pcislot_virtualbox" {
   type = number
 }
 
+## OVFtool converter NULL source
+source "null" "remnux" {
+  communicator = "none"
+}
 
 ## VMWare
 source "vmware-vmx" "remnux" {
-  source_path  = var.source_path_vmware
-  display_name = var.display_name
-  ssh_username = var.ssh_username
-  ssh_password = var.ssh_password
-  ssh_timeout  = var.ssh_timeout
+  source_path     = var.source_path_vmware
+  vm_name         = var.vm_name
+  ssh_username    = var.ssh_username
+  ssh_password    = var.ssh_password
+  ssh_timeout     = var.ssh_timeout
+  keep_registered = true
 
   shutdown_command = "sudo shutdown -h now"
-  boot_wait        = var.boot_wait
-  boot_command = [
-    "sudo systemctl enable ssh --now<enter>"
-  ]
 
   vmx_remove_ethernet_interfaces = false
   skip_compaction                = "true"
   headless                       = false
 
   vmx_data_post = {
-    "ethernet0.present"        = "TRUE"
-    "ethernet0.connectionType" = "nat"
-    "ethernet0.pcislotnumber"  = var.ethernet0_pcislotnumber # ens160 (Vagrant default)
-    "ethernet0.virtualDev"     = "e1000"
+    "ethernet0.present"        = "false"
 
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
-    "ethernet1.pcislotnumber"  = var.ethernet1_pcislotnumber # ens192 (Vagrant adapter 1 default)
+    "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware # ens192 (Vagrant adapter 1 default)
     "ethernet1.virtualDev"     = "e1000"
   }
 
@@ -106,7 +108,7 @@ source "vmware-vmx" "remnux" {
 ## Virtualbox
 
 source "virtualbox-ovf" "remnux" {
-  source_path      = var.source_path_virtualbox
+  source_path = var.source_path_virtualbox
 
   vm_name          = var.vm_name
   ssh_username     = var.ssh_username
@@ -129,9 +131,17 @@ source "virtualbox-ovf" "remnux" {
 
 build {
   sources = [
+    "source.null.remnux",
     "source.vmware-vmx.remnux",
     "source.virtualbox-ovf.remnux"
   ]
+
+  provisioner "shell-local" {
+    inline = [
+      "ovftool -n=${var.vm_name} ${var.source_path_vmware_raw} temp/"
+    ]
+    only=["null.remnux"]
+  }
 
   provisioner "shell" {
     inline = [
