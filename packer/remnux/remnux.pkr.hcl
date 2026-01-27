@@ -49,6 +49,10 @@ variable "vm_name" {
   type = string
 }
 
+variable "display_name" {
+  type = string
+}
+
 variable "mac_nat" {
   type = string
 }
@@ -83,6 +87,7 @@ source "null" "remnux" {
 source "vmware-vmx" "remnux" {
   source_path     = var.source_path_vmware
   vm_name         = var.vm_name
+  display_name    = var.display_name
   ssh_username    = var.ssh_username
   ssh_password    = var.ssh_password
   ssh_timeout     = var.ssh_timeout
@@ -91,7 +96,7 @@ source "vmware-vmx" "remnux" {
   shutdown_command = "sudo shutdown -h now"
   boot_wait        = var.boot_wait
   boot_command = [
-    "<esc><wait5> sudo apt update && sudo apt install --reinstall openssh-server && sudo systemctl enable ssh<enter>"
+    "<esc><wait5> sudo apt update && sudo apt install --reinstall openssh-server && sudo systemctl enable --now ssh<enter>"
   ]
 
   vmx_remove_ethernet_interfaces = false
