@@ -1,2 +1,0 @@
-minor_changes:
-  - na_ontap_cg_snapshot - new option `consistency_type` added in REST.

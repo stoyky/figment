@@ -1,2 +1,0 @@
-bugfixes:
- - purefa_info - Resolved AttributeError in volume subset

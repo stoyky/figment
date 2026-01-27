@@ -1,11 +1,11 @@
 # VM Configuration
 iso_sha256     = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
-iso_url        = "assets/flarevm/win10.iso"
+iso_url        = "assets/flarevm/Win10_22H2_English_x64v1.iso"
 user           = "admin"
 password       = "password"
 cpus           = 2
 memory         = 2048
-vm_name        = "FlareVM"
+vm_name        = "flarevm"
 disk_size      = 70000
 enable_vagrant = false
 

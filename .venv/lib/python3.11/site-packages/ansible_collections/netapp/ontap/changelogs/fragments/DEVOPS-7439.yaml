@@ -1,2 +1,0 @@
-minor_changes:
-  - na_ontap_snapmirror - new option `quick_resync` added in REST.

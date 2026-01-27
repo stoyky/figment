@@ -1,2 +1,0 @@
-minor_changes:
-  - all modules - defaults to certificate based authentication if `username,password` and `cert_filepath/key_filepath` are set.

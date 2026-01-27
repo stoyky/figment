@@ -1,4 +1,0 @@
----
-minor_changes:
-  - grafana_team - integrate parameter ``org_id``
-  - grafana_team - integrate parameter ``org_name``

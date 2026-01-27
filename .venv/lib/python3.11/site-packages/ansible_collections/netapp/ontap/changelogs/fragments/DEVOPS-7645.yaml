@@ -1,2 +1,0 @@
-minor_changes:
-  - na_ontap_support_config_backup - new option `set_password` added in REST.

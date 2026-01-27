@@ -1,2 +1,0 @@
-minor_changes:
-  - na_ontap_autosupport - Replaced private cli with REST API.

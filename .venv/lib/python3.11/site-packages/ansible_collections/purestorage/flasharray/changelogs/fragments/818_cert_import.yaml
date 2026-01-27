@@ -1,2 +1,0 @@
-bugfixes:
- - purefa_certs - Resolved error with incorrect use of ``key_size`` for imported certificates

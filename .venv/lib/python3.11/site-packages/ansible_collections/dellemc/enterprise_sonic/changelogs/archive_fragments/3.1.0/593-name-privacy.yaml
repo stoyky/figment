@@ -1,3 +1,0 @@
----
-trivial:
-  - documentation - Abbreviate first name in documentation for privacy (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/593).

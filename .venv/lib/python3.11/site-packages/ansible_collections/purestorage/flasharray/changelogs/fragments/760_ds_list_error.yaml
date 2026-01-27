@@ -1,2 +1,0 @@
-bugfixes:
-- purefa_ds - Fixed issue with updaing a LDAP configuration fails with a list error.

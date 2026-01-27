@@ -1,2 +1,0 @@
-bugfixes:
- - purefa_subnet - Fixed failure when trying to update a subnet with no gateway defined

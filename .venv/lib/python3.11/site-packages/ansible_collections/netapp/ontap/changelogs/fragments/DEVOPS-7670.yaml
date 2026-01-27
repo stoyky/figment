@@ -1,2 +1,0 @@
-major_changes:
-  - na_ontap_autoupdate_support - REST only support to enable automatic software update, requires ONTAP 9.10 or later.

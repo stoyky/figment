@@ -1,3 +1,0 @@
-minor_changes:
- - purefa_host - Move function added to allow movement of host to/from realms
- - purefa_host - Hosts can be created in realms and renamed within the same realm

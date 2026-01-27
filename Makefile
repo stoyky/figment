@@ -1,21 +1,26 @@
 flarevm-vmware:
 	@echo "Building FLARE VM vmware..."
+	packer init packer/flarevm/flarevm.pkr.hcl 
 	packer build -on-error=ask --only vmware-iso.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
 
 flarevm-virtualbox:
 	@echo "Building FLARE VM virtualbox..."
+	packer init packer/flarevm/flarevm.pkr.hcl 
 	packer build -on-error=ask --only virtualbox-iso.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
 
 convert:
 	@echo "Converting OVA to VMX..."
+	packer init packer/remnux/remnux.pkr.hcl 
 	packer build -on-error=ask --only null.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 remnux-vmware: convert
 	@echo "Building REMnux..."
+	packer init packer/remnux/remnux.pkr.hcl 
 	packer build -on-error=ask --only vmware-vmx.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 remnux-virtualbox:
 	@echo "Building REMnux..."
+	packer init packer/remnux/remnux.pkr.hcl 
 	packer build --force -on-error=ask --only virtualbox-ovf.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 clean-flarevm: 

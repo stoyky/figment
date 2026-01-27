@@ -1,3 +1,0 @@
----
-bugfixes:
-  - grafana_dashboard - fix change detection for dashboards in folders
