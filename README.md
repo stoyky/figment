@@ -115,14 +115,8 @@ vagrant up
 │               └── main.yml
 ├── assets
 │   ├── flarevm
-│   │   └── Win10_22H2_English_x64v1.iso
+|   ├── remnux    
 │   ├── README.md
-│   └── remnux
-│       ├── remnux-noble-amd64.ova
-│       └── remnux-noble-amd64-virtualbox.ova
-├── boxes
-│   └── remnux.box
-├── Makefile
 ├── packer
 │   ├── flarevm
 │   │   ├── autounattend
@@ -136,9 +130,9 @@ vagrant up
 │       ├── remnux.pkr.hcl
 │       ├── remnux.pkrvars.hcl
 │       └── Vagrantfile
+├── Makefile
 ├── README.md
 ├── requirements.txt
-└── temp
 ```
 
 - `packer/flarevm`: Packer templates and Ansible provisioning for FlareVM.
