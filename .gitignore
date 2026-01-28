@@ -5,5 +5,5 @@
 /temp-*
 /boxes
 /output-*
-/assets/flarevm/*
-/assets/remnux/*
+/assets/flarevm
+/assets/remnux
