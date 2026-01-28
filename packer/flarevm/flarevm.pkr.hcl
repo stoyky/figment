@@ -84,7 +84,7 @@ variable "ethernet1_pcislotnumber" {
   type = string
 }
 
-variable "enable_vagrant" {
+variable "export_vagrant" {
   type = bool
 }
 
@@ -226,12 +226,12 @@ build {
     ]
   }
 
-  # post-processor "vagrant" {
-  #   output               = "boxes/flarevm.box"
-  #   keep_input_artifact  = true
-  #   provider_override    = "vmware"
-  #   vagrantfile_template = "packer/flarevm/Vagrantfile"
-  #   only = var.enable_vagrant ? ["vmware-iso.flarevm"] : []
-  # }
+  post-processor "vagrant" {
+    output               = "boxes/flarevm.box"
+    keep_input_artifact  = true
+    provider_override    = "vmware"
+    vagrantfile_template = "packer/flarevm/Vagrantfile"
+    only = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
+  }
 
 }

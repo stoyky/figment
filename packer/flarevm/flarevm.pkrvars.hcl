@@ -7,7 +7,7 @@ cpus           = 2
 memory         = 2048
 vm_name        = "flarevm"
 disk_size      = 70000
-enable_vagrant = false
+export_vagrant = true
 
 # Network Configuration
 hostonly_ip             = "192.168.56.222"

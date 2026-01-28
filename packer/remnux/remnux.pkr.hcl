@@ -83,6 +83,10 @@ source "null" "remnux" {
   communicator = "none"
 }
 
+variable "export_vagrant" {
+  type = bool
+}
+
 ## VMWare
 source "vmware-vmx" "remnux" {
   source_path     = var.source_path_vmware
@@ -184,5 +188,13 @@ build {
       "sudo netplan generate && sudo netplan apply"
     ]
     only = ["virtualbox-ovf.remnux"]
+  }
+
+  post-processor "vagrant" {
+    output               = "boxes/remnux.box"
+    keep_input_artifact  = true
+    provider_override    = "vmware"
+    vagrantfile_template = "packer/remnux/Vagrantfile"
+    only = var.export_vagrant ? ["vmware-vmx.remnux", "virtualbox-ovf.remnux"] : []
   }
 }
