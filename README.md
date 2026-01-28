@@ -1,8 +1,3 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
-
-# cool beans, now provide me with the raw markdown file so i can use it for my project
-
-```markdown
 # 🧪 Malware Lab Builder
 
 [![Status](https://img.shields.io/badge/status-experimental-yellow)](https://github.com/your-user/your-repo)  
@@ -308,6 +303,5 @@ This project is explicitly intended for malware analysis and should be used only
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-```
 ```
 
