@@ -4,7 +4,7 @@
   <br>
 </h1>
 
-<h4 align="center"> Spin up a fully configured, host‑only malware analysis lab with **FlareVM** and **REMnux** using a few repeatable commands.</h4>
+<h4 align="center"> Spin up a fully configured, host‑only malware analysis lab with FlareVM and REMnux using a few repeatable commands.</h4>
 
 <p align="center">
   <a href="#features">Features</a> •
