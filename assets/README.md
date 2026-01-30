@@ -6,4 +6,4 @@ Download the OVA files from:
 - https://download.remnux.org/202601/remnux-noble-amd64.ova
 - https://download.remnux.org/202601/remnux-noble-amd64-virtualbox.ova
 
-Put them in the assets/flarevm or assets/remnux folder and packer will do the rest. 
+Put them in the assets/flarevm or assets/remnux folder and packer will provison them. 

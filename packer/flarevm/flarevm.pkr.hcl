@@ -84,10 +84,6 @@ variable "ethernet1_pcislotnumber" {
   type = string
 }
 
-variable "export_vagrant" {
-  type = bool
-}
-
 ## VMWARE 
 source "vmware-iso" "flarevm" {
   iso_url      = var.iso_url
@@ -225,13 +221,4 @@ build {
       "--forks=20"
     ]
   }
-
-  post-processor "vagrant" {
-    output               = "boxes/flarevm.box"
-    keep_input_artifact  = true
-    provider_override    = "vmware"
-    vagrantfile_template = "packer/flarevm/Vagrantfile"
-    only = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
-  }
-
 }

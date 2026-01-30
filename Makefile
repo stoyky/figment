@@ -33,4 +33,10 @@ clean-remnux:
 	rm -rf temp/remnux/
 	rm -rf output-remnux/
 
-all: flarevm remnux
+clean:
+	@echo "Cleaning ALL output directories..."
+	rm -rf temp/
+	rm -rf output-*/
+
+all-vmware: flarevm-vmware remnux-vmware 
+all-virtualbox: flarevm-virtualbox remnux-virtualbox
