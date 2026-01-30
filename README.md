@@ -204,6 +204,15 @@ This project is explicitly intended for malware analysis and should be used only
 
 * v1.0.0 - Initial release
 
+## Credits
+- [FlareVM](https://github.com/mandiant/flare-vm) - Installation scripts for FlareVM
+
+- [REMnux](https://remnux.org/) - Ready to run OVA images
+
+- [Packer](https://developer.hashicorp.com/packer) - Building images
+
+- [Ansible](https://docs.ansible.com/) - Image provisioning
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE.md` file for details.
