@@ -15,7 +15,7 @@
   <a href="#contributing">Contributing</a> •
   <a href="#security">Security</a> •
   <a href="#changelog">Changelog</a> •
-  <a href="#changelog">License</a>
+  <a href="#license">License</a>
 </p>
 
 ## Features
