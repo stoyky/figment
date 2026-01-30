@@ -21,8 +21,8 @@
 ## Features
 
 - One‑command build of FlareVM (Windows) and REMnux (Linux) lab images using Packer.  
-- Automated provisioning via Ansible from base ISO (FlareVM) and OVA/VMX (REMnux), no manual clicks.  
-- Isolated host‑only network between FlareVM and REMnux so they can talk to each other but remain off the internet.  
+- Automated provisioning via Ansible from base ISO (FlareVM) and OVA/VMX (REMnux).
+- Isolated host‑only network between FlareVM and REMnux for network traffic capturing. 
 - Internet access only during provisioning, then switched to a safe offline lab topology.  
 
 ## Tech stack
