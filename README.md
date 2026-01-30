@@ -1,263 +1,213 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a id="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
+<h1 align="center">
+  <br>
+  Figment
+  <br>
+</h1>
+
+<h4 align="center"> Spin up a fully configured, host‑only malware analysis lab with **FlareVM** and **REMnux** using a few repeatable commands.</h4>
+
+<p align="center">
+  <a href="#features">Features</a> •
+<a href="#tech-stack">Tech stack</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#project-structure">Project Structure</a> •
+  <a href="#configuration">Configuration</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#security">Security</a> •
+  <a href="#changelog">Changelog</a> •
+  <a href="#changelog">License</a>
+</p>
+
+## Features
+
+- One‑command build of FlareVM (Windows) and REMnux (Linux) lab images using Packer.  
+- Automated provisioning via Ansible from base ISO (FlareVM) and OVA/VMX (REMnux), no manual clicks.  
+- Isolated host‑only network between FlareVM and REMnux so they can talk to each other but remain off the internet.  
+- Internet access only during provisioning, then switched to a safe offline lab topology.  
+
+## Tech stack
+
+- **Packer**: image building for VMware / VirtualBox (depending on your builders).  
+- **Ansible**: provisioning FlareVM and REMnux (packages, tools, post‑install config).  
+- **Hypervisors**: VMware Workstation / Fusion and/or VirtualBox, depending on your local setup.  
+
+---
+
+## Quick start
 
 
+1. **Prerequisites**
+    - A working Packer installation (>= 1.7) 
+      - https://developer.hashicorp.com/packer/install
+    
+    - VMware Workstation / Fusion or VirtualBox
+      - https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion
+      - https://www.virtualbox.org/wiki/Downloads
+    - A working OVFtool installation (for REMnux only)
+      - https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest
+    - REMnux OVA:
+      -  https://download.remnux.org/202601/remnux-noble-amd64.ova
+      - https://download.remnux.org/202601/remnux-noble-amd64-virtualbox.ovaand 
+    - Windows 10 en-US ISO for FlareVM:
+      - https://www.microsoft.com/en-us/software-download/windows10ISO
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
+  
+2. **Clone the repository**
 
+    ```bash
+    git clone https://github.com/stoyky/figment.git
+    cd figment
+    ```
+3. **Create a Python venv and install requirements**
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <h3 align="center">Figment</h3>
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-  <p align="center">
-    Spin up a fully configured, host‑only malware analysis lab with **FlareVM** and **REMnux** using a few repeatable commands.
-    <br />
-    <br />
-  </p>
-</div>
+4. **Downloading REMnux OVA and FlareVM Windows 10 ISO**
 
+    Place the OVA and ISO in the **assets/remnux** and **assets/flarevm** folder in the root directory. 
 
+5. **Edit configurations**
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+    The configuration files for the VM's can be found in (see **Configuration** for more info):
+    - packer/flarevm/flarevm.pkrvars.hcl
+    - packer/remnux/remnux.pkrvars.hcl
 
+6. **Build images**
 
+    - Build FlareVM:
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+        ```bash
+        make flarevm-<vmware/virtualbox>
+        ```
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+    - Build REMnux:
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+        ```bash
+        make remnux-<vmware/virtualbox>
+        ```
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+    - Or build all (for example via a Makefile target):
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
+        ```bash
+        make all-<vmware/virtualbox>
+        ```
 
-Use the `BLANK_README.md` to get started.
+---
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+## Project structure
 
+```text
+.
+├── ansible # Ansible playbooks
+│   ├── playbooks
+│   │   ├── flarevm.yml
+│   │   └── remnux.yml
+│   └── roles
+│       ├── flarevm
+│       │   ├── files
+│       │   │   └── custom-config.xml
+│       │   ├── tasks
+│       │   │   └── main.yml
+│       │   └── vars
+│       │       └── main.yml
+│       └── remnux
+│           └── tasks
+│               └── main.yml
+├── assets
+│   ├── flarevm
+|   ├── remnux    
+│   ├── README.md
+├── packer
+│   ├── flarevm
+│   │   ├── autounattend
+│   │   │   └── autounattend.xml
+│   │   ├── flarevm.pkr.hcl
+│   │   ├── flarevm.pkrvars.hcl
+│   │   ├── scripts
+│   │   │   └── enable-ssh.ps1
+│   └── remnux
+│       ├── remnux.pkr.hcl
+│       ├── remnux.pkrvars.hcl
+├── Makefile
+├── README.md
+├── requirements.txt
+```
 
+- `packer/flarevm`: Packer templates and Ansible provisioning for FlareVM.
+- `packer/remnux`: Packer templates and Ansible provisioning for REMnux based on the upstream OVA/VMX.
+- `ansible/`: shared roles and inventories used during Packer builds.
+- `Makefile`: optional command shortcuts for selective builds and lab lifecycle.
 
-### Built With
+## Configuration
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+You can tune image settings, network parameters, and credentials via `.pkrvars.hcl` and Vagrant variables.
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+### Packer variables
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Each image has its own `*.pkr.hcl` and `*.pkrvars.hcl` with variables such as:
 
+- `iso_url`, `iso_sha256` for Windows / FlareVM base.
+- `source_path` for the converted REMnux VMX.
+- `user`, `password` / `ssh_username`, `ssh_password` for communicators.
+- `cpus`, `memory`, `disk_size` per VM.
+- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `172.16.53.x`).
 
+Example `flarevm.pkrvars.hcl` (simplified):
 
-<!-- GETTING STARTED -->
-## Getting Started
+```hcl
+iso_url          = "iso/Win10_22H2_English_x64v1.iso"
+iso_sha256       = "..."
+user             = "admin"
+password         = "password"
+vm_name          = "flarevm"
+cpus             = 4
+memory           = 8192
+disk_size        = 60000
+hostonly_ip      = "192.168.56.222"
+default_gateway  = "192.168.56.111"
+dns_ip           = "192.168.56.111"
+```
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Example `remnux.auto.pkrvars.hcl` (simplified):
 
-### Prerequisites
+```hcl
+source_path             = "temp/remnux/remnux.vmx"
+display_name            = "remnux"
+ssh_username            = "remnux"
+ssh_password            = "malware"
+hostonly_ip             = "192.168.56.111"
+```
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+### Network topology
 
-### Installation
+The lab runs with two phases of networking:
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+- **Build time**: internet‑enabled (NAT/bridged) so Packer + Ansible can download tools (FlareVM tooling, REMnux packages, etc.).
+- **Lab time**: NAT is disabled and host‑only network is enabled where FlareVM and REMnux share a private subnet and can only communicate with each other.
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/github_username/repo_name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
-   ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
-   ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are welcome:
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+- Open issues for bugs, feature requests, or documentation improvements.
+- Submit pull requests with clear descriptions and small, focused changes.
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Security
 
-### Top contributors:
+This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments.
 
-<a href="https://github.com/othneildrew/Best-README-Template/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=othneildrew/Best-README-Template" alt="contrib.rocks image" />
-</a>
+- Never expose these VMs directly to production networks.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+## Changelog
 
+* v1.0.0 - Initial release
 
-
-<!-- LICENSE -->
 ## License
 
-Distributed under the Unlicense License. See `LICENSE.txt` for more information.
+This project is licensed under the MIT License. See the `LICENSE.md` file for details.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- CONTACT -->
-## Contact
-
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+> Created by [Remy Jaspers](https://github.com/stoyky)
