@@ -1,5 +1,6 @@
 ### FlareVM
-Download the Windows 10 en-US version ISO from https://www.microsoft.com/en-us/software-download/windows10ISO
+Download the Windows 10 en-US version ISO from:
+- https://www.microsoft.com/en-us/software-download/windows10ISO
 
 ### REMnux
 Download the OVA files from: 
