@@ -149,23 +149,20 @@ source "vmware-iso" "flarevm" {
 ## VIRTUALBOX
 
 source "virtualbox-iso" "flarevm" {
-  iso_url      = var.iso_url
-  iso_checksum = var.iso_sha256
-
+  iso_url                   = var.iso_url
+  iso_checksum              = var.iso_sha256
   communicator              = "ssh"
   ssh_username              = var.user
   ssh_password              = var.password
   ssh_timeout               = "4h"
   ssh_clear_authorized_keys = true
-
-  vm_name         = var.vm_name
-  guest_os_type   = "Windows10_64"
-  cpus            = var.cpus
-  memory          = var.memory
-  skip_export     = false
-  keep_registered = true
-
-  disk_size = var.disk_size
+  vm_name                   = var.vm_name
+  guest_os_type             = "Windows10_64"
+  cpus                      = var.cpus
+  memory                    = var.memory
+  skip_export               = true
+  keep_registered           = true
+  disk_size                 = var.disk_size
 
   floppy_files = [
     "packer/flarevm/autounattend/autounattend.xml",
