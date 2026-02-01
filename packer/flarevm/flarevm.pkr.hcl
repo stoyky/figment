@@ -116,6 +116,9 @@ source "vmware-iso" "flarevm" {
   shutdown_timeout = "4h"
   headless         = false
 
+  tools_upload_flavor = "windows"
+  tools_upload_path   = "vmtools.iso"
+
   vmx_data = {
     "ethernet0.present"        = "TRUE"
     "ethernet0.connectionType" = "nat"
@@ -155,11 +158,12 @@ source "virtualbox-iso" "flarevm" {
   ssh_timeout               = "4h"
   ssh_clear_authorized_keys = true
 
-  vm_name       = var.vm_name
-  guest_os_type = "Windows10_64"
-  cpus          = var.cpus
-  memory        = var.memory
-  skip_export   = false
+  vm_name         = var.vm_name
+  guest_os_type   = "Windows10_64"
+  cpus            = var.cpus
+  memory          = var.memory
+  skip_export     = false
+  keep_registered = true
 
   disk_size = var.disk_size
 
@@ -167,6 +171,9 @@ source "virtualbox-iso" "flarevm" {
     "packer/flarevm/autounattend/autounattend.xml",
     "packer/flarevm/scripts/enable-ssh.ps1"
   ]
+
+  guest_additions_mode = "upload"
+  guest_additions_path = "vmtools.iso"
 
   shutdown_command = "shutdown /s /t 10 /f"
   shutdown_timeout = "4h"
@@ -218,6 +225,8 @@ build {
       "-e", "dns_ip=${var.dns_ip}",
       "-e", "mac_nat=${source.type == "vmware-iso" ? var.mac_nat_vmware : var.mac_nat_virtualbox}",
       "-e", "mac_hostonly=${source.type == "vmware-iso" ? var.mac_hostonly_vmware : var.mac_hostonly_virtualbox}",
+      "-e", "user=${var.user}",
+      "-e", "source_type=${source.type}",
       "--forks=20"
     ]
   }

@@ -198,7 +198,7 @@ Contributions are welcome:
 
 ## Security
 
-This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments. Never expose these VMs directly to production networks.
+This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments. *Never expose these VMs directly to production networks.* To this end, please check the network settings for the VM's, and ensure NAT / internet access is disabled.
 
 ## Changelog
 

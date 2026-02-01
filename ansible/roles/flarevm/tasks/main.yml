@@ -8,7 +8,7 @@
       Rename-NetAdapter -Name $adapter.Name -NewName 'nat' -Confirm:$false
     }
   become: yes
-  become_user: admin
+  become_user: '{{ user }}'
   become_method: runas
 
 - name: Rename host-only adapter (all providers)
@@ -20,7 +20,7 @@
       Rename-NetAdapter -Name $adapter.Name -NewName 'hostonly' -Confirm:$false
     }
   become: yes
-  become_user: admin
+  become_user: '{{ user }}'
   become_method: runas
 
 - name: Configure static IP on host-only adapter
@@ -31,7 +31,7 @@
       Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
     New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
   become: yes
-  become_user: admin
+  become_user: '{{ user }}'
   become_method: runas
 
 - name: Set static DNS
@@ -40,22 +40,22 @@
     ipv4_addresses:
       - "{{ dns_ip }}"
   become: yes
-  become_user: admin
+  become_user: '{{ user }}'
   become_method: runas
 
 
 - name: Download FlareVM install.ps1 to temp
   ansible.windows.win_get_url:
     url: https://raw.githubusercontent.com/mandiant/flare-vm/main/install.ps1
-    dest: C:\Users\admin\Desktop\install.ps1
+    dest: C:\Users\{{ user }}\Desktop\install.ps1
 
 - name: Copy FlareVM installer custom-config.xml from host to target
   ansible.windows.win_copy:
     src: ../files/custom-config.xml
-    dest: C:\Users\admin\Desktop\custom-config.xml
+    dest: C:\Users\{{ user }}\Desktop\custom-config.xml
 
 - name: Unblock install.ps1
-  ansible.windows.win_shell: Unblock-File C:\Users\admin\Desktop\install.ps1
+  ansible.windows.win_shell: Unblock-File C:\Users\{{ user }}\Desktop\install.ps1
 
 - name: Set ExecutionPolicy
   ansible.windows.win_shell: Set-ExecutionPolicy Unrestricted -Force
@@ -69,11 +69,11 @@
     name: FlareInstallerTask
     actions:
       - path: powershell.exe
-        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\admin\\Desktop'; .\\install.ps1 {{ install_args }} }\""
-        working_directory: "C:\\Users\\admin\\Desktop"
+        arguments: "-NoProfile -ExecutionPolicy Bypass -Command \"& { cd 'C:\\Users\\{{ user }}\\Desktop'; .\\install.ps1 {{ install_args }} }\""
+        working_directory: "C:\\Users\\{{ user }}\\Desktop"
     triggers:
       - type: registration
-    username: admin
+    username: '{{ user }}'
     password: password
     logon_type: interactive_token
     run_level: highest
@@ -95,6 +95,29 @@
   debug: 
     var: content.stdout
 
-  
+- name: Mount vmtools ISO
+  community.windows.win_disk_image:
+    image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
+    state: present
+  ignore_errors: true
+  register: disk_image_out
 
+- name: Install VMWare guest additions
+  ansible.windows.win_package:
+    path: "{{ disk_image_out.mount_paths[0] }}\\setup.exe"
+    arguments: /S /v/qn REBOOT=R
+    state: present
+  ignore_errors: true
+  when: source_type == 'vmware-iso'
 
+- name: Install VirtualBox Guest Additions
+  ansible.windows.win_shell: |
+    Start-Process "{{ disk_image_out.mount_paths[0] }}\\VBoxWindowsAdditions.exe" -ArgumentList "/S" -Wait
+  ignore_errors: true
+  when: source_type == 'virtualbox-iso'
+
+- name: Unmount ISO
+  community.windows.win_disk_image:
+    image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
+    state: absent
+  ignore_errors: true
