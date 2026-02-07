@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     flarevm.vm.guest = :windows
     flarevm.ssh.username = "admin"
     flarevm.ssh.password = "password"
-    flarevm.ssh.insert_key = false
+    # flarevm.ssh.insert_key = false
     
     flarevm.vm.network "public_network", adapter: 0, auto_config: false
     flarevm.vm.network "private_network", adapter: 1, auto_config: false
