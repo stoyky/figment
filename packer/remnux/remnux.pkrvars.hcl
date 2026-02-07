@@ -14,3 +14,4 @@ eth0_pcislot_virtualbox = "3"
 eth1_pcislot_virtualbox = "8"
 mac_nat                 = "080027000001"
 mac_hostonly            = "080027000002"
+export_vagrant          = true
