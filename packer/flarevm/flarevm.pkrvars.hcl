@@ -25,3 +25,5 @@ mac_hostonly_virtualbox = "080027000002"
 
 # FlareVM Installer Configuration 
 install_args = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
+
+export_vagrant = true
