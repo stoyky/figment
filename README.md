@@ -221,6 +221,8 @@ This project is explicitly intended for malware analysis and should be used only
 
 - [Packer](https://developer.hashicorp.com/packer) - Building images
 
+- [Vagrant](https://developer.hashicorp.com/vagrant) - Building Vagrant boxes
+
 - [Ansible](https://docs.ansible.com/) - Image provisioning
 
 ## License
