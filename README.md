@@ -130,15 +130,17 @@
 │   ├── README.md
 ├── packer
 │   ├── flarevm
-│   │   ├── autounattend
-│   │   │   └── autounattend.xml
 │   │   ├── flarevm.pkr.hcl
 │   │   ├── flarevm.pkrvars.hcl
+│   │   ├── autounattend
+│   │   │   └── autounattend.xml
 │   │   ├── scripts
 │   │   │   └── enable-ssh.ps1
+│   │   ├── Vagrantfile
 │   └── remnux
 │       ├── remnux.pkr.hcl
 │       ├── remnux.pkrvars.hcl
+│   │   ├── Vagrantfile
 ├── Makefile
 ├── README.md
 ├── requirements.txt
