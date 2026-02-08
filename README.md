@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="#features">Features</a> •
-<a href="#tech-stack">Tech stack</a> •
+  <a href="#tech-stack">Tech stack</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="#project-structure">Project Structure</a> •
   <a href="#configuration">Configuration</a> •
@@ -79,6 +79,7 @@
 
 6. **Build images**
     - To ensure a clean build:
+  
         ```bash
         make clean
         ```
