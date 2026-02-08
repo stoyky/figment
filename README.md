@@ -30,6 +30,7 @@
 - **Packer**: image building for VMware / VirtualBox (depending on your builders).  
 - **Ansible**: provisioning FlareVM and REMnux (packages, tools, post‑install config).  
 - **Hypervisors**: VMware Workstation / Fusion and/or VirtualBox, depending on your local setup.  
+- **Vagrant**: Optionally build Vagrant boxes after provisioning with Packer
 
 ---
 
@@ -72,11 +73,15 @@
 
 5. **Edit configurations**
 
-    The configuration files for the VM's can be found in (see **Configuration** for more info):
+    The configuration files for the VM's can be found at: (see **Configuration** for more info)
     - packer/flarevm/flarevm.pkrvars.hcl
     - packer/remnux/remnux.pkrvars.hcl
 
 6. **Build images**
+    - To ensure a clean build:
+        ```bash
+        make clean
+        ```
 
     - Build FlareVM:
 
@@ -93,9 +98,11 @@
     - Or build all (for example via a Makefile target):
 
         ```bash
-        make all-<vmware/virtualbox>
+        make -j2 all-<vmware/virtualbox>
         ```
-
+ 7. **Disable NAT**
+  
+    - Disable or remove your NAT adapter either in the hypervisor or in the OS to ensure proper isolation. 
 ---
 
 ## Project structure
@@ -154,7 +161,7 @@ Each image has its own `*.pkr.hcl` and `*.pkrvars.hcl` with variables such as:
 - `source_path` for the converted REMnux VMX.
 - `user`, `password` / `ssh_username`, `ssh_password` for communicators.
 - `cpus`, `memory`, `disk_size` per VM.
-- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `172.16.53.x`).
+- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `172.16.53.x`). Choose this IP according to your host-only network settings in VMWare / Virtualbox.
 
 Example `flarevm.pkrvars.hcl` (simplified):
 
@@ -193,12 +200,13 @@ The lab runs with two phases of networking:
 
 Contributions are welcome:
 
-- Open issues for bugs, feature requests, or documentation improvements.
+- Open issues for bugs, feature requests, questions about configuration, or documentation improvements.
+- Requests for additional providers (Qemu / Proxmox) etc. are welcome too.
 - Submit pull requests with clear descriptions and small, focused changes.
 
 ## Security
 
-This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments. *Never expose these VMs directly to production networks.* To this end, please check the network settings for the VM's, and ensure NAT / internet access is disabled.
+This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments. *Never expose these VMs directly to production networks.* To this end, please check the network settings for the VM's, and ensure NAT / internet access is disabled when analysing samples. 
 
 ## Changelog
 
