@@ -7,11 +7,17 @@ ssh_username            = "remnux"
 ssh_password            = "malware"
 ssh_timeout             = "20m"
 boot_wait               = "30s"
+
+export_vagrant          = "false"
+
+# Network Configuration
 hostonly_ip             = "192.168.56.111"
 eth0_pcislot_vmware     = "33"
 eth1_pcislot_vmware     = "36"
+
 eth0_pcislot_virtualbox = "3"
 eth1_pcislot_virtualbox = "8"
+
 mac_nat                 = "080027000001"
 mac_hostonly            = "080027000002"
-export_vagrant          = "false"
+
