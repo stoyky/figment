@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
   # REMnux
   config.vm.define "remnux" do |remnux|
-    remnux.vm.box = "remnux"
+    remnux.vm.box = "figment/remnux"
     remnux.vm.hostname = "remnux"
     remnux.ssh.username = "remnux"
     remnux.ssh.password = "malware"
