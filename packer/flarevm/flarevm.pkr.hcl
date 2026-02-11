@@ -241,7 +241,7 @@ build {
       output               = "boxes/flarevm.box"
       keep_input_artifact  = true
       provider_override    = "vmware"
-      vagrantfile_template = "packer/flarevm/Vagrantfile"
+      vagrantfile_template = "vagrant/flarevm/Vagrantfile"
       only = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
   }
 }

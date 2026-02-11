@@ -106,9 +106,6 @@ source "vmware-vmx" "remnux" {
 
   shutdown_command = "sudo shutdown -h now"
   boot_wait        = var.boot_wait
-  boot_command = [
-    "<esc><wait5> sudo apt update && sudo apt install --reinstall openssh-server && sudo systemctl enable --now ssh<enter>"
-  ]
 
   vmx_remove_ethernet_interfaces = false
   skip_compaction                = "true"
@@ -163,6 +160,12 @@ build {
 
   provisioner "shell" {
     inline = [
+      "sudo remnux install --mode=cloud"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
       "sudo tee /etc/netplan/99-remnux.yaml >/dev/null <<'EOF'",
       "network:",
       "  version: 2",
@@ -201,7 +204,7 @@ build {
     output               = "boxes/remnux.box"
     keep_input_artifact  = true
     provider_override    = "vmware"
-    vagrantfile_template = "packer/remnux/Vagrantfile"
+    vagrantfile_template = "vagrant/remnux/Vagrantfile"
     only = var.export_vagrant ? ["vmware-vmx.remnux", "virtualbox-ovf.remnux"] : []
   }
 }
