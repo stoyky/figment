@@ -115,7 +115,7 @@
  8. **Test network**
     - REMnux: 
       1. Start INetSim `inetsim`
-      2. Start FakeDNS `sudo /opt/fakedns/bin/fakedns.py`
+      2. Start FakeDNS `sudo python3 /opt/fakedns/bin/fakedns.py`
     - FlareVM: 
       1. Run `nslookup` to check whether your DNS is returning the correct IP.
       2. Use your browser to browse to any website and check whether it is captured in your REMnux VM. 
