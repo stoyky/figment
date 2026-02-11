@@ -133,6 +133,7 @@ To run these:
 - `vagrant up --provider=vmware_desktop --provision` 
 
 *Note for Windows users with VMWare: you'll need to install the Vagrant VMWare Utility to run these boxes.*
+
 https://developer.hashicorp.com/vagrant/install
 
 ## Project structure
