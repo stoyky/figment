@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
   # FLARE VM
   config.vm.define "flarevm" do |flarevm|
-    flarevm.vm.box = "flarevm"
+    flarevm.vm.box = "figment/flarevm"
     flarevm.vm.hostname = "flarevm"
     flarevm.vm.guest = :windows
     flarevm.ssh.username = "admin"
@@ -20,6 +20,9 @@ Vagrant.configure("2") do |config|
       vp.vmx["ethernet0.connect"]        = "connected"
       vp.vmx["ethernet0.startConnected"] = "TRUE"
       vp.vmx["ethernet0.displayName"]    = "nat"
+      vp.vmx["ethernet0.addressType"]    = "static"
+      vp.vmx["ethernet0.address"]        = "00:0c:29:00:00:01"
+      vp.vmx["ethernet0.pciSlotNumber"]  = "33"
 
       vp.vmx["ethernet1.present"]        = "TRUE"
       vp.vmx["ethernet1.connectionType"] = "hostonly"
@@ -27,6 +30,9 @@ Vagrant.configure("2") do |config|
       vp.vmx["ethernet1.connect"]        = "connected"
       vp.vmx["ethernet1.startConnected"] = "TRUE"
       vp.vmx["ethernet1.displayName"]    = "hostonly"
+      vp.vmx["ethernet1.addressType"]    = "static"
+      vp.vmx["ethernet1.address"]        = "00:0c:29:00:00:02"
+      vp.vmx["ethernet1.pciSlotNumber"]  = "36"
       
       vp.memory = "4096"
       vp.gui    = true

@@ -11,22 +11,22 @@ Vagrant.configure("2") do |config|
     remnux.vm.network "private_network", adapter: 1, auto_config: false
 
     remnux.vm.provider "vmware_desktop" do |vp|
-        vp.vmx["ethernet0.present"]        = "TRUE"
-        vp.vmx["ethernet0.connectionType"] = "nat"
-        vp.vmx["ethernet0.virtualDev"]     = "e1000"
-        vp.vmx["ethernet0.connect"]        = "connected"
-        vp.vmx["ethernet0.startConnected"] = "TRUE"
-        vp.vmx["ethernet0.displayName"]    = "nat"
+      vp.vmx["ethernet0.present"]        = "TRUE"
+      vp.vmx["ethernet0.connectionType"] = "nat"
+      vp.vmx["ethernet0.virtualDev"]     = "e1000"
+      vp.vmx["ethernet0.connect"]        = "connected"
+      vp.vmx["ethernet0.startConnected"] = "TRUE"
+      vp.vmx["ethernet0.displayName"]    = "nat"
 
-        vp.vmx["ethernet1.present"]        = "TRUE"
-        vp.vmx["ethernet1.connectionType"] = "hostonly"
-        vp.vmx["ethernet1.virtualDev"]     = "e1000"
-        vp.vmx["ethernet1.connect"]        = "connected"
-        vp.vmx["ethernet1.startConnected"] = "TRUE"
-        vp.vmx["ethernet1.displayName"]    = "hostonly"
-
-        vp.memory = "2048"
-        vp.gui    = true
+      vp.vmx["ethernet1.present"]        = "TRUE"
+      vp.vmx["ethernet1.connectionType"] = "hostonly"
+      vp.vmx["ethernet1.virtualDev"]     = "e1000"
+      vp.vmx["ethernet1.connect"]        = "connected"
+      vp.vmx["ethernet1.startConnected"] = "TRUE"
+      vp.vmx["ethernet1.displayName"]    = "hostonly"
+      
+      vp.memory = "2048"
+      vp.gui    = true
     end
   
   end
