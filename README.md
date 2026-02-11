@@ -36,7 +36,6 @@
 
 ## Quick start
 
-
 1. **Prerequisites**
     - A working Packer installation (>= 1.7) 
       - https://developer.hashicorp.com/packer/install
@@ -47,8 +46,8 @@
     - A working OVFtool installation (for REMnux only)
       - https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest
     - REMnux OVA:
-      -  https://download.remnux.org/202601/remnux-noble-amd64.ova
-      - https://download.remnux.org/202601/remnux-noble-amd64-virtualbox.ovaand 
+      - https://download.remnux.org/202601/remnux-noble-amd64.ova
+      - https://download.remnux.org/202601/remnux-noble-amd64-virtualbox.ova 
     - Windows 10 en-US ISO for FlareVM:
       - https://www.microsoft.com/en-us/software-download/windows10ISO
 
@@ -74,8 +73,13 @@
 5. **Edit configurations**
 
     The configuration files for the VM's can be found at: (see **Configuration** for more info)
+    For general packer build settings:
     - packer/flarevm/flarevm.pkrvars.hcl
     - packer/remnux/remnux.pkrvars.hcl
+
+    FlareVM:
+    - ansible/roles/files/custom-config-xml
+      - Adjust this file to change the FlareVM tools you want to instal
 
 6. **Build images**
     - To ensure a clean build:
@@ -99,12 +103,35 @@
     - Or build all (for example via a Makefile target):
 
         ```bash
-        make -j2 all-<vmware/virtualbox>
+        make all-<vmware/virtualbox>
         ```
  7. **Disable NAT**
-  
     - Disable or remove your NAT adapter either in the hypervisor or in the OS to ensure proper isolation. 
+      - FlareVM: Disable the NAT adapter throught the OS or in the virtualization platform.
+      - REMnux: Disable NAT adapter through the command line:
+      ```bash
+      sudo ip link set ens33 down
+      ```
+ 8. **Test network**
+    - REMnux: 
+      1. Start INetSim `inetsim`
+      2. Start FakeDNS `sudo /opt/fakedns/bin/fakedns.py`
+    - FlareVM: 
+      1. Run `nslookup` to check whether your DNS is returning the correct IP.
+      2. Use your browser to browse to any website and check whether it is captured in your REMnux VM. 
 ---
+
+## Pre-built Vagrant Boxes
+Vagrant boxes have been uploaded to the public Hashicorp boxes catalog:
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
+
+To run these:
+- `cd vagrant/`
+- `vagrant up --provider=vmware_desktop --provision` 
+
+*Note for Windows users with VMWare: you'll need to install the Vagrant VMWare Utility to run these boxes.*
+https://developer.hashicorp.com/vagrant/install
 
 ## Project structure
 
@@ -141,15 +168,22 @@
 │   └── remnux
 │       ├── remnux.pkr.hcl
 │       ├── remnux.pkrvars.hcl
+│       ├── Vagrantfile
+├── vagrant
+│   ├── flarevm
 │   │   ├── Vagrantfile
+│   └── remnux
+│       ├── Vagrantfile
 ├── Makefile
-├── README.md
 ├── requirements.txt
+├── README.md
+├── LICENSE.md
 ```
 
 - `packer/flarevm`: Packer templates and Ansible provisioning for FlareVM.
 - `packer/remnux`: Packer templates and Ansible provisioning for REMnux based on the upstream OVA/VMX.
 - `ansible/`: shared roles and inventories used during Packer builds.
+- `vagrant`: Vagrantfiles to launch Vagrant boxes.
 - `Makefile`: optional command shortcuts for selective builds and lab lifecycle.
 
 ## Configuration
