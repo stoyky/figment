@@ -186,7 +186,7 @@ https://developer.hashicorp.com/vagrant/install
 - `packer/flarevm`: Packer templates and Ansible provisioning for FlareVM.
 - `packer/remnux`: Packer templates and Ansible provisioning for REMnux based on the upstream OVA/VMX.
 - `ansible/`: shared roles and inventories used during Packer builds.
-- `vagrant`: Vagrantfiles to launch Vagrant boxes.
+- `vagrant/`: Vagrantfiles to launch Vagrant boxes.
 - `Makefile`: optional command shortcuts for selective builds and lab lifecycle.
 
 ## Configuration
