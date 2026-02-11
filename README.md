@@ -72,7 +72,7 @@
 
 5. **Edit configurations**
 
-    The configuration files for the VM's can be found at: (see **Configuration** for more info)
+    The configuration files for the VM's can be found at: (see <a href="#configuration">**Configuration**</a> for more info)
     For general packer build settings:
     - packer/flarevm/flarevm.pkrvars.hcl
     - packer/remnux/remnux.pkrvars.hcl
