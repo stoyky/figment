@@ -123,6 +123,7 @@
 
 ## Pre-built Vagrant Boxes
 Vagrant boxes have been uploaded to the public Hashicorp boxes catalog:
+
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
 
