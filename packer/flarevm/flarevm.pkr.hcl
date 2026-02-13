@@ -14,7 +14,7 @@ packer {
     }
     vagrant = {
       version = "~> 1"
-      source = "github.com/hashicorp/vagrant"
+      source  = "github.com/hashicorp/vagrant"
     }
   }
 }
@@ -89,9 +89,9 @@ variable "ethernet1_pcislotnumber" {
 }
 
 variable "export_vagrant" {
-  type = bool
+  type        = bool
+  default     = false
 }
-
 
 ## VMWARE 
 source "vmware-iso" "flarevm" {
@@ -237,11 +237,11 @@ build {
     ]
   }
 
-    post-processor "vagrant" {
-      output               = "boxes/flarevm.box"
-      keep_input_artifact  = true
-      provider_override    = "vmware"
-      vagrantfile_template = "vagrant/flarevm/Vagrantfile"
-      only = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
+  post-processor "vagrant" {
+    output               = "boxes/flarevm.box"
+    keep_input_artifact  = true
+    provider_override    = "vmware"
+    vagrantfile_template = "vagrant/flarevm/Vagrantfile"
+    only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
   }
 }
