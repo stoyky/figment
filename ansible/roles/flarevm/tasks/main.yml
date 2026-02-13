@@ -121,3 +121,7 @@
     image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
     state: absent
   ignore_errors: true
+
+- name: Reboot
+  ansible.windows.win_reboot:
+
