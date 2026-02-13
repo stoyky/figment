@@ -87,7 +87,8 @@ variable "eth1_pcislot_virtualbox" {
 }
 
 variable "export_vagrant" {
-  type = bool
+  type        = bool
+  default     = false
 }
 
 source "null" "remnux" {

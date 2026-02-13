@@ -9,9 +9,9 @@ vm_name        = "flarevm"
 disk_size      = 70000
 
 # Network Configuration
-hostonly_ip             = "192.168.56.222"
-default_gateway         = "192.168.56.111"
-dns_ip                  = "192.168.56.111"
+hostonly_ip             = "192.168.56.20"
+default_gateway         = "192.168.56.10"
+dns_ip                  = "192.168.56.10"
 ethernet0_pcislotnumber = "33"
 ethernet1_pcislotnumber = "36"
 
@@ -26,4 +26,4 @@ mac_hostonly_virtualbox = "080027000002"
 # FlareVM Installer Configuration 
 install_args = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
 
-export_vagrant = "false"
+export_vagrant = true
