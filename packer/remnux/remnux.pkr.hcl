@@ -163,6 +163,7 @@ build {
     inline = [
       "sudo remnux install --mode=cloud"
     ]
+    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux"]
   }
 
   provisioner "shell" {
