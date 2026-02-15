@@ -214,9 +214,9 @@ vm_name          = "flarevm"
 cpus             = 4
 memory           = 8192
 disk_size        = 60000
-hostonly_ip      = "192.168.56.222"
-default_gateway  = "192.168.56.111"
-dns_ip           = "192.168.56.111"
+hostonly_ip      = "192.168.56.20"
+default_gateway  = "192.168.56.10"
+dns_ip           = "192.168.56.10"
 ```
 
 Example `remnux.auto.pkrvars.hcl` (simplified):
@@ -226,7 +226,7 @@ source_path             = "temp/remnux/remnux.vmx"
 display_name            = "remnux"
 ssh_username            = "remnux"
 ssh_password            = "malware"
-hostonly_ip             = "192.168.56.111"
+hostonly_ip             = "192.168.56.10"
 ```
 
 ### Network topology
