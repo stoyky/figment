@@ -79,7 +79,7 @@
 
     FlareVM:
     - ansible/roles/files/custom-config-xml
-      - Adjust this file to change the FlareVM tools you want to instal
+      - Adjust this file to change the FlareVM tools you wish to install.
 
 6. **Build images**
     - To ensure a clean build:
@@ -114,11 +114,13 @@
       ```
  8. **Test network**
     - REMnux: 
-      1. Start INetSim `inetsim`
-      2. Start FakeDNS `sudo python3 /opt/fakedns/bin/fakedns.py`
+      1. Make sure NAT is disabled (see previous step) 
+      2. Start INetSim `inetsim`
+      3. Start FakeDNS `sudo python3 /opt/fakedns/bin/fakedns.py`
     - FlareVM: 
-      1. Run `nslookup` to check whether your DNS is returning the correct IP.
-      2. Use your browser to browse to any website and check whether it is captured in your REMnux VM. 
+      1. Make sure NAT is disabled (see previous step) 
+      2. Run `nslookup` to check whether your DNS is returning the correct IP.
+      3. Use your browser to browse to any website and check whether it is captured in your REMnux VM. 
 ---
 
 ## Pre-built Vagrant Boxes
