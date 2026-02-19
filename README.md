@@ -29,8 +29,8 @@
 
 - **Packer**: image building for VMware / VirtualBox (depending on your builders).  
 - **Ansible**: provisioning FlareVM and REMnux (packages, tools, post‑install config).  
-- **Hypervisors**: VMware Workstation and/or VirtualBox, depending on your local setup.  
-- **Vagrant**: Optionally build Vagrant boxes after provisioning with Packer
+- **Hypervisors**: VMware Workstation and VirtualBox are supported.  
+- **Vagrant**: Optionally build Vagrant boxes after provisioning with Packer.
 
 ---
 
