@@ -44,11 +44,11 @@ https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
 To run these:
 - `cd figment/vagrant/<flarevm or remnux>`
 - `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
-- Do not forget to disable NAT and take a base snapshot.
+- Do not forget to disable NAT and take a base snapshots after running the VMs. 
 
 ## Quickstart: The Flexible Way
 
-Follow these steps if you want to customize the resulting VM's / Vagrant boxes:
+Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
 
 1. **Prerequisites**
     - A working Packer installation (>= 1.7) 
@@ -138,7 +138,7 @@ Follow these steps if you want to customize the resulting VM's / Vagrant boxes:
     - FlareVM: 
       1. Make sure NAT is disabled (see previous step) 
       2. Run `nslookup` to check whether your DNS is returning the correct IP.
-      3. Browse to any website to check whether your requests are intercepted by INetSim / FakeDNS. 
+      3. Browse to any website to check whether requests are intercepted by INetSim / FakeDNS. 
 ---
 
 ## Project structure
