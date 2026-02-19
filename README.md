@@ -34,7 +34,21 @@
 
 ---
 
-## Quick start
+## Quickstart: The Fast Way
+Pre-built Vagrant boxes have been uploaded to the Hashicorp Public Boxes Catalog:
+
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
+
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
+
+To run these:
+- `cd figment/vagrant/<flarevm or remnux>`
+- `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
+- Do not forget to disable NAT and take a base snapshot.
+
+## Quickstart: The Flexible Way
+
+Follow these steps if you want to customize the resulting VM's / Vagrant boxes:
 
 1. **Prerequisites**
     - A working Packer installation (>= 1.7) 
@@ -72,13 +86,14 @@
 
 5. **Edit configurations**
 
-    The configuration files for the VM's can be found at: (see <a href="#configuration">**Configuration**</a> for more info)
+    The configuration files for the VM's can be found at: (see <a href="#configuration">**Configuration**</a> for more info).
+
     For general packer build settings:
     - packer/flarevm/flarevm.pkrvars.hcl
     - packer/remnux/remnux.pkrvars.hcl
 
     FlareVM:
-    - ansible/roles/files/custom-config-xml
+    - ansible/roles/flarevm/files/custom-config-xml
       - Adjust this file to change the FlareVM tools you wish to install.
 
 6. **Build images**
@@ -107,11 +122,14 @@
         ```
  7. **Disable NAT**
     - Disable or remove your NAT adapter either in the hypervisor or in the OS to ensure proper isolation. 
-      - FlareVM: Disable the NAT adapter throught the OS or in the virtualization platform.
+      - FlareVM: Disable the NAT adapter in the OS or in the virtualization platform.
+        ```powershell
+        Disable-NetAdapter -Name "nat" 
+        ```
       - REMnux: Disable NAT adapter through the command line:
-      ```bash
-      sudo ip link set ens33 down
-      ```
+        ```bash
+        sudo ip link set ens33 down
+        ```
  8. **Test network**
     - REMnux: 
       1. Make sure NAT is disabled (see previous step) 
@@ -120,23 +138,8 @@
     - FlareVM: 
       1. Make sure NAT is disabled (see previous step) 
       2. Run `nslookup` to check whether your DNS is returning the correct IP.
-      3. Use your browser to browse to any website and check whether it is captured in your REMnux VM. 
+      3. Browse to any website to check whether your requests are intercepted by INetSim / FakeDNS. 
 ---
-
-## Pre-built Vagrant Boxes
-Vagrant boxes have been uploaded to the public Hashicorp boxes catalog:
-
-https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
-
-https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
-
-To run these:
-- `cd vagrant/`
-- `vagrant up --provider=vmware_desktop --provision` 
-
-*Note for Windows users with VMWare: you'll need to install the Vagrant VMWare Utility to run these boxes.*
-
-https://developer.hashicorp.com/vagrant/install
 
 ## Project structure
 
@@ -203,7 +206,7 @@ Each image has its own `*.pkr.hcl` and `*.pkrvars.hcl` with variables such as:
 - `source_path` for the converted REMnux VMX.
 - `user`, `password` / `ssh_username`, `ssh_password` for communicators.
 - `cpus`, `memory`, `disk_size` per VM.
-- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `172.16.53.x`). Choose this IP according to your host-only network settings in VMWare / Virtualbox.
+- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `172.16.53.x`). Choose these settings according to your host-only network settings in VMWare / Virtualbox.
 
 Example `flarevm.pkrvars.hcl` (simplified):
 
