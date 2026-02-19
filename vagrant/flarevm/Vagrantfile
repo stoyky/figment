@@ -13,29 +13,41 @@ Vagrant.configure("2") do |config|
 
     flarevm.vm.synced_folder '.', '/vagrant', disabled: true
 
-    flarevm.vm.provider "vmware_desktop" do |vp|
-      vp.vmx["ethernet0.present"]        = "TRUE"
-      vp.vmx["ethernet0.connectionType"] = "nat"
-      vp.vmx["ethernet0.virtualDev"]     = "e1000"
-      vp.vmx["ethernet0.connect"]        = "connected"
-      vp.vmx["ethernet0.startConnected"] = "TRUE"
-      vp.vmx["ethernet0.displayName"]    = "nat"
-      vp.vmx["ethernet0.addressType"]    = "static"
-      vp.vmx["ethernet0.address"]        = "00:0c:29:00:00:01"
-      vp.vmx["ethernet0.pciSlotNumber"]  = "33"
+    flarevm.vm.provider "vmware_desktop" do |vmware|
+      vmware.vmx["ethernet0.present"]        = "TRUE"
+      vmware.vmx["ethernet0.connectionType"] = "nat"
+      vmware.vmx["ethernet0.virtualDev"]     = "e1000"
+      vmware.vmx["ethernet0.connect"]        = "connected"
+      vmware.vmx["ethernet0.startConnected"] = "TRUE"
+      vmware.vmx["ethernet0.displayName"]    = "nat"
+      vmware.vmx["ethernet0.addressType"]    = "static"
+      vmware.vmx["ethernet0.address"]        = "00:0c:29:00:00:01"
+      vmware.vmx["ethernet0.pciSlotNumber"]  = "33"
 
-      vp.vmx["ethernet1.present"]        = "TRUE"
-      vp.vmx["ethernet1.connectionType"] = "hostonly"
-      vp.vmx["ethernet1.virtualDev"]     = "e1000"
-      vp.vmx["ethernet1.connect"]        = "connected"
-      vp.vmx["ethernet1.startConnected"] = "TRUE"
-      vp.vmx["ethernet1.displayName"]    = "hostonly"
-      vp.vmx["ethernet1.addressType"]    = "static"
-      vp.vmx["ethernet1.address"]        = "00:0c:29:00:00:02"
-      vp.vmx["ethernet1.pciSlotNumber"]  = "36"
+      vmware.vmx["ethernet1.present"]        = "TRUE"
+      vmware.vmx["ethernet1.connectionType"] = "hostonly"
+      vmware.vmx["ethernet1.virtualDev"]     = "e1000"
+      vmware.vmx["ethernet1.connect"]        = "connected"
+      vmware.vmx["ethernet1.startConnected"] = "TRUE"
+      vmware.vmx["ethernet1.displayName"]    = "hostonly"
+      vmware.vmx["ethernet1.addressType"]    = "static"
+      vmware.vmx["ethernet1.address"]        = "00:0c:29:00:00:02"
+      vmware.vmx["ethernet1.pciSlotNumber"]  = "36"
       
-      vp.memory = "4096"
-      vp.gui    = true
+      vmware.memory = "4096"
+      vmware.gui    = true
     end
+
+    flarevm.vm.provider "virtualbox" do |virtualbox|
+      virtualbox.customize["modifyvm", :id, "--nic1", "nat"]
+      virtualbox.customize["modifyvm", :id, "--nic2", "hostonly"]
+      virtualbox.customize["modifyvm", :id, "--hostonlyadapter2", "vboxnet0"]
+      virtualbox.customize["modifyvm", :id, "--macaddress1", "${var.mac_nat_virtualbox}"]
+      virtualbox.customize["modifyvm", :id, "--macaddress2", "${var.mac_hostonly_virtualbox}"]
+          
+      virtualbox.memory = "4096"
+      virtualbox.gui    = true
+    end
+  
   end
 end

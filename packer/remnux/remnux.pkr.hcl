@@ -15,7 +15,7 @@ packer {
     }
     vagrant = {
       version = "~> 1"
-      source = "github.com/hashicorp/vagrant"
+      source  = "github.com/hashicorp/vagrant"
     }
   }
 }
@@ -87,8 +87,8 @@ variable "eth1_pcislot_virtualbox" {
 }
 
 variable "export_vagrant" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 source "null" "remnux" {
@@ -113,8 +113,6 @@ source "vmware-vmx" "remnux" {
   headless                       = false
 
   vmx_data_post = {
-    "ethernet0.present" = "false"
-
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
     "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
@@ -131,14 +129,13 @@ source "virtualbox-ovf" "remnux" {
   ssh_username     = var.ssh_username
   ssh_password     = var.ssh_password
   ssh_timeout      = var.ssh_timeout
-  skip_export      = true
+  skip_export      = false
   keep_registered  = true
   shutdown_command = "sudo shutdown -h now"
 
   headless = false
 
   vboxmanage_post = [
-    ["modifyvm", "${var.vm_name}", "--nic1", "none"],
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
     ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
@@ -203,10 +200,10 @@ build {
   }
 
   post-processor "vagrant" {
-    output               = "boxes/remnux.box"
+    output               = source.type == "vmware-vmx.remnux" ? "boxes/remnux-vmware.box" : "boxes/remnux-virtualbox.box"
     keep_input_artifact  = true
-    provider_override    = "vmware"
+    provider_override    = source.type == "vmware-vmx.remnux" ? "vmware" : "virtualbox"
     vagrantfile_template = "vagrant/remnux/Vagrantfile"
-    only = var.export_vagrant ? ["vmware-vmx.remnux", "virtualbox-ovf.remnux"] : []
+    only                 = var.export_vagrant ? ["vmware-vmx.remnux", "virtualbox-ovf.remnux"] : []
   }
 }

@@ -147,12 +147,6 @@ source "vmware-iso" "flarevm" {
     "ethernet1.addressType"    = "static"
     "ethernet1.address"        = "${var.mac_hostonly_vmware}"
   }
-
-  vmx_data_post = {
-    "ethernet0.present"        = "FALSE"
-    "ethernet0.connect"        = "disconnected"
-    "ethernet0.startConnected" = "FALSE"
-  }
 }
 
 ## VIRTUALBOX
@@ -185,17 +179,11 @@ source "virtualbox-iso" "flarevm" {
   shutdown_timeout = "4h"
   headless         = false
   vboxmanage = [
-    ["modifyvm", "${var.vm_name}", "--memory", "${var.memory}"],
-    ["modifyvm", "${var.vm_name}", "--cpus", "${var.cpus}"],
     ["modifyvm", "${var.vm_name}", "--nic1", "nat"],
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
     ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
     ["modifyvm", "${var.vm_name}", "--macaddress1", "${var.mac_nat_virtualbox}"],
     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly_virtualbox}"]
-  ]
-
-  vboxmanage_post = [
-    ["modifyvm", "${var.vm_name}", "--nic1", "none"],
   ]
 
   output_directory = "temp/flarevm-virtualbox"
@@ -238,7 +226,7 @@ build {
   }
 
   post-processor "vagrant" {
-    output               = "boxes/flarevm.box"
+    output               = source.type == "vmware-vmx.flarevm" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box" 
     keep_input_artifact  = true
     provider_override    = "vmware"
     vagrantfile_template = "vagrant/flarevm/Vagrantfile"
