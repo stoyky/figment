@@ -269,6 +269,8 @@ This project is explicitly intended for malware analysis and should be used only
 
 - [Ansible](https://docs.ansible.com/) - Image provisioning
 
+- [C. Schneegans Autounattend Generator](https://github.com/cschneegans/unattend-generator) - Windows 10 Autounattend Files Generator
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE.md` file for details.
