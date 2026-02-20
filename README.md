@@ -10,7 +10,7 @@
   <a href="#features">Features</a> •
   <a href="#tech-stack">Tech stack</a> •
   <a href="#prebuilt-vagrant-boxes">Prebuilt Vagrant Boxes</a> •
-  <a href="#quick-start">Quick Start</a> 
+  <a href="#quick-start">Quick Start</a> •
   <a href="#project-structure">Project Structure</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#contributing">Contributing</a> •
@@ -47,7 +47,7 @@ To run these:
 - `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
 - Do not forget to disable NAT and take a base snapshots after running the VMs. 
 
-## Quickstart
+## Quick Start
 
 Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
 
