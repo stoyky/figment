@@ -206,7 +206,7 @@ Each image has its own `*.pkr.hcl` and `*.pkrvars.hcl` with variables such as:
 - `source_path` for the converted REMnux VMX.
 - `user`, `password` / `ssh_username`, `ssh_password` for communicators.
 - `cpus`, `memory`, `disk_size` per VM.
-- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `172.16.53.x`). Choose these settings according to your host-only network settings in VMWare / Virtualbox.
+- `hostonly_ip`, `default_gateway`, `dns_ip` to configure the lab network (for example `192.168.56.x`). Choose these settings according to your host-only network settings in VMWare / Virtualbox.
 
 Example `flarevm.pkrvars.hcl` (simplified):
 
