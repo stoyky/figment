@@ -23,7 +23,7 @@
     </envs>
     <packages>
         <package name="internet_detector.vm"/>
-        <!-- <package name="010editor.vm"/>
+        <package name="010editor.vm"/>
         <package name="7zip.vm"/>
         <package name="advanced-installer.vm"/>
         <package name="angr.vm"/>
@@ -153,7 +153,7 @@
         <package name="x64dbg.plugin.scyllahide.vm"/>
         <package name="x64dbg.plugin.x64dbgpy.vm"/>
         <package name="x64dbg.vm"/>
-        <package name="yara.vm"/> -->
+        <package name="yara.vm"/>
     </packages>
     <apps>
         <!--

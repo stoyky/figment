@@ -9,7 +9,8 @@
 <p align="center">
   <a href="#features">Features</a> •
   <a href="#tech-stack">Tech stack</a> •
-  <a href="#quick-start">Quick Start</a> •
+  <a href="#quick-start-prebuilt">Quick Start: Prebuilt</a> •
+  <a href="#quick-start-customizable">Quick Start: Customizable</a> 
   <a href="#project-structure">Project Structure</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#contributing">Contributing</a> •
@@ -34,7 +35,7 @@
 
 ---
 
-## Quickstart: The Fast Way
+## Quickstart: Prebuilt
 Pre-built Vagrant boxes have been uploaded to the Hashicorp Public Boxes Catalog:
 
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
@@ -46,7 +47,7 @@ To run these:
 - `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
 - Do not forget to disable NAT and take a base snapshots after running the VMs. 
 
-## Quickstart: The Flexible Way
+## Quickstart: Customizable
 
 Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
 
