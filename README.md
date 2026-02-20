@@ -9,8 +9,8 @@
 <p align="center">
   <a href="#features">Features</a> •
   <a href="#tech-stack">Tech stack</a> •
-  <a href="#quick-start-prebuilt">Prebuilt Vagrant Boxes</a> •
-  <a href="#quick-start-customizable">Quick Start</a> 
+  <a href="#prebuilt-vagrant-boxes">Prebuilt Vagrant Boxes</a> •
+  <a href="#quick-start">Quick Start</a> 
   <a href="#project-structure">Project Structure</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#contributing">Contributing</a> •
@@ -35,7 +35,7 @@
 
 ---
 
-## Pre-built Vagrant Boxes
+## Prebuilt Vagrant Boxes
 Pre-built Vagrant boxes have been uploaded to the Hashicorp Public Boxes Catalog:
 
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
