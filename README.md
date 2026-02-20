@@ -122,7 +122,7 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
         ```
  7. **Disable NAT**
     - Disable or remove your NAT adapter either in the hypervisor or in the OS to ensure proper isolation. 
-      - FlareVM:
+      - FlareVM (elevated Powershell prompt):
         ```powershell
         Disable-NetAdapter -Name "nat" 
         ```
