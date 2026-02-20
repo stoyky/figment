@@ -122,11 +122,11 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
         ```
  7. **Disable NAT**
     - Disable or remove your NAT adapter either in the hypervisor or in the OS to ensure proper isolation. 
-      - FlareVM: Disable the NAT adapter in the OS or in the virtualization platform.
+      - FlareVM:
         ```powershell
         Disable-NetAdapter -Name "nat" 
         ```
-      - REMnux: Disable NAT adapter through the command line:
+      - REMnux:
         ```bash
         sudo ip link set ens33 down
         ```
