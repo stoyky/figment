@@ -163,7 +163,7 @@ source "virtualbox-iso" "flarevm" {
   guest_os_type             = "Windows10_64"
   cpus                      = var.cpus
   memory                    = var.memory
-  skip_export               = true
+  skip_export               = false
   keep_registered           = true
   disk_size                 = var.disk_size
 
@@ -226,9 +226,9 @@ build {
   }
 
   post-processor "vagrant" {
-    output               = source.type == "vmware-vmx" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
+    output               = source.type == "vmware-iso" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
     keep_input_artifact  = true
-    provider_override    = source.type == "vmware-vmx" ? "vmware" : "virtualbox"
+    provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
     vagrantfile_template = "vagrant/flarevm/Vagrantfile"
     only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
   }
