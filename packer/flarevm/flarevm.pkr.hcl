@@ -226,9 +226,9 @@ build {
   }
 
   post-processor "vagrant" {
-    output               = source.type == "vmware-vmx.flarevm" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box" 
+    output               = source.type == "vmware-vmx" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
     keep_input_artifact  = true
-    provider_override    = "vmware"
+    provider_override    = source.type == "vmware-vmx" ? "vmware" : "virtualbox"
     vagrantfile_template = "vagrant/flarevm/Vagrantfile"
     only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
   }

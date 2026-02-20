@@ -69,7 +69,6 @@ variable "mac_hostonly" {
   type = string
 }
 
-
 variable "eth0_pcislot_vmware" {
   type = number
 }
@@ -109,7 +108,7 @@ source "vmware-vmx" "remnux" {
   boot_wait        = var.boot_wait
 
   vmx_remove_ethernet_interfaces = false
-  skip_compaction                = "true"
+  skip_compaction                = true
   headless                       = false
 
   vmx_data_post = {
@@ -156,12 +155,12 @@ build {
     only = ["null.remnux"]
   }
 
-  provisioner "shell" {
-    inline = [
-      "sudo remnux install --mode=cloud"
-    ]
-    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux"]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     "sudo remnux install --mode=cloud"
+  #   ]
+  #   only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux"]
+  # }
 
   provisioner "shell" {
     inline = [
@@ -200,9 +199,9 @@ build {
   }
 
   post-processor "vagrant" {
-    output               = source.type == "vmware-vmx.remnux" ? "boxes/remnux-vmware.box" : "boxes/remnux-virtualbox.box"
+    output               = source.type == "vmware-vmx" ? "boxes/remnux-vmware.box" : "boxes/remnux-virtualbox.box"
     keep_input_artifact  = true
-    provider_override    = source.type == "vmware-vmx.remnux" ? "vmware" : "virtualbox"
+    provider_override    = source.type == "vmware-vmx" ? "vmware" : "virtualbox"
     vagrantfile_template = "vagrant/remnux/Vagrantfile"
     only                 = var.export_vagrant ? ["vmware-vmx.remnux", "virtualbox-ovf.remnux"] : []
   }
