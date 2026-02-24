@@ -48,7 +48,7 @@ To run these:
 - Run `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
 - Do not forget to disable NAT, Shared Folders, and take a base snapshot after running the VMs. 
 
-Note: Boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
+Note: The Vagrant boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
 
 ## Quick Start
 
