@@ -42,9 +42,13 @@ https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
 
 To run these:
-- `cd figment/vagrant/<flarevm or remnux>`
-- `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
-- Do not forget to disable NAT and take a base snapshots after running the VMs. 
+- Install Vagrant: https://developer.hashicorp.com/vagrant/install
+- (VMWare) Install VMWare Utility: https://developer.hashicorp.com/vagrant/install/vmware
+- Navigate to the vagrant folder `cd figment/vagrant/<flarevm or remnux>`
+- Run `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
+- Do not forget to disable NAT, Shared Folders, and take a base snapshot after running the VMs. 
+
+Note: Boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
 
 ## Quick Start
 
@@ -120,7 +124,7 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
         ```bash
         make all-<vmware/virtualbox>
         ```
- 7. **Disable NAT**
+ 7. **Disable NAT and Shared Folders**
     - Disable or remove your NAT adapter either in the hypervisor or in the OS to ensure proper isolation. 
       - FlareVM (elevated Powershell prompt):
         ```powershell
@@ -130,6 +134,7 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
         ```bash
         sudo ip link set ens33 down
         ```
+    - Make sure to disable Shared Folders in the Hypervisor for both VM's!
  8. **Test network**
     - REMnux: 
       1. Make sure NAT is disabled (see previous step) 
@@ -251,7 +256,7 @@ Contributions are welcome:
 
 ## Security
 
-This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments. *Never expose these VMs directly to production networks.* Please check the network settings for the VM's, and ensure NAT / internet access is disabled when analysing samples. 
+This project is explicitly intended for malware analysis and should be used only in isolated, controlled environments. *Never expose these VMs directly to production networks.* Please check the network settings for the VM's, and ensure NAT / internet access / Shared Folders are disabled when analysing samples. 
 
 ## Changelog
 
