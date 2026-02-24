@@ -136,7 +136,6 @@ source "virtualbox-ovf" "remnux" {
 
   vboxmanage_post = [
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
-    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
   ]
 }
