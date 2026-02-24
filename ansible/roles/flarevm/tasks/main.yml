@@ -104,9 +104,8 @@
 - name: Install VMWare guest additions
   ansible.windows.win_package:
     path: "{{ disk_image_out.mount_paths[0] }}\\setup.exe"
-    arguments: /S /v/qn REBOOT=R
+    arguments: /S /v"/qn REBOOT=ReallySuppress"
     state: present
-  ignore_errors: true
   when: source_type == 'vmware-iso'
 
 - name: Install VirtualBox Guest Additions
@@ -123,4 +122,6 @@
 
 - name: Reboot
   ansible.windows.win_reboot:
+    msg: "Rebooting"
+    reboot_timeout: 120
 

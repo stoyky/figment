@@ -181,7 +181,6 @@ source "virtualbox-iso" "flarevm" {
   vboxmanage = [
     ["modifyvm", "${var.vm_name}", "--nic1", "nat"],
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
-    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
     ["modifyvm", "${var.vm_name}", "--macaddress1", "${var.mac_nat_virtualbox}"],
     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly_virtualbox}"]
   ]
