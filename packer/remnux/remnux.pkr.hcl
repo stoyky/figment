@@ -111,7 +111,7 @@ source "vmware-vmx" "remnux" {
   skip_compaction                = true
   headless                       = false
 
-  vmx_data_post = {
+  vmx_data = {
     "ethernet1.present"        = "TRUE"
     "ethernet1.connectionType" = "hostonly"
     "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
