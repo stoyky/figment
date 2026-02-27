@@ -78,6 +78,9 @@
     run_level: highest
     state: present
 
+- name: Run the Flare installer task
+  win_command: schtasks /run /tn FlareInstallerTask
+
 - name: Wait for Flare-VM installation completion
   ansible.windows.win_stat:
     path: C:\ProgramData\_VM\failed_packages.txt

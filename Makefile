@@ -25,12 +25,14 @@ remnux-virtualbox:
 
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."
-	rm -rf temp/flarevm/
+	rm -rf temp/flarevm-virtualbox/
+	rm -rf temp/flarevm-vmware/
 	rm -rf output-flarevm/
 
 clean-remnux: 
 	@echo "Cleaning temporary directories for REMnux..."
-	rm -rf temp/remnux/
+	rm -rf temp/remnux-virtualbox/
+	rm -rf temp/remnux-vmware/
 	rm -rf output-remnux/
 
 clean:

@@ -4,7 +4,7 @@ iso_url        = "assets/flarevm/Win10_22H2_English_x64v1.iso"
 user           = "admin"
 password       = "password"
 cpus           = 2
-memory         = 2048
+memory         = 4096
 vm_name        = "flarevm"
 disk_size      = 70000
 
