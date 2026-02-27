@@ -45,8 +45,9 @@ To run these:
 - Install Vagrant: https://developer.hashicorp.com/vagrant/install
 - (VMWare) Install VMWare Utility: https://developer.hashicorp.com/vagrant/install/vmware
 - Navigate to the vagrant folder `cd figment/vagrant/<flarevm or remnux>`
-- Run `vagrant up --provider=<vmware_desktop or virtualbox> --provision` 
-- Do not forget to disable NAT, Shared Folders, and take a base snapshot after running the VMs. 
+- Run `vagrant up --provider=<vmware_desktop or virtualbox> --provision`
+- Disable NAT and test the network (see Quickstart step 8 below). 
+- Do not forget to disable Shared Folders, and take a base snapshot after running the VMs. 
 
 Note: The Vagrant boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
 
@@ -66,9 +67,9 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
     - REMnux OVA:
       - https://download.remnux.org/202601/remnux-noble-amd64.ova
       - https://download.remnux.org/202601/remnux-noble-amd64-virtualbox.ova 
-    - Windows 10 en-US ISO for FlareVM:
+    - Windows 10 en-US or Windows 11 en-US (24H2) ISO for FlareVM:
       - https://www.microsoft.com/en-us/software-download/windows10ISO
-
+      - https://archive.org/details/windows-11-24h2-iso_202501
   
 2. **Clone the repository**
 
