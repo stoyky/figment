@@ -35,7 +35,7 @@
 ---
 
 ## Prebuilt Vagrant Boxes
-Pre-built Vagrant boxes have been uploaded to the Hashicorp Public Boxes Catalog:
+The quickest way to get started is to use the prebuilt Vagrant boxes that have been uploaded to the Hashicorp Public Boxes Catalog:
 
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
 
