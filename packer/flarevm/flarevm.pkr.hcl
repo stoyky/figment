@@ -227,6 +227,7 @@ build {
 
   post-processor "vagrant" {
     output               = source.type == "vmware-iso" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
+    compression_level    = 9
     keep_input_artifact  = true
     provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
     vagrantfile_template = "vagrant/flarevm/Vagrantfile"
