@@ -262,6 +262,7 @@ This project is explicitly intended for malware analysis and should be used only
 ## Changelog
 
 * v1.0.0 - Initial release
+* v1.0.1 - (FlareVM) adjusted autounattend to also work for Windows 11
 
 ## Credits
 - [FlareVM](https://github.com/mandiant/flare-vm) - Installation scripts for FlareVM
