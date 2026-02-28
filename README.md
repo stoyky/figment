@@ -43,7 +43,9 @@ https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
 
 To run these:
 - Install Vagrant: https://developer.hashicorp.com/vagrant/install
+- (VMWare) Install VMWare plugin `vagrant plugin install vagrant-vmware-desktop`
 - (VMWare) Install VMWare Utility: https://developer.hashicorp.com/vagrant/install/vmware
+- Clone repo `git clone https://github.com/stoyky/figment.git`
 - Navigate to the vagrant folder `cd figment/vagrant/<flarevm or remnux>`
 - Run `vagrant up --provider=<vmware_desktop or virtualbox> --provision`
 - Disable NAT and test the network (see Quickstart step 8 below). 
