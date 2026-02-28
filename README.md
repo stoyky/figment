@@ -5,7 +5,7 @@
 </h1>
 
 <p align="center">
-  <img width="500" alt="Figment Logo, adopted from https://github.com/mandiant/flare-vm/blob/main/Images/flarevm-logo.png" src="https://github.com/user-attachments/assets/ae2d0a47-4de6-4a89-8447-2914fec2214e" />
+  <img width="450" alt="Figment Logo, adopted from https://github.com/mandiant/flare-vm/blob/main/Images/flarevm-logo.png" src="https://github.com/user-attachments/assets/ae2d0a47-4de6-4a89-8447-2914fec2214e" />
 </p>
 
 <h4 align="center"> Spin up a fully configured, host‑only malware analysis lab with FlareVM and REMnux using a few repeatable commands.</h4>
