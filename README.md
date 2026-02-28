@@ -220,7 +220,7 @@ Example `flarevm.pkrvars.hcl` (simplified):
 
 ```hcl
 iso_url          = "iso/Win10_22H2_English_x64v1.iso"
-iso_sha256       = "..."
+iso_sha256       = "SHA256:..."
 user             = "admin"
 password         = "password"
 vm_name          = "flarevm"
@@ -277,7 +277,7 @@ This project is explicitly intended for malware analysis and should be used only
 
 - [Ansible](https://docs.ansible.com/) - Image provisioning
 
-- [C. Schneegans Autounattend Generator](https://github.com/cschneegans/unattend-generator) - Windows 10 Autounattend Files Generator
+- [C. Schneegans Autounattend Generator](https://github.com/cschneegans/unattend-generator) - Windows 10/11 Autounattend Files Generator
 
 ## License
 
