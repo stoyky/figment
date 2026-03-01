@@ -89,8 +89,8 @@ variable "ethernet1_pcislotnumber" {
 }
 
 variable "export_vagrant" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 ## VMWARE 
@@ -150,7 +150,6 @@ source "vmware-iso" "flarevm" {
 }
 
 ## VIRTUALBOX
-
 source "virtualbox-iso" "flarevm" {
   iso_url                   = var.iso_url
   iso_checksum              = var.iso_sha256
@@ -164,6 +163,7 @@ source "virtualbox-iso" "flarevm" {
   cpus                      = var.cpus
   memory                    = var.memory
   skip_export               = false
+  format                    = "ova"
   keep_registered           = true
   disk_size                 = var.disk_size
 
@@ -188,8 +188,6 @@ source "virtualbox-iso" "flarevm" {
 
   output_directory = "temp/flarevm-virtualbox"
 }
-
-
 
 build {
   sources = [
@@ -225,12 +223,18 @@ build {
     ]
   }
 
-  post-processor "vagrant" {
-    output               = source.type == "vmware-iso" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
-    compression_level    = 9
-    keep_input_artifact  = true
-    provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
-    vagrantfile_template = "vagrant/flarevm/Vagrantfile"
-    only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
+  post-processors {
+    post-processor "artifice" {
+      files = ["temp/flarevm-virtualbox/flarevm.ova"]
+      only  = ["virtualbox-iso.flarevm"]
+    }
+
+    post-processor "vagrant" {
+      keep_input_artifact  = true
+      output               = source.type == "vmware-iso" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
+      provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+      vagrantfile_template = "vagrant/flarevm/Vagrantfile"
+      only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
+    }
   }
 }

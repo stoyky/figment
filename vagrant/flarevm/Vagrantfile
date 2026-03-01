@@ -1,5 +1,4 @@
 Vagrant.configure("2") do |config|
-  # FLARE VM
   config.vm.define "flarevm" do |flarevm|
     flarevm.vm.box = "figment/flarevm"
     flarevm.vm.hostname = "flarevm"
