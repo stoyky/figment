@@ -1,14 +1,14 @@
 Vagrant.configure("2") do |config|
   # REMnux
   config.vm.define "remnux" do |remnux|
-    remnux.vm.box = "figment/remnux"
+    remnux.vm.box = "figment-experimental/remnux"
     remnux.vm.hostname = "remnux"
     remnux.ssh.username = "remnux"
     remnux.ssh.password = "malware"
     remnux.ssh.insert_key = false  # Disable key injection
 
-    remnux.vm.network "public_network", adapter: 0, auto_config: false
-    remnux.vm.network "private_network", adapter: 1, auto_config: false
+    # remnux.vm.network "public_network", adapter: 0, auto_config: false
+    # remnux.vm.network "private_network", adapter: 1, auto_config: false
 
     remnux.vm.provider "vmware_desktop" do |vmware|
       vmware.vmx["ethernet0.present"]        = "TRUE"
@@ -31,7 +31,13 @@ Vagrant.configure("2") do |config|
 
     remnux.vm.provider "virtualbox" do |virtualbox|
       virtualbox.customize ["modifyvm", :id, "--nic1", "nat"]
+      virtualbox.customize ["modifyvm", :id, "--macaddress1", "080027000001"]
       virtualbox.customize ["modifyvm", :id, "--nic2", "hostonly"]
+      virtualbox.customize ["modifyvm", :id, "--macaddress2", "080027000002"]
+      virtualbox.customize ["modifyvm", :id, "--hostonlyadapter2", "vboxnet0"]
+
+      virtualbox.customize ["modifyvm", :id, "--accelerate3d", "on"]
+      virtualbox.customize ["modifyvm", :id, "--vram", "128"]
           
       virtualbox.memory = "2048"
       virtualbox.gui    = true
