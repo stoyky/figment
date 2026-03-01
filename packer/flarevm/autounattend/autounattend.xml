@@ -9,6 +9,7 @@
 		<component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
 			<ImageInstall>
 				<OSImage>
+					<Compact>true</Compact>
 					<InstallTo>
 						<DiskID>0</DiskID>
 						<PartitionID>2</PartitionID>
