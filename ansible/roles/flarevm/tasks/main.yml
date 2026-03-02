@@ -9,7 +9,7 @@
 - name: Install VMWare guest additions
   ansible.windows.win_package:
     path: "{{ disk_image_out.mount_paths[0] }}\\setup.exe"
-    arguments: /S /v"/qn REBOOT=R"
+    arguments: /S /v"/qn REBOOT=ReallySuppress"
     state: present
   when: source_type == 'vmware-iso'
 
