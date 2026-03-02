@@ -1,47 +1,29 @@
 ---
-- name: Rename NAT adapter (all providers)
-  ansible.windows.win_shell: |
-    $normMac = '{{ mac_nat }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
-    $normMac = $normMac.ToUpper()
-    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
-    if ($adapter -and $adapter.Name -ne 'nat') {
-      Rename-NetAdapter -Name $adapter.Name -NewName 'nat' -Confirm:$false
-    }
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+- name: Mount vmtools ISO
+  community.windows.win_disk_image:
+    image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
+    state: present
+  ignore_errors: true
+  register: disk_image_out
 
-- name: Rename host-only adapter (all providers)
-  ansible.windows.win_shell: |
-    $normMac = '{{ mac_hostonly }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
-    $normMac = $normMac.ToUpper()
-    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
-    if ($adapter -and $adapter.Name -ne 'hostonly') {
-      Rename-NetAdapter -Name $adapter.Name -NewName 'hostonly' -Confirm:$false
-    }
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+- name: Install VMWare guest additions
+  ansible.windows.win_package:
+    path: "{{ disk_image_out.mount_paths[0] }}\\setup.exe"
+    arguments: /S /v"/qn REBOOT=R"
+    state: present
+  when: source_type == 'vmware-iso'
 
-- name: Configure static IP on host-only adapter
+- name: Install VirtualBox Guest Additions
   ansible.windows.win_shell: |
-    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
-      Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
-    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
-      Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+    Start-Process "{{ disk_image_out.mount_paths[0] }}\\VBoxWindowsAdditions.exe" -ArgumentList "/S" -Wait
+  ignore_errors: true
+  when: source_type == 'virtualbox-iso'
 
-- name: Set static DNS
-  ansible.windows.win_dns_client:
-    adapter_names: hostonly
-    ipv4_addresses:
-      - "{{ dns_ip }}"
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+- name: Unmount ISO
+  community.windows.win_disk_image:
+    image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
+    state: absent
+  ignore_errors: true
 
 - name: Download FlareVM install.ps1 to temp
   ansible.windows.win_get_url:
@@ -97,31 +79,49 @@
   debug: 
     var: content.stdout
 
-- name: Mount vmtools ISO
-  community.windows.win_disk_image:
-    image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
-    state: present
-  ignore_errors: true
-  register: disk_image_out
-
-- name: Install VMWare guest additions
-  ansible.windows.win_package:
-    path: "{{ disk_image_out.mount_paths[0] }}\\setup.exe"
-    arguments: /S /v"/qn REBOOT=ReallySuppress"
-    state: present
-  when: source_type == 'vmware-iso'
-
-- name: Install VirtualBox Guest Additions
+- name: Rename NAT adapter (all providers)
   ansible.windows.win_shell: |
-    Start-Process "{{ disk_image_out.mount_paths[0] }}\\VBoxWindowsAdditions.exe" -ArgumentList "/S" -Wait
-  ignore_errors: true
-  when: source_type == 'virtualbox-iso'
+    $normMac = '{{ mac_nat }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
+    $normMac = $normMac.ToUpper()
+    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
+    if ($adapter -and $adapter.Name -ne 'nat') {
+      Rename-NetAdapter -Name $adapter.Name -NewName 'nat' -Confirm:$false
+    }
+  become: yes
+  become_user: '{{ user }}'
+  become_method: runas
 
-- name: Unmount ISO
-  community.windows.win_disk_image:
-    image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
-    state: absent
-  ignore_errors: true
+- name: Rename host-only adapter (all providers)
+  ansible.windows.win_shell: |
+    $normMac = '{{ mac_hostonly }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
+    $normMac = $normMac.ToUpper()
+    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
+    if ($adapter -and $adapter.Name -ne 'hostonly') {
+      Rename-NetAdapter -Name $adapter.Name -NewName 'hostonly' -Confirm:$false
+    }
+  become: yes
+  become_user: '{{ user }}'
+  become_method: runas
+
+- name: Configure static IP on host-only adapter
+  ansible.windows.win_shell: |
+    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
+      Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
+    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
+      Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
+    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
+  become: yes
+  become_user: '{{ user }}'
+  become_method: runas
+
+- name: Set static DNS
+  ansible.windows.win_dns_client:
+    adapter_names: hostonly
+    ipv4_addresses:
+      - "{{ dns_ip }}"
+  become: yes
+  become_user: '{{ user }}'
+  become_method: runas
 
 - name: Reboot
   ansible.windows.win_reboot:
