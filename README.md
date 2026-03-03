@@ -41,9 +41,7 @@
 ## Prebuilt Vagrant Boxes
 The quickest way to get started is to use the prebuilt Vagrant boxes that have been uploaded to the Hashicorp Public Boxes Catalog:
 
-https://portal.cloud.hashicorp.com/vagrant/discover/figment/flarevm
-
-https://portal.cloud.hashicorp.com/vagrant/discover/figment/remnux
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/
 
 To run these:
 - Install Vagrant: https://developer.hashicorp.com/vagrant/install
