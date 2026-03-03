@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
       vmware.vmx["ethernet1.displayName"]    = "hostonly"
       vmware.vmx["ethernet1.addressType"]    = "static"
       vmware.vmx["ethernet1.address"]        = "00:0c:29:00:00:02"
-      vmware.vmx["ethernet1.pciSlotNumber"]  = "36"
+      vmware.vmx["ethernet1.pciSlotNumber"]  = "36" # (Windows 11) change to 32 to avoid hostonly NIC issues
       
       vmware.memory = "4096"
       vmware.gui    = true
