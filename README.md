@@ -39,7 +39,9 @@
 ---
 ## Guide
 
-For a more elaborate guide on how to set this project up, please see my blog: https://www.remyjaspers.com/blog/figment/.
+For a more elaborate guide on how to set this project up, please see my blog: 
+
+https://www.remyjaspers.com/blog/figment/.
 
 ## Prebuilt Vagrant Boxes
 The quickest way to get started is to use the prebuilt Vagrant boxes that have been uploaded to the Hashicorp Public Boxes Catalog:
