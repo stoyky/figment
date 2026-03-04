@@ -37,6 +37,9 @@
 - **Vagrant**: Optionally build Vagrant boxes after provisioning with Packer.
 
 ---
+## Guide
+
+For a more elaborate guide, please see my blog: https://www.remyjaspers.com/blog/figment/.
 
 ## Prebuilt Vagrant Boxes
 The quickest way to get started is to use the prebuilt Vagrant boxes that have been uploaded to the Hashicorp Public Boxes Catalog:
@@ -55,7 +58,6 @@ To run these:
 
 Note: The Vagrant boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
 
-For a more elaborate guide, please see my blog: https://www.remyjaspers.com/blog/figment/.
 ## Quick Start
 
 Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
