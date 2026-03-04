@@ -47,13 +47,13 @@ The quickest way to get started is to use the prebuilt Vagrant boxes that have b
 https://portal.cloud.hashicorp.com/vagrant/discover/figment/
 
 ### The Lazy Way
-If you don't care to install Vagrant, you can simply download the box file for the respective box you want to import into your hypervisor. 
-These box files are just compressed .ovf / .vmx files and disk .vmdk files. 
+If you don't care to install Vagrant, you can simply download the box file for the respective VM you want to import into your hypervisor. 
+These box files are just compressed OVF/VMX files and disk VMDK files. 
 
 - Download the box file you wish to import
 - Extract the file you downloaded twice
 - You will end up with two folders, one with the metadata (OVF/VMX) and one with the disk file (VMDK)
-- Copy the disk .vmdk file to the folder containing the metadata (OVF/VMX)
+- Copy the disk VMDK file to the folder containing the metadata (OVF/VMX)
 - Import the OVF or VMX file in your hypervisor and you should be good to go
 
 ### Using Vagrant
