@@ -44,7 +44,10 @@ See below for three different ways to get this project up and running. For a mor
 https://www.remyjaspers.com/blog/figment/
 
 ## Direct Import
-If you don't care to install Vagrant, you can simply download the box file for the respective VM you want to import into your hypervisor. 
+If you don't care to install Vagrant, you can simply download the box file for the respective VM you want to import into your hypervisor from the link below:
+
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/
+
 These box files are just compressed OVF/VMX files and disk VMDK files. 
 
 - Download the box file you wish to import
