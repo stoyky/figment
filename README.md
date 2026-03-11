@@ -39,16 +39,11 @@
 ---
 ## Guide
 
-For a more elaborate guide on how to set this project up, please see my blog: 
+See below for three different ways to get this project up and running. For a more elaborate guide on how to set this project up, please see my blog: 
 
 https://www.remyjaspers.com/blog/figment/
 
-## Prebuilt Vagrant Boxes
-The quickest way to get started is to use the prebuilt Vagrant boxes that have been uploaded to the Hashicorp Public Boxes Catalog:
-
-https://portal.cloud.hashicorp.com/vagrant/discover/figment/
-
-### The Lazy Way
+## Direct Import
 If you don't care to install Vagrant, you can simply download the box file for the respective VM you want to import into your hypervisor. 
 These box files are just compressed OVF/VMX files and disk VMDK files. 
 
@@ -58,9 +53,12 @@ These box files are just compressed OVF/VMX files and disk VMDK files.
 - Copy the disk VMDK file to the folder containing the metadata (OVF/VMX)
 - Import the OVF or VMX file in your hypervisor and you should be good to go
 
-### Using Vagrant
+## Using Vagrant
+The quickest way to get started is to use the prebuilt Vagrant boxes that have been uploaded to the Hashicorp Public Boxes Catalog:
 
-To run using Vagrant follow these steps:
+https://portal.cloud.hashicorp.com/vagrant/discover/figment/
+
+To run these boxes follow these steps:
 
 - Install Vagrant: https://developer.hashicorp.com/vagrant/install
 - (VMWare) Install VMWare plugin `vagrant plugin install vagrant-vmware-desktop`
@@ -71,9 +69,9 @@ To run using Vagrant follow these steps:
 - Disable NAT and test the network (see Quickstart step 8 below). 
 - Do not forget to disable Shared Folders, and take a base snapshot after running the VMs. 
 
-Note: The Vagrant boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
+Note: The Vagrant boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24. (Virtualbox) Ensure your host-only network is named vboxnet0. 
 
-### Quick Start
+## Customizing using Packer + Ansible Templates
 
 Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
 
