@@ -60,7 +60,8 @@ These box files are just compressed OVF/VMX files and disk VMDK files.
 
 ### Using Vagrant
 
-To run these:
+To run using Vagrant follow these steps:
+
 - Install Vagrant: https://developer.hashicorp.com/vagrant/install
 - (VMWare) Install VMWare plugin `vagrant plugin install vagrant-vmware-desktop`
 - (VMWare) Install VMWare Utility: https://developer.hashicorp.com/vagrant/install/vmware
@@ -72,7 +73,7 @@ To run these:
 
 Note: The Vagrant boxes are prebuilt with IP addresses 192.168.56.20 (FlareVM) and  192.168.56.10 (REMnux). Make sure you configure your Hypervisor to have a Host-only network with range 192.168.56.0/24!
 
-## Quick Start
+### Quick Start
 
 Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
 
