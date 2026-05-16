@@ -94,7 +94,7 @@ variable "export_vagrant" {
 #   communicator = "none"
 # }
 
-## VMWare
+
 source "vmware-vmx" "cape-server" {
   format        = "ova"
   guest_os_type = "ubuntu-64"
@@ -118,6 +118,7 @@ source "vmware-vmx" "cape-server" {
   vmx_data = {
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "TRUE"
+    "vhv.enable"            = "TRUE"
   }
 
   # vmx_data = {
@@ -128,6 +129,7 @@ source "vmware-vmx" "cape-server" {
   # }
 
 }
+
 
 ## Virtualbox
 # source "virtualbox-ovf" "remnux" {
@@ -159,8 +161,57 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo 'Provisioning CAPE Server...'"
+      "sudo apt update",
+      "sudo apt upgrade -y",
+      # "sudo apt install ubuntu-desktop -y",
+      "sudo reboot"
     ]
+    expect_disconnect = true
+    only = ["vmware-vmx.cape-server"]
+  }
+
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = [
+      "echo 'Cloning CAPE'",
+      "git clone https://github.com/kevoreilly/CAPEv2",
+      "cd CAPEv2/installer",
+      "sed -i 's/<WOOT>/ACPI/g' kvm-qemu.sh",
+      "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
+      "sudo reboot",
+    ]
+    expect_disconnect = true
+    only = ["vmware-vmx.cape-server"]
+  }
+
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = [
+      "sudo ./cape2.sh all ${var.ssh_username} | tee cape.log",
+      "sudo reboot",
+    ]
+    expect_disconnect = true
+    only = ["vmware-vmx.cape-server"]
+  }
+
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = [
+      "cd /opt/CAPEv2/",
+      "poetry install",
+      "sudo reboot"
+    ]
+    expect_disconnect = true
+    only = ["vmware-vmx.cape-server"]
+  }
+
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = [
+      "sudo apt install ubuntu-desktop -y",
+      "sudo reboot"
+    ]
+    expect_disconnect = true
     only = ["vmware-vmx.cape-server"]
   }
 
