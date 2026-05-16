@@ -23,6 +23,16 @@ remnux-virtualbox:
 	packer init packer/remnux/remnux.pkr.hcl 
 	packer build --force -on-error=ask --only virtualbox-ovf.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
+convert-cape-server:
+	@echo "Converting OVA to VMX..."
+	packer init packer/cape-server/cape-server.pkr.hcl 
+	packer build -on-error=ask --only null.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+
+cape-server-vmware: 
+	@echo "Building CAPE Server..."
+	packer init packer/cape-server/cape-server.pkr.hcl 
+	packer build -on-error=ask --only vmware-vmx.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."
 	rm -rf temp/flarevm-virtualbox/
