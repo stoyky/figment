@@ -39,17 +39,17 @@ autoinstall:
     layout: us
     variant: ''
   locale: en_US.UTF-8
-  network:
-    version: 2
-    ethernets:
-        ens33:
-            match:
-                name: "en*"
-            dhcp4: true
-        eth1:
-            match:
-                name: "eth*"
-            dhcp4: true
+  # network:
+  #   version: 2
+  #   ethernets:
+  #       ens33:
+  #           match:
+  #               name: "en*"
+  #           dhcp4: true
+  #       eth1:
+  #           match:
+  #               name: "eth*"
+  #           dhcp4: true
   oem:
     install: auto
   source:

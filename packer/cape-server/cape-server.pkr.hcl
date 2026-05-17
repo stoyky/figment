@@ -96,8 +96,6 @@ variable "export_vagrant" {
 
 
 source "vmware-iso" "cape-server" {
-  format        = "ova"
-  guest_os_type = "ubuntu-64"
   cd_files      = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
   cd_label      = "cidata"
 
@@ -109,6 +107,7 @@ source "vmware-iso" "cape-server" {
   ssh_password  = var.ssh_password
   ssh_timeout   = var.ssh_timeout
   network_adapter_type = "e1000"
+  disk_size     = 102400
 
   # keep_registered = true
 
@@ -208,91 +207,62 @@ source "vmware-iso" "cape-server" {
 
 build {
   sources = [
-    # "source.null.cape-server",
     "source.vmware-iso.cape-server",
     # "source.virtualbox-ovf.remnux"
   ]
-
-  # provisioner "shell" {
-  #   inline = [
-  #     "echo 'Waiting for cloud-init to finish...'",
-  #     "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 1; done",
-  #     "echo 'Cloud-init finished!'"
-  #   ]
-  #   only = ["vmware-iso.cape-server"]
-  # }
   
   provisioner "shell" {
     inline = [
-      "echo 'Starting TO DO STUFF'",
       "sudo apt update",
       "sudo apt upgrade -y",
-      # "sudo apt install ubuntu-desktop -y",
+      "sudo apt install git vim -y",
+      "sudo apt install build-essential python3.12-dev python3-dev libpython3-all-dev libffi-dev libssl-dev -y",
       "sudo reboot"
     ]
     expect_disconnect = true
     only = ["vmware-iso.cape-server"]
   }
 
-  # provisioner "shell" {
-  #   pause_before = "10s"
-  #   inline = [
-  #     "echo 'Cloning CAPE'",
-  #     "git clone https://github.com/kevoreilly/CAPEv2",
-  #     "cd CAPEv2/installer",
-  #     "sed -i 's/<WOOT>/ACPI/g' kvm-qemu.sh",
-  #     "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
-  #     "sudo reboot",
-  #   ]
-  #   expect_disconnect = true
-  #   only = ["vmware-iso.cape-server"]
-  # }
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = [
+      "echo 'Cloning CAPE and running KVM-QEMU installer'",
+      "git clone https://github.com/kevoreilly/CAPEv2",
+      "cd CAPEv2/installer",
+      "sed -i 's/<WOOT>/ACPI/g' kvm-qemu.sh",
+      "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
+      "sudo reboot",
+    ]
+    expect_disconnect = true
+    only = ["vmware-iso.cape-server"]
+  }
 
-  # provisioner "shell" {
-  #   pause_before = "10s"
-  #   inline = [
-  #     "cd CAPEv2/installer",
-  #     "sudo ./cape2.sh all ${var.ssh_username} | tee cape.log",
-  #     "sudo reboot",
-  #   ]
-  #   expect_disconnect = true
-  #   only = ["vmware-iso.cape-server"]
-  # }
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = [
+      "echo 'Running CAPE installer'",
+      "cd CAPEv2/installer",
+      "sudo ./cape2.sh all cape | tee cape.log",
+      "sudo reboot",
+    ]
+    expect_disconnect = true
+    only = ["vmware-iso.cape-server"]
+  }
 
-  # provisioner "shell" {
-  #   pause_before = "10s"
-  #   inline = [
-  #     "cd /opt/CAPEv2/",
-  #     "poetry install",
-  #     "sudo reboot"
-  #   ]
-  #   expect_disconnect = true
-  #   only = ["vmware-iso.cape-server"]
-  # }
-
-  # provisioner "shell" {
-  #   pause_before = "10s"
-  #   inline = [
-  #     "sudo apt install ubuntu-desktop -y",
-  #     "sudo reboot"
-  #   ]
-  #   expect_disconnect = true
-  #   only = ["vmware-iso.cape-server"]
-  # }
-
-  # provisioner "shell-local" {
-  #   inline = [
-  #     "ovftool -n=${var.vm_name} ${var.source_path_vmware_raw} temp/"
-  #   ]
-  #   only = ["null.cape-server"]
-  # }
-
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo remnux install --mode=cloud"
-  #   ]
-  #   only = ["vmware-iso.remnux", "virtualbox-ovf.remnux"]
-  # }
+  provisioner "shell" {
+    pause_before = "30s"
+    inline = [
+      "echo 'Performing poetry installation'",  
+      # "sudo su - cape -c /bin/bash",
+      # "export PATH='/etc/poetry/bin:$PATH'",
+      "cd /opt/CAPEv2/",
+      "echo $PATH",
+      "sudo -u cape /etc/poetry/bin/poetry install",
+      "sudo reboot"
+    ]
+    expect_disconnect = true
+    only = ["vmware-iso.cape-server"]
+  }
 
   # provisioner "shell" {
   #   inline = [
