@@ -1,6 +1,6 @@
 # VM Configuration
-iso_sha256     = "SHA256:b56b911bf18a2ceaeb3904d87e7c770bdf92d3099599d61ac2497b91bf190b11"
-iso_url        = "assets/flarevm/Win11_24H2_English_x64.iso"
+iso_sha256     = "SHA256:a6f470ca6d331eb353b815c043e327a347f594f37ff525f17764738fe812852e"
+iso_url        = "assets/Win10_22H2_English_x64v1.iso"
 user           = "admin"
 password       = "password"
 cpus           = 2

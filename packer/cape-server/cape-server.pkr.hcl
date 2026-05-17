@@ -217,7 +217,6 @@ build {
       "sudo apt update",
       "sudo apt upgrade -y",
       "sudo apt install git vim -y",
-      "sudo apt install build-essential python3.12-dev python3-dev libpython3-all-dev libffi-dev libssl-dev -y",
       "sudo reboot"
     ]
     expect_disconnect = true
@@ -228,7 +227,7 @@ build {
     pause_before = "10s"
     inline = [
       "echo 'Cloning CAPE and running KVM-QEMU installer'",
-      "git clone https://github.com/kevoreilly/CAPEv2/commit/${var.cape_commit} --depth 1",
+      "git clone https://github.com/kevoreilly/CAPEv2/commit/${var.cape_commit}",
       "cd CAPEv2/installer",
       "sed -i 's/<WOOT>/ACPI/g' kvm-qemu.sh",
       "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
