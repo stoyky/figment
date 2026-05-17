@@ -224,18 +224,18 @@ build {
     ]
   }
 
-  # post-processors {
-  #   post-processor "artifice" {
-  #     files = ["temp/cape-guest-win10-virtualbox/cape-guest-win10.ova"]
-  #     only  = ["virtualbox-iso.cape-guest-win10"]
-  #   }
+  post-processors {
+    post-processor "artifice" {
+      files = ["temp/cape-guest-win10-virtualbox/cape-guest-win10.ova"]
+      only  = ["virtualbox-iso.cape-guest-win10"]
+    }
 
-  #   post-processor "vagrant" {
-  #     keep_input_artifact  = true
-  #     output               = source.type == "vmware-iso" ? "boxes/cape-guest-win10-vmware.box" : "boxes/cape-guest-win10-virtualbox.box"
-  #     provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
-  #     vagrantfile_template = "vagrant/cape-guest-win10/Vagrantfile"
-  #     only                 = var.export_vagrant ? ["vmware-iso.cape-guest-win10", "virtualbox-iso.cape-guest-win10"] : []
-  #   }
-  # }
+    post-processor "vagrant" {
+      keep_input_artifact  = true
+      output               = source.type == "vmware-iso" ? "boxes/cape-guest-win10-vmware.box" : "boxes/cape-guest-win10-virtualbox.box"
+      provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+      vagrantfile_template = "vagrant/cape-guest-win10/Vagrantfile"
+      only                 = var.export_vagrant ? ["vmware-iso.cape-guest-win10", "virtualbox-iso.cape-guest-win10"] : []
+    }
+  }
 }
