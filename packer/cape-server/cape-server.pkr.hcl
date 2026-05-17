@@ -250,7 +250,7 @@ build {
   }
 
   provisioner "shell" {
-    pause_before = "30s"
+    pause_before = "10s"
     inline = [
       "echo 'Performing poetry installation'",  
       # "sudo su - cape -c /bin/bash",
@@ -258,9 +258,7 @@ build {
       "cd /opt/CAPEv2/",
       "echo $PATH",
       "sudo -u cape /etc/poetry/bin/poetry install",
-      "sudo reboot"
     ]
-    expect_disconnect = true
     only = ["vmware-iso.cape-server"]
   }
 
