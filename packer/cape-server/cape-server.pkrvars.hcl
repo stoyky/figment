@@ -1,10 +1,10 @@
-source_path_vmware_raw  = "assets/noble-server-cloudimg-amd64.ova"
+source_path_vmware_raw  = "assets/ubuntu-24.04.4-desktop-amd64.iso"
 source_path_vmware      = "temp/cape-server/cape-server.vmx"
 source_path_virtualbox  = "assets/noble-server-cloudimg-amd64.ova"
 vm_name                 = "cape-server"
 display_name            = "cape-server"
 ssh_username            = "ubuntu"
-ssh_password            = "ubuntu"
+ssh_password            = "password"
 ssh_timeout             = "20m"
 boot_wait               = "30s"
 

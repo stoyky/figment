@@ -31,7 +31,7 @@ convert-cape-server:
 cape-server-vmware: 
 	@echo "Building CAPE Server..."
 	packer init packer/cape-server/cape-server.pkr.hcl 
-	packer build -on-error=ask --only vmware-vmx.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+	packer build -on-error=ask --only vmware-iso.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
 
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."
