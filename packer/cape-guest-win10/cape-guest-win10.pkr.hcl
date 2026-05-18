@@ -209,6 +209,8 @@ source "qemu" "cape-guest-win10" {
   accelerator      = "kvm"
   machine_type     = "q35"
   cpus             = var.cpus
+  # ssh_host_port_min = 2222
+  # ssh_host_port_max = 2230
 
   # cdrom_interface = "sata"
   # cd_files   = [
@@ -222,10 +224,6 @@ source "qemu" "cape-guest-win10" {
 
   qemuargs = [
     ["-cpu", "host"],
-    # ["-netdev", "user,id=net0"],
-    # ["-device", "e1000e,netdev=net0,mac=${var.mac_nat_qemu}"],
-    ["-netdev", "user,id=net1"],
-    ["-device", "e1000e,netdev=net1,mac=${var.mac_hostonly_qemu}"],
   ]
 
   ssh_username   = var.user
@@ -279,18 +277,18 @@ build {
     ]
   }
 
-  # post-processors {
-  #   post-processor "artifice" {
-  #     files = ["temp/cape-guest-win10-virtualbox/cape-guest-win10.ova"]
-  #     only  = ["virtualbox-iso.cape-guest-win10"]
-  #   }
+  post-processors {
+    post-processor "artifice" {
+      files = ["temp/cape-guest-win10-virtualbox/cape-guest-win10.ova"]
+      only  = ["virtualbox-iso.cape-guest-win10"]
+    }
 
-  #   post-processor "vagrant" {
-  #     keep_input_artifact  = true
-  #     output               = source.type == "vmware-iso" ? "boxes/cape-guest-win10-vmware.box" : "boxes/cape-guest-win10-virtualbox.box"
-  #     provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
-  #     vagrantfile_template = "vagrant/cape-guest-win10/Vagrantfile"
-  #     only                 = var.export_vagrant ? ["vmware-iso.cape-guest-win10", "virtualbox-iso.cape-guest-win10"] : []
-  #   }
-  # }
+    post-processor "vagrant" {
+      keep_input_artifact  = true
+      output               = source.type == "vmware-iso" ? "boxes/cape-guest-win10-vmware.box" : "boxes/cape-guest-win10-virtualbox.box"
+      provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+      vagrantfile_template = "vagrant/cape-guest-win10/Vagrantfile"
+      only                 = var.export_vagrant ? ["vmware-iso.cape-guest-win10", "virtualbox-iso.cape-guest-win10"] : []
+    }
+  }
 }

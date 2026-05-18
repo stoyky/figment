@@ -46,7 +46,7 @@ cape-guest-win10-virtualbox:
 cape-guest-win10-qemu: 
 	@echo "Building CAPE guest Windows 10..."
 	packer init packer/cape-guest-win10/cape-guest-win10.pkr.hcl 
-	packer build -on-error=ask --only qemu.cape-guest-win10 -var-file=packer/cape-guest-win10/cape-guest-win10.pkrvars.hcl packer/cape-guest-win10/cape-guest-win10.pkr.hcl
+	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win10 -var-file=packer/cape-guest-win10/cape-guest-win10.pkrvars.hcl packer/cape-guest-win10/cape-guest-win10.pkr.hcl
 
 
 clean-flarevm: 
