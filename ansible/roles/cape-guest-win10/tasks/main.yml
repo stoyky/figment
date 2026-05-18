@@ -24,13 +24,16 @@
     run_level: highest
     actions:
     - path: python.exe
-      arguments: "C:\\Users\\{{ user }}\\Documents\\updater.pyw"
+      arguments: "updater.pyw"
       working_directory: "C:\\Users\\{{ user }}\\Documents"
     triggers:
       - type: logon
 
 - name: Run the updater task to start the agent
   win_command: schtasks /run /tn updater
+  become: true
+  become_user: '{{ user }}'
+  become_method: runas
 
 - name: Rename NAT adapter (all providers)
   ansible.windows.win_shell: |

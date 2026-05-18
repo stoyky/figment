@@ -23,4 +23,8 @@ mac_hostonly_vmware = "00:0c:29:00:00:02"
 mac_nat_virtualbox      = "080027000001"
 mac_hostonly_virtualbox = "080027000002"
 
+# QEMU valid MAC
+mac_nat_qemu      = "52:54:00:07:66:ea"
+mac_hostonly_qemu = "52:54:00:07:66:eb"
+
 export_vagrant = true
