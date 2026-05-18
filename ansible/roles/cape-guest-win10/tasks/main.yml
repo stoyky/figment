@@ -5,10 +5,10 @@
     arguments: /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 TargetDir=C:\Python310
     state: present
 
-- name: Download CAPE agent.py to desktop
+- name: Download CAPE agent.py
   ansible.windows.win_get_url:
-    url: https://github.com/kevoreilly/CAPEv2/tree/master/agent/agent.py
-    dest: C:\Users\{{ user }}\Documents\updater.py
+    url: https://raw.githubusercontent.com/kevoreilly/CAPEv2/3eaf9b6260ad2edab8766bea72ddf35d80825dab/agent/agent.py
+    dest: C:\Users\{{ user }}\Documents\updater.pyw
 
 
 - name: Pause before running agent
@@ -24,7 +24,7 @@
     run_level: highest
     actions:
     - path: python.exe
-      arguments: "C:\\Users\\{{ user }}\\Documents\\updater.py"
+      arguments: "C:\\Users\\{{ user }}\\Documents\\updater.pyw"
       working_directory: "C:\\Users\\{{ user }}\\Documents"
     triggers:
       - type: logon

@@ -5,7 +5,7 @@ user           = "admin"
 password       = "password"
 cpus           = 2
 memory         = 4096
-vm_name        = "flarevm"
+vm_name        = "cape-guest-win10"
 disk_size      = 60000
 
 # Network Configuration
@@ -22,8 +22,5 @@ mac_hostonly_vmware = "00:0c:29:00:00:02"
 # Virtualbox valid MAC
 mac_nat_virtualbox      = "080027000001"
 mac_hostonly_virtualbox = "080027000002"
-
-# FlareVM Installer Configuration 
-install_args = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"
 
 export_vagrant = true

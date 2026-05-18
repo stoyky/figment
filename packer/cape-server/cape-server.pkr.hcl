@@ -262,27 +262,27 @@ build {
     only = ["vmware-iso.cape-server"]
   }
 
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo tee /etc/netplan/99-remnux.yaml >/dev/null <<'EOF'",
-  #     "network:",
-  #     "  version: 2",
-  #     "  renderer: networkd",
-  #     "  ethernets:",
-  #     "    ens${var.eth0_pcislot_vmware}:",
-  #     "      dhcp4: true",
-  #     "    ens${var.eth1_pcislot_vmware}:",
-  #     "      addresses: [${var.hostonly_ip}/24]",
-  #     "EOF",
-  #     "sudo chmod 600 /etc/netplan/99-remnux.yaml",
-  #     "sudo netplan generate && sudo netplan apply"
-  #   ]
-  #   only = ["vmware-iso.remnux"]
-  # }
+  provisioner "shell" {
+    inline = [
+      "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
+      "network:",
+      "  version: 2",
+      "  renderer: networkd",
+      "  ethernets:",
+      "    ens${var.eth0_pcislot_vmware}:",
+      "      dhcp4: true",
+      "    ens${var.eth1_pcislot_vmware}:",
+      "      addresses: [${var.hostonly_ip}/24]",
+      "EOF",
+      "sudo chmod 600 /etc/netplan/50-cloud-init.yaml",
+      "sudo netplan generate && sudo netplan apply"
+    ]
+    only = ["vmware-iso.cape-server"]
+  }
 
   # provisioner "shell" {
   #   inline = [
-  #     "sudo tee /etc/netplan/99-remnux.yaml >/dev/null <<'EOF'",
+  #     "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
   #     "network:",
   #     "  version: 2",
   #     "  renderer: networkd",
@@ -292,10 +292,10 @@ build {
   #     "    enp0s${var.eth1_pcislot_virtualbox}:",
   #     "      addresses: [${var.hostonly_ip}/24]",
   #     "EOF",
-  #     "sudo chmod 600 /etc/netplan/99-remnux.yaml",
+  #     "sudo chmod 600 /etc/netplan/50-cloud-init.yaml",
   #     "sudo netplan generate && sudo netplan apply"
   #   ]
-  #   only = ["virtualbox-ovf.remnux"]
+  #   only = ["virtualbox-ovf.cape-server"]
   # }
 
   # post-processor "vagrant" {
