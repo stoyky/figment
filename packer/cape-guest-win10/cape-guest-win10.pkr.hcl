@@ -199,9 +199,9 @@ source "virtualbox-iso" "cape-guest-win10" {
 }
 
 source "qemu" "cape-guest-win10" {
-  iso_url      = var.iso_url
-  iso_checksum = var.iso_sha256
-  # output_directory = "output-cape-guest-win10-qemu"
+  iso_url          = var.iso_url
+  iso_checksum     = var.iso_sha256
+  output_directory = "output-cape-guest-win10-qemu"
   shutdown_command = "shutdown /s /t 10 /f"
   disk_size        = var.disk_size
   memory           = var.memory
@@ -209,13 +209,6 @@ source "qemu" "cape-guest-win10" {
   accelerator      = "kvm"
   machine_type     = "q35"
   cpus             = var.cpus
-  # ssh_host_port_min = 2222
-  # ssh_host_port_max = 2230
-
-  # cdrom_interface = "sata"
-  # cd_files   = [
-  #   "packer/cape-guest-win10/drivers/*"
-  # ]
 
   floppy_files = [
     "packer/cape-guest-win10/autounattend/autounattend.xml",
@@ -224,13 +217,19 @@ source "qemu" "cape-guest-win10" {
 
   qemuargs = [
     ["-cpu", "host"],
+
+    ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
+    ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
+
+    ["-netdev", "bridge,id=hn1,br=virbr1"],
+    ["-device", "e1000,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
   ]
 
-  ssh_username   = var.user
-  ssh_password   = var.password
-  ssh_timeout    = "4h"
-  vm_name        = var.vm_name
-  net_device     = "e1000e"
+  ssh_username = var.user
+  ssh_password = var.password
+  ssh_timeout  = "4h"
+  vm_name      = var.vm_name
+  net_device     = "e1000"
   disk_interface = "ide"
 }
 
@@ -262,15 +261,15 @@ build {
       "-e", "default_gateway=${var.default_gateway}",
       "-e", "dns_ip=${var.dns_ip}",
       "-e", "mac_nat=${
-              source.type == "vmware-iso" ? var.mac_nat_vmware :
-              source.type == "virtualbox-iso" ? var.mac_nat_virtualbox :
-              var.mac_nat_qemu
-            }",
+        source.type == "vmware-iso" ? var.mac_nat_vmware :
+        source.type == "virtualbox-iso" ? var.mac_nat_virtualbox :
+        var.mac_nat_qemu
+      }",
       "-e", "mac_hostonly=${
-              source.type == "vmware-iso" ? var.mac_hostonly_vmware :
-              source.type == "virtualbox-iso" ? var.mac_hostonly_virtualbox :
-              var.mac_hostonly_qemu
-            }",
+        source.type == "vmware-iso" ? var.mac_hostonly_vmware :
+        source.type == "virtualbox-iso" ? var.mac_hostonly_virtualbox :
+        var.mac_hostonly_qemu
+      }",
       "-e", "user=${var.user}",
       "-e", "source_type=${source.type}",
       "--forks=20"
@@ -285,10 +284,10 @@ build {
 
     post-processor "vagrant" {
       keep_input_artifact  = true
-      output               = source.type == "vmware-iso" ? "boxes/cape-guest-win10-vmware.box" : "boxes/cape-guest-win10-virtualbox.box"
-      provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+      output               = source.type == "vmware-iso" ? "boxes/cape-guest-win10-vmware.box" : source.type == "virtualbox-iso" ? "boxes/cape-guest-win10-virtualbox.box" : "boxes/cape-guest-win10-qemu.box"
+      provider_override    = source.type == "vmware-iso" ? "vmware" : source.type == "virtualbox-iso" ? "virtualbox" : "libvirt"
       vagrantfile_template = "vagrant/cape-guest-win10/Vagrantfile"
-      only                 = var.export_vagrant ? ["vmware-iso.cape-guest-win10", "virtualbox-iso.cape-guest-win10"] : []
+      only                 = var.export_vagrant ? ["vmware-iso.cape-guest-win10", "virtualbox-iso.cape-guest-win10", "qemu.cape-guest-win10"] : []
     }
   }
 }

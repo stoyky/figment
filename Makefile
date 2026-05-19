@@ -48,7 +48,6 @@ cape-guest-win10-qemu:
 	packer init packer/cape-guest-win10/cape-guest-win10.pkr.hcl 
 	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win10 -var-file=packer/cape-guest-win10/cape-guest-win10.pkrvars.hcl packer/cape-guest-win10/cape-guest-win10.pkr.hcl
 
-
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."
 	rm -rf temp/flarevm-virtualbox/
