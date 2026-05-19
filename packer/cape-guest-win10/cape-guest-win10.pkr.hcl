@@ -201,7 +201,6 @@ source "virtualbox-iso" "cape-guest-win10" {
 source "qemu" "cape-guest-win10" {
   iso_url          = var.iso_url
   iso_checksum     = var.iso_sha256
-  output_directory = "output-cape-guest-win10-qemu"
   shutdown_command = "shutdown /s /t 10 /f"
   disk_size        = var.disk_size
   memory           = var.memory
@@ -209,6 +208,7 @@ source "qemu" "cape-guest-win10" {
   accelerator      = "kvm"
   machine_type     = "q35"
   cpus             = var.cpus
+  output_directory = "temp/cape-guest-win10-qemu"
 
   floppy_files = [
     "packer/cape-guest-win10/autounattend/autounattend.xml",

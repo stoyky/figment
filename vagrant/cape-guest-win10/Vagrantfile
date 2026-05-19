@@ -1,16 +1,17 @@
 Vagrant.configure("2") do |config|
   # FLARE VM
-  config.vm.define "cape-guest-win10" do |cape-guest-win10|
-    cape-guest-win10.vm.box = "figment/cape-guest-win10"
-    cape-guest-win10.vm.hostname = "cape-guest-win10"
-    cape-guest-win10.vm.guest = :windows
-    cape-guest-win10.ssh.username = "admin"
-    cape-guest-win10.ssh.password = "password"
-    cape-guest-win10.ssh.insert_key = false
+  config.vm.define "cape-guest-win10" do | cape_guest_win10 |
+    cape_guest_win10.vm.box = "cape-guest-win10"
+    cape_guest_win10.vm.hostname = "cape-guest-win10"
+    cape_guest_win10.vm.guest = :windows
+    cape_guest_win10.ssh.username = "admin"
+    cape_guest_win10.ssh.password = "password"
+    cape_guest_win10.ssh.insert_key = false
+    cape_guest_win10.ssh.shell = "powershell.exe -NoLogo -NonInteractive -ExecutionPolicy Bypass"
 
-    cape-guest-win10.vm.synced_folder '.', '/vagrant', disabled: true
+    cape_guest_win10.vm.synced_folder '.', '/vagrant', disabled: true
 
-    cape-guest-win10.vm.provider "vmware_desktop" do |vmware|
+    cape_guest_win10.vm.provider "vmware_desktop" do |vmware|
       vmware.vmx["ethernet0.present"]        = "TRUE"
       vmware.vmx["ethernet0.connectionType"] = "nat"
       vmware.vmx["ethernet0.virtualDev"]     = "e1000"
@@ -35,7 +36,7 @@ Vagrant.configure("2") do |config|
       vmware.gui    = true
     end
 
-    cape-guest-win10.vm.provider "virtualbox" do |virtualbox|
+    cape_guest_win10.vm.provider "virtualbox" do |virtualbox|
       virtualbox.customize ["modifyvm", :id, "--nic1", "nat"]
       virtualbox.customize ["modifyvm", :id, "--macaddress1", "080027000001"]
       virtualbox.customize ["modifyvm", :id, "--nic2", "hostonly"]
@@ -48,6 +49,20 @@ Vagrant.configure("2") do |config|
       virtualbox.memory = "4096"
       virtualbox.gui    = true
     end
-  
+
+    cape_guest_win10.vm.provider :libvirt do |libvirt|
+      libvirt.driver = "kvm"
+      libvirt.uri = "qemu:///system"
+      libvirt.machine_type = "q35"
+      libvirt.cpu_mode = "host-passthrough"
+      libvirt.disk_bus = "sata"
+      libvirt.cpus = 4
+      libvirt.memory = 8192
+      libvirt.nic_model_type = "e1000"
+      libvirt.management_network_address = "192.168.56.0/24"
+      libvirt.management_network_mode = "nat"
+      libvirt.management_network_model_type = "e1000"
+      libvirt.management_network_mac = "52:54:00:07:66:ea"
+    end
   end
 end

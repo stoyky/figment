@@ -23,8 +23,8 @@
     password: "password"
     run_level: highest
     actions:
-    - path: python.exe
-      arguments: "updater.pyw"
+    - path: "C:\\Python310\\pythonw.exe"
+      arguments: "C:\\Users\\{{ user }}\\Documents\\updater.pyw"
       working_directory: "C:\\Users\\{{ user }}\\Documents"
     triggers:
       - type: logon
@@ -40,11 +40,7 @@
   become: true
   become_user: '{{ user }}'
   become_method: runas
-
-# - name: Pause before running agent
-#   ansible.builtin.pause:
-#     seconds: 800000
-
+  
 - name: Rename NAT adapter (all providers)
   ansible.windows.win_shell: |
     $normMac = '{{ mac_nat }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
