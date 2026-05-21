@@ -282,7 +282,7 @@ build {
   }
 
   provisioner "shell" {
-    inline = var.cape_nested_virt ?[
+    inline = var.cape_nested_virt ? [
       "echo 'Installing nested-virt guest VMs'",
       "virt-install --name cape-guest-win10 --import --disk path='$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-cape-guest-win10-experimental/0.0.1/amd64/libvirt/box_0.img' --network network=default"
       ] : [
