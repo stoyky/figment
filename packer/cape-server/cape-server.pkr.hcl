@@ -90,24 +90,34 @@ variable "export_vagrant" {
   default = false
 }
 
+variable "cape_commit" {
+  type    = string
+  default = false
+}
+
+variable "cape_nested_virt" {
+  type    = bool
+  default = false
+}
+
 # source "null" "cape-server" {
 #   communicator = "none"
 # }
 
 
 source "vmware-iso" "cape-server" {
-  cd_files      = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
-  cd_label      = "cidata"
-
-  iso_url       = var.source_path_vmware_raw
-  iso_checksum  = "SHA256:3a4c9877b483ab46d7c3fbe165a0db275e1ae3cfe56a5657e5a47c2f99a99d1e"
-  vm_name       = var.vm_name
-  display_name  = var.display_name
-  ssh_username  = var.ssh_username
-  ssh_password  = var.ssh_password
-  ssh_timeout   = var.ssh_timeout
+  cd_files             = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
+  cd_label             = "cidata"
+  output_directory     = "temp/cape-server"
+  iso_url              = var.source_path_vmware_raw
+  iso_checksum         = "SHA256:3a4c9877b483ab46d7c3fbe165a0db275e1ae3cfe56a5657e5a47c2f99a99d1e"
+  vm_name              = var.vm_name
+  display_name         = var.display_name
+  ssh_username         = var.ssh_username
+  ssh_password         = var.ssh_password
+  ssh_timeout          = var.ssh_timeout
   network_adapter_type = "e1000"
-  disk_size     = 102400
+  disk_size            = 102400
 
   # keep_registered = true
 
@@ -127,8 +137,8 @@ source "vmware-iso" "cape-server" {
   # headless                       = false
 
   vmx_data = {
-    "memsize"              = "8192"
-    "numvcpus"             = "4"
+    "memsize"  = "8192"
+    "numvcpus" = "4"
 
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "TRUE"
@@ -211,7 +221,7 @@ build {
     "source.vmware-iso.cape-server",
     # "source.virtualbox-ovf.remnux"
   ]
-  
+
   provisioner "shell" {
     inline = [
       "sudo apt update",
@@ -220,21 +230,21 @@ build {
       "sudo reboot"
     ]
     expect_disconnect = true
-    only = ["vmware-iso.cape-server"]
+    only              = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
     pause_before = "10s"
     inline = [
       "echo 'Cloning CAPE and running KVM-QEMU installer'",
-      "git clone https://github.com/kevoreilly/CAPEv2/commit/${var.cape_commit}",
-      "cd CAPEv2/installer",
+      "git clone https://github.com/kevoreilly/CAPEv2.git",
+      "cd CAPEv2 && git checkout ${var.cape_commit} && cd installer",
       "sed -i 's/<WOOT>/ACPI/g' kvm-qemu.sh",
       "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
       "sudo reboot",
     ]
     expect_disconnect = true
-    only = ["vmware-iso.cape-server"]
+    only              = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
@@ -246,20 +256,38 @@ build {
       "sudo reboot",
     ]
     expect_disconnect = true
-    only = ["vmware-iso.cape-server"]
+    only              = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
     pause_before = "10s"
     inline = [
-      "echo 'Performing poetry installation'",  
-      # "sudo su - cape -c /bin/bash",
-      # "export PATH='/etc/poetry/bin:$PATH'",
+      "echo 'Performing poetry installation'",
       "cd /opt/CAPEv2/",
       "echo $PATH",
       "sudo -u cape /etc/poetry/bin/poetry install",
     ]
     only = ["vmware-iso.cape-server"]
+  }
+
+  provisioner "shell" {
+    inline = var.cape_nested_virt ? [
+      "echo 'Installing Vagrant and libvirt dependencies'",
+      "wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg",
+      "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main' | sudo tee /etc/apt/sources.list.d/hashicorp.list",
+      "sudo apt update && sudo apt install vagrant libvirt-dev",
+    ] : [
+      "echo 'Skipping nested-virt guest VMs'"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = var.cape_nested_virt ?[
+      "echo 'Installing nested-virt guest VMs'",
+      "virt-install --name cape-guest-win10 --import --disk path='$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-cape-guest-win10-experimental/0.0.1/amd64/libvirt/box_0.img' --network network=default"
+      ] : [
+        "echo 'Skipping nested-virt guest VMs'"
+      ]
   }
 
   provisioner "shell" {
@@ -274,7 +302,7 @@ build {
       "    ens${var.eth1_pcislot_vmware}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
-      "sudo chmod 600 /etc/netplan/50-cloud-init.yaml",
+      "sudo chmod 0600 /etc/netplan/50-cloud-init.yaml",
       "sudo netplan generate && sudo netplan apply"
     ]
     only = ["vmware-iso.cape-server"]
@@ -298,11 +326,11 @@ build {
   #   only = ["virtualbox-ovf.cape-server"]
   # }
 
-  # post-processor "vagrant" {
-  #   output               = source.type == "vmware-iso" ? "boxes/remnux-vmware.box" : "boxes/remnux-virtualbox.box"
-  #   keep_input_artifact  = true
-  #   provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
-  #   vagrantfile_template = "vagrant/remnux/Vagrantfile"
-  #   only                 = var.export_vagrant ? ["vmware-iso.remnux", "virtualbox-ovf.remnux"] : []
-  # }
+  post-processor "vagrant" {
+    output               = source.type == "vmware-iso" ? "boxes/cape-server-vmware.box" : "boxes/cape-server-virtualbox.box"
+    keep_input_artifact  = true
+    provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+    vagrantfile_template = "vagrant/cape-server/Vagrantfile"
+    only                 = var.export_vagrant ? ["vmware-iso.cape-server", "virtualbox-ovf.cape-server"] : []
+  }
 }

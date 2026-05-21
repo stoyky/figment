@@ -11,6 +11,7 @@ boot_wait               = "30s"
 # CAPE configuration
 # This is the commit hash of the CAPE repository that will be cloned during the provisioning process.
 cape_commit              = "3eaf9b"
+cape_nested_virtualization = true
 
 # Network Configuration
 hostonly_ip             = "192.168.56.10"
