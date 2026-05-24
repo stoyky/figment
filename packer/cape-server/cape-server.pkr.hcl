@@ -277,17 +277,19 @@ build {
       "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/hashicorp.list",
       "sudo apt update && sudo apt install -y vagrant libvirt-dev virt-viewer"
     ] : [
-      "echo 'Skipping nested-virt guest VMs'"
+      "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
         "echo 'Installing nested-virt guest VMs'",
-        "vagrant box add figment/cape-guest-win10-experimental",
-        "virt-install --connect qemu:///system --name cape-guest-win10 --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-cape-guest-win10-experimental/0.0.1/amd64/libvirt/box_0.img\" --network network=default --os-variant win10"      
+        "vagrant box add figment/cape-guest-win10",
+        "virt-install --connect qemu:///system --noautoconsole --name cape-guest-win10 --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-cape-guest-win10/0.0.1/amd64/libvirt/box_0.img\" --network network=default --os-variant win10",      
+        "virsh -c qemu:///system snapshot-create-as --domain cape-guest-win10 --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
+        "virsh -c qemu:///system shutdown cape-guest-win10"
     ] : [
-        "echo 'Skipping nested-virt guest VMs'"
+        "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
 
@@ -303,8 +305,9 @@ build {
       "    ens${var.eth1_pcislot_vmware}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
-      "sudo chmod 0600 /etc/netplan/50-cloud-init.yaml",
-      "sudo netplan generate && sudo netplan apply"
+      "sudo netplan generate",
+      "sudo netplan apply",
+      "sudo chmod 600 /etc/netplan/*.yaml",
     ]
     only = ["vmware-iso.cape-server"]
   }

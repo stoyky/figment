@@ -184,7 +184,7 @@ source "virtualbox-iso" "cape-guest-win10" {
   guest_additions_mode = "upload"
   guest_additions_path = "vmtools.iso"
 
-  shutdown_command = "shutdown /s /t 10 /f"
+  shutdown_command = "shutdown /r /t 0"
   shutdown_timeout = "4h"
   headless         = false
   vboxmanage = [

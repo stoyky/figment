@@ -85,9 +85,29 @@
   become_user: '{{ user }}'
   become_method: runas
 
+- name: Disable EnableLUA
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+    name: EnableLUA
+    data: 0
+    type: dword
+
+- name: Disable ConsentPromptBehaviorAdmin
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+    name: ConsentPromptBehaviorAdmin
+    data: 0
+    type: dword
+
+- name: Disable PromptOnSecureDesktop
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+    name: PromptOnSecureDesktop
+    data: 0
+    type: dword
+
 - name: Reboot
   ansible.windows.win_reboot:
     msg: "Rebooting"
-    reboot_timeout: 120
-  ignore_errors: true
+    reboot_timeout: 300
 
