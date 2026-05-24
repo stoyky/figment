@@ -12,9 +12,18 @@ boot_wait              = "30s"
 # This is the commit hash of the CAPE repository that will be cloned during the provisioning process.
 cape_commit      = "3eaf9b"
 cape_nested_virt = true
+cape_machinery   = "kvm"
+cape_machines = [
+  {
+    name = "cape-guest-win10"
+    platform = "windows"
+    ip   = "192.168.122.121"
+    arch = "x64"
+  }
+]
 
 # Network Configuration
-hostonly_ip         = "192.168.56.10"
+hostonly_ip         = "192.168.122.101"
 eth0_pcislot_vmware = "33"
 eth1_pcislot_vmware = "36"
 

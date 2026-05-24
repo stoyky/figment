@@ -221,8 +221,11 @@ source "qemu" "cape-guest-win10" {
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
     ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
 
-    ["-netdev", "bridge,id=hn1,br=virbr1"],
-    ["-device", "e1000,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
+    ["-netdev", "user,id=user.1"],
+    ["-device", "e1000,netdev=user.1,mac=${var.mac_hostonly_qemu}"]
+
+    # ["-netdev", "bridge,id=hn1,br=virbr1"],
+    # ["-device", "e1000,netdev=hn1]
   ]
 
   ssh_username = var.user

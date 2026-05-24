@@ -9,9 +9,9 @@ vm_name        = "cape-guest-win10"
 disk_size      = 60000
 
 # Network Configuration
-hostonly_ip             = "192.168.56.20"
-default_gateway         = "192.168.56.10"
-dns_ip                  = "192.168.56.10"
+hostonly_ip             = "192.168.122.121"
+default_gateway         = "192.168.122.1"
+dns_ip                  = "192.168.122.1"
 ethernet0_pcislotnumber = "33"
 ethernet1_pcislotnumber = "36"
 

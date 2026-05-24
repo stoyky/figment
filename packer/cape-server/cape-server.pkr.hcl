@@ -100,10 +100,35 @@ variable "cape_nested_virt" {
   default = false
 }
 
-# source "null" "cape-server" {
-#   communicator = "none"
-# }
+variable "cape_machines" {
+  type = list(object({
+    name = string
+    platform = string
+    ip   = string
+    arch = string
+  }))
+}
 
+variable "cape_machinery" {
+  type    = string
+  default = "kvm"
+}
+
+locals {
+  cape_machines_line = join(", ", [
+    for m in var.cape_machines : m.name
+  ])
+
+  cape_machine_blocks = join("\n\n", [
+    for m in var.cape_machines : <<-EOT
+    [${m.name}]
+    label = ${m.name}
+    platform = ${m.platform}
+    ip = ${m.ip}
+    arch = ${m.arch}
+    EOT
+  ])
+}
 
 source "vmware-iso" "cape-server" {
   cd_files             = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
@@ -143,6 +168,11 @@ source "vmware-iso" "cape-server" {
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "TRUE"
     "vhv.enable"            = "TRUE"
+
+    # "ethernet1.present"        = "TRUE"
+    # "ethernet1.connectionType" = "hostonly"
+    # "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
+    # "ethernet1.virtualDev"     = "e1000"
   }
 
   # vmx_data = {
@@ -294,22 +324,46 @@ build {
   }
 
   provisioner "shell" {
+    inline = var.cape_nested_virt ? [
+        "echo 'Configuring machinery for nested-virt guest VMs'",
+        "sudo sed -i -E 's/^[[:space:]]*machines[[:space:]]*=.*/machines = ${local.cape_machines_line}/' /opt/CAPEv2/conf/${var.cape_machinery}.conf",
+        <<-EOF
+        sudo tee -a /opt/CAPEv2/conf/${var.cape_machinery}.conf > /dev/null <<'BLOCK'
+
+        ${local.cape_machine_blocks}
+
+        BLOCK
+        EOF
+    ] : [
+      "echo 'Skipping install of nested-virt guest VMs'"
+    ]
+}
+
+  provisioner "shell" {
     inline = [
+      "echo 'Setting CAPE resultserver IP address'",
+      "sudo sed -i -E 's/^[[:space:]]*ip[[:space:]]*=.*/ip = ${var.hostonly_ip}/' /opt/CAPEv2/conf/cuckoo.conf"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "echo 'Setting CAPE server interface IP address'",
+      "sudo chmod 600 /etc/netplan/*.yaml",
       "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
       "network:",
       "  version: 2",
-      "  renderer: networkd",
+      "  renderer: NetworkManager",
       "  ethernets:",
-      "    ens${var.eth0_pcislot_vmware}:",
-      "      dhcp4: true",
-      "    ens${var.eth1_pcislot_vmware}:",
+      "   ens${var.eth0_pcislot_vmware}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
       "sudo netplan generate",
-      "sudo netplan apply",
-      "sudo chmod 600 /etc/netplan/*.yaml",
+      "sudo netplan apply"
     ]
     only = ["vmware-iso.cape-server"]
+    expect_disconnect = true
+    timeout = "5m"
   }
 
   # provisioner "shell" {
@@ -329,6 +383,16 @@ build {
   #   ]
   #   only = ["virtualbox-ovf.cape-server"]
   # }
+
+  provisioner "shell" {
+    inline = [
+      "sudo systemctl restart cape",
+      "sudo shutdown -h now"
+    ]
+    only = ["vmware-iso.cape-server"]
+    expect_disconnect = true
+    timeout = "2m"
+  }
 
   post-processor "vagrant" {
     output               = source.type == "vmware-iso" ? "boxes/cape-server-vmware.box" : "boxes/cape-server-virtualbox.box"
