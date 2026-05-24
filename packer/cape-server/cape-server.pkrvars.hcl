@@ -19,6 +19,7 @@ cape_machines = [
     platform = "windows"
     ip   = "192.168.122.121"
     arch = "x64"
+    mac = "52:54:00:07:66:ea"
   }
 ]
 

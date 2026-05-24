@@ -106,6 +106,7 @@ variable "cape_machines" {
     platform = string
     ip   = string
     arch = string
+    mac  = string
   }))
 }
 
@@ -121,11 +122,11 @@ locals {
 
   cape_machine_blocks = join("\n\n", [
     for m in var.cape_machines : <<-EOT
-    [${m.name}]
-    label = ${m.name}
-    platform = ${m.platform}
-    ip = ${m.ip}
-    arch = ${m.arch}
+      [${m.name}]
+      label = ${m.name}
+      platform = ${m.platform}
+      ip = ${m.ip}
+      arch = ${m.arch}
     EOT
   ])
 }
@@ -312,32 +313,38 @@ build {
   }
 
   provisioner "shell" {
-    inline = var.cape_nested_virt ? [
-        "echo 'Installing nested-virt guest VMs'",
-        "vagrant box add figment/cape-guest-win10",
-        "virt-install --connect qemu:///system --noautoconsole --name cape-guest-win10 --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-cape-guest-win10/0.0.1/amd64/libvirt/box_0.img\" --network network=default --os-variant win10",      
-        "virsh -c qemu:///system snapshot-create-as --domain cape-guest-win10 --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
-        "virsh -c qemu:///system shutdown cape-guest-win10"
-    ] : [
-        "echo 'Skipping install of nested-virt guest VMs'"
-    ]
+  inline = var.cape_nested_virt ? concat(
+    ["echo 'Installing nested-virt guest VMs'"],
+    flatten([
+      for m in var.cape_machines : [
+        "vagrant box add figment/${m.name}",
+        "virsh -c qemu:///system net-update default add-last ip-dhcp-host \"<host mac='${m.mac}' name='${m.name}' ip='${m.ip}' />\" --live --config --parent-index 0",
+        "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac} --os-variant win10",
+        "virsh -c qemu:///system snapshot-create-as --domain ${m.name} --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
+        "virsh -c qemu:///system shutdown ${m.name}"
+      ]
+    ])
+  ) : [
+    "echo 'Skipping install of nested-virt guest VMs'"
+  ]
+  timeout = "5m"
   }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
-        "echo 'Configuring machinery for nested-virt guest VMs'",
-        "sudo sed -i -E 's/^[[:space:]]*machines[[:space:]]*=.*/machines = ${local.cape_machines_line}/' /opt/CAPEv2/conf/${var.cape_machinery}.conf",
-        <<-EOF
-        sudo tee -a /opt/CAPEv2/conf/${var.cape_machinery}.conf > /dev/null <<'BLOCK'
+      "echo 'Configuring machinery for nested-virt guest VMs'",
+      "sudo sed -i -E 's/^[[:space:]]*machines[[:space:]]*=.*/machines = ${local.cape_machines_line}/' /opt/CAPEv2/conf/${var.cape_machinery}.conf",
+      <<-EOF
+      sudo tee -a /opt/CAPEv2/conf/${var.cape_machinery}.conf > /dev/null <<'BLOCK'
 
-        ${local.cape_machine_blocks}
+      ${local.cape_machine_blocks}
 
-        BLOCK
-        EOF
+      BLOCK
+      EOF
     ] : [
       "echo 'Skipping install of nested-virt guest VMs'"
     ]
-}
+  }
 
   provisioner "shell" {
     inline = [
@@ -360,6 +367,17 @@ build {
       "EOF",
       "sudo netplan generate",
       "sudo netplan apply"
+    ]
+    only = ["vmware-iso.cape-server"]
+    expect_disconnect = true
+    timeout = "5m"
+  }
+
+    provisioner "shell" {
+    inline = [
+      "echo 'Restarting CAPE and shutting down the machine'",
+      "systemctl restart cape",
+      "sudo shutdown -h now"
     ]
     only = ["vmware-iso.cape-server"]
     expect_disconnect = true
