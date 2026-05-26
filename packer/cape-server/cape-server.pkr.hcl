@@ -129,6 +129,7 @@ locals {
       arch = ${m.arch}
     EOT
   ])
+
 }
 
 source "vmware-iso" "cape-server" {
@@ -144,9 +145,11 @@ source "vmware-iso" "cape-server" {
   ssh_timeout          = var.ssh_timeout
   network_adapter_type = "e1000"
   disk_size            = 102400
-
+  memory = 8192
+  cpus   = 4
   # keep_registered = true
 
+  vhv_enabled       = true
   shutdown_timeout = "30m"
   shutdown_command = "sudo shutdown -h now"
   boot_wait        = "5s"
@@ -158,30 +161,19 @@ source "vmware-iso" "cape-server" {
     "<f10>"
   ]
 
-  # vmx_remove_ethernet_interfaces = false
-  # skip_compaction                = true
-  # headless                       = false
+  vmx_remove_ethernet_interfaces = false
+  skip_compaction                = true
+  headless                       = false
 
   vmx_data = {
-    "memsize"  = "8192"
-    "numvcpus" = "4"
-
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "TRUE"
-    "vhv.enable"            = "TRUE"
 
-    # "ethernet1.present"        = "TRUE"
-    # "ethernet1.connectionType" = "hostonly"
-    # "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-    # "ethernet1.virtualDev"     = "e1000"
+    "ethernet1.present"        = "TRUE"
+    "ethernet1.connectionType" = "hostonly"
+    "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
+    "ethernet1.virtualDev"     = "e1000"
   }
-
-  # vmx_data = {
-  #   "ethernet1.present"        = "TRUE"
-  #   "ethernet1.connectionType" = "hostonly"
-  #   "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-  #   "ethernet1.virtualDev"     = "e1000"
-  # }
 
 }
 
@@ -312,22 +304,22 @@ build {
     ]
   }
 
+
   provisioner "shell" {
-  inline = var.cape_nested_virt ? concat(
-    ["echo 'Installing nested-virt guest VMs'"],
-    flatten([
-      for m in var.cape_machines : [
-        "vagrant box add figment/${m.name}",
-        "virsh -c qemu:///system net-update default add-last ip-dhcp-host \"<host mac='${m.mac}' name='${m.name}' ip='${m.ip}' />\" --live --config --parent-index 0",
-        "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac} --os-variant win10",
-        "virsh -c qemu:///system snapshot-create-as --domain ${m.name} --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
-        "virsh -c qemu:///system shutdown ${m.name}"
-      ]
-    ])
-  ) : [
-    "echo 'Skipping install of nested-virt guest VMs'"
-  ]
-  timeout = "5m"
+    inline = var.cape_nested_virt ? concat(
+      ["echo 'Installing nested-virt guest VMs'"],
+      flatten([
+        for m in var.cape_machines : [
+          "vagrant box add figment/${m.name}",
+          "virsh -c qemu:///system net-update default add-last ip-dhcp-host \"<host mac='${m.mac}' name='${m.name}' ip='${m.ip}' />\" --live --config --parent-index 0",
+          "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac} --os-variant win10",
+          "virsh -c qemu:///system snapshot-create-as --domain ${m.name} --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
+          "virsh -c qemu:///system shutdown ${m.name}"
+        ]
+      ])
+    ) : [
+      "echo 'Skipping install of nested-virt guest VMs'"
+    ]
   }
 
   provisioner "shell" {
@@ -348,41 +340,31 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo 'Setting CAPE resultserver IP address'",
+      "echo 'Setting CAPE resultserver IP address in cuckoo.conf'",
       "sudo sed -i -E 's/^[[:space:]]*ip[[:space:]]*=.*/ip = ${var.hostonly_ip}/' /opt/CAPEv2/conf/cuckoo.conf"
     ]
   }
 
+
   provisioner "shell" {
     inline = [
-      "echo 'Setting CAPE server interface IP address'",
       "sudo chmod 600 /etc/netplan/*.yaml",
       "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
       "network:",
       "  version: 2",
       "  renderer: NetworkManager",
       "  ethernets:",
-      "   ens${var.eth0_pcislot_vmware}:",
+      "    ens${var.eth0_pcislot_vmware}:",
+      "      dhcp4: true",
+      "    ens${var.eth1_pcislot_vmware}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
-      "sudo netplan generate",
-      "sudo netplan apply"
+
+      "sudo netplan generate && sudo netplan apply"
     ]
     only = ["vmware-iso.cape-server"]
-    expect_disconnect = true
-    timeout = "5m"
   }
 
-    provisioner "shell" {
-    inline = [
-      "echo 'Restarting CAPE and shutting down the machine'",
-      "systemctl restart cape",
-      "sudo shutdown -h now"
-    ]
-    only = ["vmware-iso.cape-server"]
-    expect_disconnect = true
-    timeout = "5m"
-  }
 
   # provisioner "shell" {
   #   inline = [
@@ -401,16 +383,6 @@ build {
   #   ]
   #   only = ["virtualbox-ovf.cape-server"]
   # }
-
-  provisioner "shell" {
-    inline = [
-      "sudo systemctl restart cape",
-      "sudo shutdown -h now"
-    ]
-    only = ["vmware-iso.cape-server"]
-    expect_disconnect = true
-    timeout = "2m"
-  }
 
   post-processor "vagrant" {
     output               = source.type == "vmware-iso" ? "boxes/cape-server-vmware.box" : "boxes/cape-server-virtualbox.box"

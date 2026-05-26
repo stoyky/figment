@@ -31,7 +31,7 @@ convert-cape-server:
 cape-server-vmware: 
 	@echo "Building CAPE Server..."
 	packer init packer/cape-server/cape-server.pkr.hcl 
-	packer build -on-error=ask --only vmware-iso.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+	PACKER_LOG=1 packer build -on-error=ask --only vmware-iso.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
 
 cape-guest-win10-vmware: 
 	@echo "Building CAPE guest Windows 10..."
