@@ -310,6 +310,17 @@ build {
     only = ["vmware-iso.cape-server"]
   }
 
+  provisioner "file" {
+    source      = "packer/cape-server/cape-repo/conf/default"
+    destination = "/tmp/cape-conf"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "for f in /tmp/cape-conf/*.conf.default; do sudo cp \"$f\" \"/opt/CAPEv2/conf/$(basename \"$f\" .default)\"; done"
+    ]
+  }
+
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
       "echo 'Installing Vagrant and libvirt dependencies'",
