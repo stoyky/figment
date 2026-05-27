@@ -1,0 +1,3 @@
+[submodule "packer/cape-server/cape-repo"]
+	path = packer/cape-server/cape-repo
+	url = https://github.com/kevoreilly/CAPEv2.git
