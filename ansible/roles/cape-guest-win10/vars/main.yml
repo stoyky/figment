@@ -1,7 +1,7 @@
 ---
-hostonly_ip:       "172.16.53.20" 
-default_gateway:   "172.16.53.10"
-dns_ip:            "172.16.53.10"
+hostonly_ip:       "192.168.55.101" 
+default_gateway:   "192.168.55.1"
+dns_ip:            "192.168.55.1"
 
   
 

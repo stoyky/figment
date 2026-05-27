@@ -209,6 +209,7 @@ source "qemu" "cape-guest-win10" {
   machine_type     = "q35"
   cpus             = var.cpus
   output_directory = "temp/cape-guest-win10-qemu"
+  # skip_nat_mapping = true
 
   floppy_files = [
     "packer/cape-guest-win10/autounattend/autounattend.xml",
@@ -221,11 +222,11 @@ source "qemu" "cape-guest-win10" {
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
     ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
 
-    ["-netdev", "user,id=user.1"],
-    ["-device", "e1000,netdev=user.1,mac=${var.mac_hostonly_qemu}"]
+    # ["-netdev", "user,id=user.1"],
+    # ["-device", "e1000,netdev=user.1,mac=${var.mac_hostonly_qemu}"]
 
-    # ["-netdev", "bridge,id=hn1,br=virbr1"],
-    # ["-device", "e1000,netdev=hn1]
+    ["-netdev", "bridge,id=hn1,br=virbr1"],
+    ["-device", "e1000e,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
   ]
 
   ssh_username = var.user

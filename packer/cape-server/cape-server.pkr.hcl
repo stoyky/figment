@@ -49,7 +49,23 @@ variable "boot_wait" {
   type = string
 }
 
-variable "hostonly_ip" {
+variable "server_nat_ip" {
+  type = string
+}
+
+variable "server_nat_default_gateway" {
+  type = string
+}
+
+variable "guest_hostonly_default_gateway" {
+  type = string
+}
+
+variable "guest_hostonly_range_start" {
+  type = string
+}
+
+variable "guest_hostonly_range_end" {
   type = string
 }
 
@@ -100,13 +116,15 @@ variable "cape_nested_virt" {
   default = false
 }
 
-variable "cape_machines" {
+variable "cape_guests" {
   type = list(object({
-    name = string
-    platform = string
-    ip   = string
-    arch = string
-    mac  = string
+    name         = string
+    platform     = string
+    arch         = string
+    ip_nat       = string
+    ip_hostonly  = string
+    mac_nat      = string
+    mac_hostonly = string
   }))
 }
 
@@ -117,19 +135,18 @@ variable "cape_machinery" {
 
 locals {
   cape_machines_line = join(", ", [
-    for m in var.cape_machines : m.name
+    for m in var.cape_guests : m.name
   ])
 
   cape_machine_blocks = join("\n\n", [
-    for m in var.cape_machines : <<-EOT
+    for m in var.cape_guests : <<-EOT
       [${m.name}]
       label = ${m.name}
       platform = ${m.platform}
-      ip = ${m.ip}
+      ip = ${m.ip_hostonly}
       arch = ${m.arch}
     EOT
   ])
-
 }
 
 source "vmware-iso" "cape-server" {
@@ -169,10 +186,10 @@ source "vmware-iso" "cape-server" {
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "TRUE"
 
-    "ethernet1.present"        = "TRUE"
-    "ethernet1.connectionType" = "hostonly"
-    "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-    "ethernet1.virtualDev"     = "e1000"
+    # "ethernet1.present"        = "TRUE"
+    # "ethernet1.connectionType" = "hostonly"
+    # "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
+    # "ethernet1.virtualDev"     = "e1000"
   }
 
 }
@@ -298,21 +315,51 @@ build {
       "echo 'Installing Vagrant and libvirt dependencies'",
       "wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg",
       "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/hashicorp.list",
-      "sudo apt update && sudo apt install -y vagrant libvirt-dev virt-viewer"
+      "sudo apt update && sudo apt install -y vagrant"
     ] : [
       "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
 
+  provisioner "shell" {
+    inline = var.cape_nested_virt ? [
+      "echo 'Creating libvirt hostonly network'",
+      "cat > /tmp/hostonly.xml <<'EOF'",
+      "<network>",
+      "  <name>hostonly</name>",
+      "  <bridge name='virbr1' stp='on' delay='0'/>",
+      "  <domain name='hostonly'/>",
+      "  <ip address='${var.guest_hostonly_default_gateway}' netmask='255.255.255.0'>",
+      "    <dhcp>",
+      "      <range start='${var.guest_hostonly_range_start}' end='${var.guest_hostonly_range_end}'/>",
+      "    </dhcp>",
+      "  </ip>",
+      "</network>",
+      "EOF",
+      "virsh -c qemu:///system net-destroy hostonly >/dev/null 2>&1 || true",
+      "virsh -c qemu:///system net-undefine hostonly >/dev/null 2>&1 || true",
+      "virsh -c qemu:///system net-define /tmp/hostonly.xml",
+      "virsh -c qemu:///system net-autostart hostonly",
+      "virsh -c qemu:///system net-start hostonly",
+      "virsh -c qemu:///system net-list --all"
+    ] : [
+      "echo 'Skipping libvirt hostonly network creation'"
+    ]
+    only = ["vmware-iso.cape-server"]
+  }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? concat(
       ["echo 'Installing nested-virt guest VMs'"],
       flatten([
-        for m in var.cape_machines : [
+        for m in var.cape_guests : [
           "vagrant box add figment/${m.name}",
-          "virsh -c qemu:///system net-update default add-last ip-dhcp-host \"<host mac='${m.mac}' name='${m.name}' ip='${m.ip}' />\" --live --config --parent-index 0",
-          "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac} --os-variant win10",
+
+          "virsh -c qemu:///system net-update default add-last ip-dhcp-host \"<host mac='${m.mac_nat}' name='${m.name}-nat' ip='${m.ip_nat}' />\" --live --config --parent-index 0",
+          "virsh -c qemu:///system net-update hostonly add-last ip-dhcp-host \"<host mac='${m.mac_hostonly}' name='${m.name}-hostonly' ip='${m.ip_hostonly}' />\" --live --config --parent-index 0",
+
+          "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac_nat} --network network=hostonly,model=e1000,mac=${m.mac_hostonly} --os-variant win10",
+
           "virsh -c qemu:///system snapshot-create-as --domain ${m.name} --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
           "virsh -c qemu:///system shutdown ${m.name}"
         ]
@@ -341,29 +388,37 @@ build {
   provisioner "shell" {
     inline = [
       "echo 'Setting CAPE resultserver IP address in cuckoo.conf'",
-      "sudo sed -i -E 's/^[[:space:]]*ip[[:space:]]*=.*/ip = ${var.hostonly_ip}/' /opt/CAPEv2/conf/cuckoo.conf"
+      "sudo sed -i '/^\\[resultserver\\]/,/^\\[/ s/^ip =.*/ip = '\"$(ip -j r s default | jq -r '.[0].prefsrc')\"'/' /opt/CAPEv2/conf/cuckoo.conf"
     ]
   }
 
-
-  provisioner "shell" {
-    inline = [
-      "sudo chmod 600 /etc/netplan/*.yaml",
-      "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
-      "network:",
-      "  version: 2",
-      "  renderer: NetworkManager",
-      "  ethernets:",
-      "    ens${var.eth0_pcislot_vmware}:",
-      "      dhcp4: true",
-      "    ens${var.eth1_pcislot_vmware}:",
-      "      addresses: [${var.hostonly_ip}/24]",
-      "EOF",
-
-      "sudo netplan generate && sudo netplan apply"
-    ]
-    only = ["vmware-iso.cape-server"]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     "echo 'Hardcoding static IP configuration for host VM with Netplan'",
+  #     "sudo chmod 600 /etc/netplan/*.yaml",
+  #     "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
+  #     "network:",
+  #     "  version: 2",
+  #     "  renderer: NetworkManager",
+  #     "  ethernets:",
+  #     "    ens${var.eth0_pcislot_vmware}:",
+  #     "      dhcp4: false",
+  #     "      addresses:",
+  #     "        - ${var.server_nat_ip}/24",
+  #     "      routes:",
+  #     "        - to: default",
+  #     "          via: ${var.server_nat_default_gateway}",
+  #     "      nameservers:",
+  #     "        addresses:",
+  #     "          - ${var.server_nat_default_gateway}",
+  #     "          - 1.1.1.1",
+  #     "EOF",
+  #     "sudo netplan generate && sudo netplan apply",
+  #     "sudo shutdown -h now"
+  #   ]
+  #   only = ["vmware-iso.cape-server"]
+  #   expect_disconnect = true
+  # }
 
 
   # provisioner "shell" {
@@ -376,7 +431,7 @@ build {
   #     "    enp0s${var.eth0_pcislot_virtualbox}:",
   #     "      dhcp4: true",
   #     "    enp0s${var.eth1_pcislot_virtualbox}:",
-  #     "      addresses: [${var.hostonly_ip}/24]",
+  #     "      addresses: [${var.host_hostonly_ip}/24]",
   #     "EOF",
   #     "sudo chmod 600 /etc/netplan/50-cloud-init.yaml",
   #     "sudo netplan generate && sudo netplan apply"

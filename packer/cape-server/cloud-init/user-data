@@ -22,10 +22,6 @@ autoinstall:
             match:
                 name: "en*"
             dhcp4: true
-        ens36:
-            match:
-                name: "en*"
-            dhcp4: true
   oem:
     install: auto
   source:

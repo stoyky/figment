@@ -13,18 +13,28 @@ boot_wait              = "30s"
 cape_commit      = "3eaf9b"
 cape_nested_virt = true
 cape_machinery   = "kvm"
-cape_machines = [
+cape_guests = [
   {
-    name = "cape-guest-win10"
-    platform = "windows"
-    ip   = "192.168.122.121"
-    arch = "x64"
-    mac = "52:54:00:07:66:ea"
+    name         = "cape-guest-win10"
+    platform     = "windows"
+    arch         = "x64"
+    ip_nat       = "192.168.122.50"
+    ip_hostonly  = "192.168.55.101"
+    mac_nat      = "52:54:00:07:66:ea"
+    mac_hostonly = "52:54:00:07:66:eb"
   }
 ]
 
 # Network Configuration
-hostonly_ip         = "192.168.122.101"
+# Assign this a NAT ip in your VMWare network NAT range.
+server_nat_ip              = "192.168.227.10"
+server_nat_default_gateway = "192.168.227.2"
+
+# Assign this an ip in your VMWare network hostonly range.
+guest_hostonly_default_gateway = "192.168.55.1"
+guest_hostonly_range_start     = "192.168.55.2"
+guest_hostonly_range_end       = "192.168.55.254"
+
 eth0_pcislot_vmware = "33"
 eth1_pcislot_vmware = "36"
 

@@ -71,7 +71,7 @@
       Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
     Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
       Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
+    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -AddressFamily IPv4;
   become: true
   become_user: '{{ user }}'
   become_method: runas
