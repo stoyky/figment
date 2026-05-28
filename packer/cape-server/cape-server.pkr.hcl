@@ -310,16 +310,16 @@ build {
     only = ["vmware-iso.cape-server"]
   }
 
-  provisioner "file" {
-    source      = "packer/cape-server/cape-repo/conf/default"
-    destination = "/tmp/cape-conf"
-  }
+  # provisioner "file" {
+  #   source      = "packer/cape-server/cape-repo/conf/default"
+  #   destination = "/tmp/cape-conf"
+  # }
 
-  provisioner "shell" {
-    inline = [
-      "for f in /tmp/cape-conf/*.conf.default; do sudo cp \"$f\" \"/opt/CAPEv2/conf/$(basename \"$f\" .default)\"; done"
-    ]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     "for f in /tmp/cape-conf/*.conf.default; do sudo cp \"$f\" \"/opt/CAPEv2/conf/$(basename \"$f\" .default)\"; done"
+  #   ]
+  # }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
@@ -383,14 +383,8 @@ build {
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
       "echo 'Configuring machinery for nested-virt guest VMs'",
-      "sudo sed -i -E 's/^[[:space:]]*machines[[:space:]]*=.*/machines = ${local.cape_machines_line}/' /opt/CAPEv2/conf/${var.cape_machinery}.conf",
-      <<-EOF
-      sudo tee -a /opt/CAPEv2/conf/${var.cape_machinery}.conf > /dev/null <<'BLOCK'
-
-      ${local.cape_machine_blocks}
-
-      BLOCK
-      EOF
+      "sudo crudini --set /opt/CAPEv2/conf/${var.cape_machinery}.conf kvm machines \"${local.cape_machines_line}\"",
+      "sudo crudini --merge /opt/CAPEv2/conf/${var.cape_machinery}.conf <<BLOCK\n${local.cape_machine_blocks}\nBLOCK"
     ] : [
       "echo 'Skipping install of nested-virt guest VMs'"
     ]
@@ -399,7 +393,7 @@ build {
   provisioner "shell" {
     inline = [
       "echo 'Setting CAPE resultserver IP address in cuckoo.conf'",
-      "sudo sed -i '/^\\[resultserver\\]/,/^\\[/ s/^ip =.*/ip = '\"$(ip -j r s default | jq -r '.[0].prefsrc')\"'/' /opt/CAPEv2/conf/cuckoo.conf"
+      "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf resultserver ip \"$(ip -j r s default | jq -r '.[0].prefsrc')\""
     ]
   }
 
