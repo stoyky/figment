@@ -133,6 +133,11 @@ variable "cape_machinery" {
   default = "kvm"
 }
 
+variable "cape_machinery_interface" {
+  type    = string
+  default = "virbr0"
+}
+
 locals {
   cape_machines_line = join(", ", [
     for m in var.cape_guests : m.name
@@ -371,6 +376,8 @@ build {
 
           "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac_nat} --network network=hostonly,model=e1000,mac=${m.mac_hostonly} --os-variant win10",
 
+          "virsh -c qemu:///system domif-setlink ${m.name} ${m.mac_nat} down --config",
+
           "virsh -c qemu:///system snapshot-create-as --domain ${m.name} --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
           "virsh -c qemu:///system shutdown ${m.name}"
         ]
@@ -383,7 +390,8 @@ build {
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
       "echo 'Configuring machinery for nested-virt guest VMs'",
-      "sudo crudini --set /opt/CAPEv2/conf/${var.cape_machinery}.conf kvm machines \"${local.cape_machines_line}\"",
+      "sudo crudini --set /opt/CAPEv2/conf/${var.cape_machinery}.conf ${var.cape_machinery} machines \"${local.cape_machines_line}\"",
+      "sudo crudini --set /opt/CAPEv2/conf/${var.cape_machinery}.conf ${var.cape_machinery} interface \"${var.cape_machinery_interface}\"",
       "sudo crudini --merge /opt/CAPEv2/conf/${var.cape_machinery}.conf <<BLOCK\n${local.cape_machine_blocks}\nBLOCK"
     ] : [
       "echo 'Skipping install of nested-virt guest VMs'"

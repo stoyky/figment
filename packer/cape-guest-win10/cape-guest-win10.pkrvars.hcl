@@ -10,7 +10,7 @@ disk_size      = 60000
 
 # Network Configuration
 hostonly_ip             = "192.168.55.101"
-default_gateway         = "192.168.55.1"
+hostonly_gateway         = "192.168.55.1"
 dns_ip                  = "192.168.55.1"
 ethernet0_pcislotnumber = "33"
 ethernet1_pcislotnumber = "36"

@@ -13,6 +13,7 @@ boot_wait              = "30s"
 cape_commit      = "3eaf9b"
 cape_nested_virt = true
 cape_machinery   = "kvm"
+cape_machinery_interface = "virbr1"
 cape_guests = [
   {
     name         = "cape-guest-win10"

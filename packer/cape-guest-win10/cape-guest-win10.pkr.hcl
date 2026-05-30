@@ -56,7 +56,7 @@ variable "hostonly_ip" {
   type = string
 }
 
-variable "default_gateway" {
+variable "hostonly_gateway" {
   type = string
 }
 
@@ -226,7 +226,7 @@ source "qemu" "cape-guest-win10" {
     # ["-device", "e1000,netdev=user.1,mac=${var.mac_hostonly_qemu}"]
 
     ["-netdev", "bridge,id=hn1,br=virbr1"],
-    ["-device", "e1000e,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
+    ["-device", "e1000,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
   ]
 
   ssh_username = var.user
@@ -262,7 +262,7 @@ build {
       "-e", "ansible_host_key_checking=false",
       "-e", "pipelining=true",
       "-e", "hostonly_ip=${var.hostonly_ip}",
-      "-e", "default_gateway=${var.default_gateway}",
+      "-e", "hostonly_gateway=${var.hostonly_gateway}",
       "-e", "dns_ip=${var.dns_ip}",
       "-e", "mac_nat=${
         source.type == "vmware-iso" ? var.mac_nat_vmware :
