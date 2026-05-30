@@ -376,6 +376,7 @@ build {
 
           "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac_nat} --network network=hostonly,model=e1000,mac=${m.mac_hostonly} --os-variant win10",
 
+          "virsh -c qemu:///system domif-setlink ${m.name} ${m.mac_nat} down",
           "virsh -c qemu:///system domif-setlink ${m.name} ${m.mac_nat} down --config",
 
           "virsh -c qemu:///system snapshot-create-as --domain ${m.name} --name snapshot-$(date +%F-%H%M%S) --diskspec sda,snapshot=internal --atomic",
