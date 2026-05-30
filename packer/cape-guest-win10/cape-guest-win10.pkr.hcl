@@ -275,6 +275,7 @@ build {
         var.mac_hostonly_qemu
       }",
       "-e", "user=${var.user}",
+      "-e", "password=${var.password}",
       "-e", "source_type=${source.type}",
       "--forks=20"
     ]
