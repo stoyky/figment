@@ -49,26 +49,6 @@ variable "boot_wait" {
   type = string
 }
 
-variable "server_nat_ip" {
-  type = string
-}
-
-variable "server_nat_default_gateway" {
-  type = string
-}
-
-variable "guest_hostonly_default_gateway" {
-  type = string
-}
-
-variable "guest_hostonly_range_start" {
-  type = string
-}
-
-variable "guest_hostonly_range_end" {
-  type = string
-}
-
 variable "vm_name" {
   type = string
 }
@@ -77,13 +57,9 @@ variable "display_name" {
   type = string
 }
 
-variable "mac_nat" {
-  type = string
-}
-
-variable "mac_hostonly" {
-  type = string
-}
+# variable "mac_hostonly" {
+#   type = string
+# }
 
 variable "eth0_pcislot_vmware" {
   type = number
@@ -106,9 +82,12 @@ variable "export_vagrant" {
   default = false
 }
 
+variable "guest_hostonly_subnet" {
+  type = string
+}
+
 variable "cape_commit" {
-  type    = string
-  default = false
+  type = string
 }
 
 variable "cape_nested_virt" {
@@ -118,13 +97,13 @@ variable "cape_nested_virt" {
 
 variable "cape_guests" {
   type = list(object({
-    name         = string
-    platform     = string
-    arch         = string
-    ip_nat       = string
-    ip_hostonly  = string
-    mac_nat      = string
-    mac_hostonly = string
+    name              = string
+    platform          = string
+    arch              = string
+    replicas          = number
+    hostonly_offset   = number # e.g. 10
+    mac_base_hostonly = string # e.g. 52:54:00:10:20
+    mac_base_nat      = string # e.g. 52:54:00:20:10
   }))
 }
 
@@ -139,14 +118,40 @@ variable "cape_machinery_interface" {
 }
 
 locals {
+  guest_hostonly_default_gateway = cidrhost(var.guest_hostonly_subnet, 1)
+  guest_hostonly_range_start     = cidrhost(var.guest_hostonly_subnet, 2)
+  guest_hostonly_range_end       = cidrhost(var.guest_hostonly_subnet, -2)
+  guest_hostonly_netmask         = cidrnetmask(var.guest_hostonly_subnet)
+
+  cape_guest_box_names = distinct([
+    for g in var.cape_guests : g.name
+  ])
+
+  cape_guest_instances = flatten([
+    for g in var.cape_guests : [
+      for replica in range(1, g.replicas + 1) : {
+        base_name = g.name
+        name      = "${g.name}-${g.arch}-${replica}"
+        label     = "${g.name}-${g.arch}-${replica}"
+        platform  = g.platform
+        arch      = g.arch
+        replica   = replica
+
+        ip_hostonly  = cidrhost(var.guest_hostonly_subnet, g.hostonly_offset + replica - 1)
+        mac_hostonly = format("%s:%02x", g.mac_base_hostonly, replica)
+        mac_nat      = format("%s:%02x", g.mac_base_nat, replica)
+      }
+    ]
+  ])
+
   cape_machines_line = join(", ", [
-    for m in var.cape_guests : m.name
+    for m in local.cape_guest_instances : m.name
   ])
 
   cape_machine_blocks = join("\n\n", [
-    for m in var.cape_guests : <<-EOT
+    for m in local.cape_guest_instances : <<-EOT
       [${m.name}]
-      label = ${m.name}
+      label = ${m.label}
       platform = ${m.platform}
       ip = ${m.ip_hostonly}
       arch = ${m.arch}
@@ -167,11 +172,11 @@ source "vmware-iso" "cape-server" {
   ssh_timeout          = var.ssh_timeout
   network_adapter_type = "e1000"
   disk_size            = 102400
-  memory = 8192
-  cpus   = 4
+  memory               = 8192
+  cpus                 = 4
   # keep_registered = true
 
-  vhv_enabled       = true
+  vhv_enabled      = true
   shutdown_timeout = "30m"
   shutdown_command = "sudo shutdown -h now"
   boot_wait        = "5s"
@@ -332,22 +337,22 @@ build {
       "wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg",
       "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/hashicorp.list",
       "sudo apt update && sudo apt install -y vagrant"
-    ] : [
+      ] : [
       "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
-      "echo 'Creating libvirt hostonly network'",
+      "echo 'Creating libvirt host-only network'",
       "cat > /tmp/hostonly.xml <<'EOF'",
       "<network>",
       "  <name>hostonly</name>",
       "  <bridge name='virbr1' stp='on' delay='0'/>",
       "  <domain name='hostonly'/>",
-      "  <ip address='${var.guest_hostonly_default_gateway}' netmask='255.255.255.0'>",
+      "  <ip address='${local.guest_hostonly_default_gateway}' netmask='${local.guest_hostonly_netmask}'>",
       "    <dhcp>",
-      "      <range start='${var.guest_hostonly_range_start}' end='${var.guest_hostonly_range_end}'/>",
+      "      <range start='${local.guest_hostonly_range_start}' end='${local.guest_hostonly_range_end}'/>",
       "    </dhcp>",
       "  </ip>",
       "</network>",
@@ -358,23 +363,30 @@ build {
       "virsh -c qemu:///system net-autostart hostonly",
       "virsh -c qemu:///system net-start hostonly",
       "virsh -c qemu:///system net-list --all"
-    ] : [
-      "echo 'Skipping libvirt hostonly network creation'"
+      ] : [
+      "echo 'Skipping libvirt host-only network creation'"
     ]
     only = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? concat(
-      ["echo 'Installing nested-virt guest VMs'"],
-      flatten([
-        for m in var.cape_guests : [
-          "vagrant box add figment/${m.name}",
+      [
+        "echo 'Installing nested-virt guest VMs'"
+      ],
 
-          "virsh -c qemu:///system net-update default add-last ip-dhcp-host \"<host mac='${m.mac_nat}' name='${m.name}-nat' ip='${m.ip_nat}' />\" --live --config --parent-index 0",
+      [
+        for box_name in local.cape_guest_box_names :
+        "vagrant box list | grep -q '^figment/${box_name} ' || vagrant box add figment/${box_name}"
+      ],
+
+      flatten([
+        for m in local.cape_guest_instances : [
           "virsh -c qemu:///system net-update hostonly add-last ip-dhcp-host \"<host mac='${m.mac_hostonly}' name='${m.name}-hostonly' ip='${m.ip_hostonly}' />\" --live --config --parent-index 0",
 
-          "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=\"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.name}/0.0.1/amd64/libvirt/box_0.img\" --network network=default,model=e1000,mac=${m.mac_nat} --network network=hostonly,model=e1000,mac=${m.mac_hostonly} --os-variant win10",
+          "[ -f \"/var/lib/libvirt/images/${m.name}.qcow2\" ] || sudo qemu-img create -f qcow2 -F qcow2 -b \"$HOME/.vagrant.d/boxes/figment-VAGRANTSLASH-${m.base_name}/0.0.1/amd64/libvirt/box_0.img\" \"/var/lib/libvirt/images/${m.name}.qcow2\"",
+
+          "virt-install --connect qemu:///system --noautoconsole --name ${m.name} --import --disk path=/var/lib/libvirt/images/${m.name}.qcow2,format=qcow2 --network network=default,model=e1000,mac=${m.mac_nat} --network network=hostonly,model=e1000,mac=${m.mac_hostonly} --os-variant win10",
 
           "virsh -c qemu:///system domif-setlink ${m.name} ${m.mac_nat} down",
           "virsh -c qemu:///system domif-setlink ${m.name} ${m.mac_nat} down --config",
@@ -383,7 +395,7 @@ build {
           "virsh -c qemu:///system shutdown ${m.name}"
         ]
       ])
-    ) : [
+      ) : [
       "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
@@ -394,7 +406,7 @@ build {
       "sudo crudini --set /opt/CAPEv2/conf/${var.cape_machinery}.conf ${var.cape_machinery} machines \"${local.cape_machines_line}\"",
       "sudo crudini --set /opt/CAPEv2/conf/${var.cape_machinery}.conf ${var.cape_machinery} interface \"${var.cape_machinery_interface}\"",
       "sudo crudini --merge /opt/CAPEv2/conf/${var.cape_machinery}.conf <<BLOCK\n${local.cape_machine_blocks}\nBLOCK"
-    ] : [
+      ] : [
       "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
