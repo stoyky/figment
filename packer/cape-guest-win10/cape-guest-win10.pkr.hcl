@@ -52,18 +52,21 @@ variable "disk_size" {
   type = number
 }
 
-variable "hostonly_ip" {
+# variable "hostonly_ip" {
+#   type = string
+# }
+
+variable "hostonly_subnet" {
+  type = string
+}
+
+variable "hostonly_netmask" {
   type = string
 }
 
 variable "hostonly_gateway" {
   type = string
 }
-
-variable "dns_ip" {
-  type = string
-}
-
 variable "mac_nat_vmware" {
   type = string
 }
@@ -261,9 +264,9 @@ build {
       "-e", "ansible_become_pass=${var.password}",
       "-e", "ansible_host_key_checking=false",
       "-e", "pipelining=true",
-      "-e", "hostonly_ip=${var.hostonly_ip}",
       "-e", "hostonly_gateway=${var.hostonly_gateway}",
-      "-e", "dns_ip=${var.dns_ip}",
+      "-e", "hostonly_subnet=${var.hostonly_subnet}",
+      "-e", "hostonly_netmask=${var.hostonly_netmask}",
       "-e", "mac_nat=${
         source.type == "vmware-iso" ? var.mac_nat_vmware :
         source.type == "virtualbox-iso" ? var.mac_nat_virtualbox :

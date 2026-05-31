@@ -100,10 +100,11 @@ variable "cape_guests" {
     name              = string
     platform          = string
     arch              = string
-    replicas          = number
     hostonly_offset   = number # e.g. 10
     mac_base_hostonly = string # e.g. 52:54:00:10:20
     mac_base_nat      = string # e.g. 52:54:00:20:10
+
+    replicas          = number
   }))
 }
 
@@ -271,6 +272,15 @@ build {
     "source.vmware-iso.cape-server",
     # "source.virtualbox-ovf.remnux"
   ]
+
+  provisioner "shell" {
+    inline = [
+      "echo guest_hostonly_default_gateway=${local.guest_hostonly_default_gateway}",
+      "echo guest_hostonly_range_start=${local.guest_hostonly_range_start}",
+      "echo guest_hostonly_range_end=${local.guest_hostonly_range_end}",
+      "echo guest_hostonly_netmask=${local.guest_hostonly_netmask}"
+    ]
+  }
 
   provisioner "shell" {
     inline = [

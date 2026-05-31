@@ -41,9 +41,9 @@
   become_user: '{{ user }}'
   become_method: runas
   
-- name: Create boot task for hostonly network
+- name: Ensure hostonly default gateway is set at boot
   community.windows.win_scheduled_task:
-    name: Set Hostonly Network
+    name: Set Hostonly Gateway
     username: SYSTEM
     logon_type: service_account
     run_level: highest
@@ -53,17 +53,21 @@
       - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
         arguments: >-
           -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command
-          "$mac = ('{{ mac_hostonly }}' -replace '[:-]','').ToUpper();
-          $nic = Get-NetAdapter -IncludeHidden | Where-Object { (($_.MacAddress -replace '-','').ToUpper()) -eq $mac } | Select-Object -First 1;
-          Get-NetRoute -InterfaceIndex $nic.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue | Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
-          Get-NetIPAddress -InterfaceIndex $nic.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue | Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-          New-NetIPAddress -InterfaceIndex $nic.ifIndex -IPAddress '{{ hostonly_ip }}' -PrefixLength 24 -AddressFamily IPv4 -DefaultGateway '{{ hostonly_gateway }}';
-          Set-DnsClientServerAddress -InterfaceIndex $nic.ifIndex -ServerAddresses @('{{ dns_ip }}')"
+          "$net=[ipaddress]'{{ hostonly_subnet }}'; $mask=[ipaddress]'{{ hostonly_netmask }}'; $gw='{{ hostonly_gateway }}';
+          $nic=Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object {
+            $ip=[ipaddress]$_.IPAddress;
+            (($ip.Address -band $mask.Address) -eq ($net.Address -band $mask.Address))
+          } | Select-Object -First 1;
+          if ($nic) {
+            Get-NetRoute -InterfaceIndex $nic.InterfaceIndex -DestinationPrefix '0.0.0.0/0' -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+            Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
+            New-NetRoute -InterfaceIndex $nic.InterfaceIndex -DestinationPrefix '0.0.0.0/0' -NextHop $gw -ErrorAction SilentlyContinue;
+          }"
     triggers:
       - type: boot
 
-- name: Run hostonly network task now
-  ansible.windows.win_command: schtasks /run /tn "Set Hostonly Network"
+- name: Run hostonly gateway task now
+  ansible.windows.win_command: schtasks /run /tn "Set Hostonly Gateway"
 
 - name: Enable autologon for local user
   ansible.windows.win_auto_logon:
