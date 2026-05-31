@@ -428,6 +428,16 @@ build {
     ]
   }
 
+  provisioner "shell" {
+    inline = [
+      "echo 'Restarting CAPE services'",
+      "sudo systemctl restart cape-processor",
+      "sudo systemctl restart cape-rooter",
+      "sudo systemctl restart cape-web",
+      "sudo systemctl restart cape"
+    ]
+  }
+
   # provisioner "shell" {
   #   inline = [
   #     "echo 'Hardcoding static IP configuration for host VM with Netplan'",
