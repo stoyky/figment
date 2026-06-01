@@ -246,10 +246,10 @@ source "qemu" "cape-guest-win11" {
   vm_name      = var.vm_name
   # net_device     = "virtio-net"
   disk_interface = "virtio"
-  disk_discard = "unmap"
-  efi_boot = true
-  vtpm = true
-  tpm_device_type = "tpm-crb"
+  # disk_discard = "unmap"
+  # efi_boot = true
+  # vtpm = true
+  # tpm_device_type = "tpm-crb"
   # efi_boot = true
   # use_pflash = true
   # efi_firmware_code = "/usr/share/OVMF/OVMF_CODE_4M.fd"
