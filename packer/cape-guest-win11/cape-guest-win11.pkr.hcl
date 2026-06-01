@@ -44,6 +44,10 @@ variable "cpus" {
   type = number
 }
 
+variable "cores" {
+  type = number
+}
+
 variable "memory" {
   type = number
 }
@@ -206,12 +210,14 @@ source "qemu" "cape-guest-win11" {
   iso_checksum     = var.iso_sha256
   shutdown_command = "shutdown /s /t 10 /f"
   disk_size        = var.disk_size
+  disk_cache       = "none"
+  disk_discard     = "unmap"
   memory           = var.memory
   format           = "qcow2"
   accelerator      = "kvm"
   machine_type     = "q35"
   cpus             = var.cpus
-  cpu_model      = "host"
+  cpu_model      = "host,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff,hv_vpindex,hv_runtime,hv_synic,hv_tlbflush"
   # vga = "qxl"
   output_directory = "temp/cape-guest-win11-qemu"
   # skip_nat_mapping = true
@@ -244,7 +250,7 @@ source "qemu" "cape-guest-win11" {
   ssh_password = var.password
   ssh_timeout  = "4h"
   vm_name      = var.vm_name
-  # net_device     = "virtio-net"
+  net_device     = "virtio-net"
   disk_interface = "virtio"
   # disk_discard = "unmap"
   # efi_boot = true

@@ -3,8 +3,9 @@ iso_sha256     = "SHA256:768984706b909479417b2368438909440f2967ff05c6a9195ed2667
 iso_url        = "assets/Win11_25H2_English_x64_v2.iso"
 user           = "admin"
 password       = "password"
-cpus           = 2
-memory         = 4096
+cpus           = 4
+cores          = 4
+memory         = 8192
 vm_name        = "cape-guest-win11"
 disk_size      = 60000
 
