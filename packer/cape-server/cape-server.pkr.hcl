@@ -173,7 +173,7 @@ source "vmware-iso" "cape-server" {
   ssh_timeout          = var.ssh_timeout
   network_adapter_type = "e1000"
   disk_size            = 102400
-  memory               = 8192
+  memory               = 16384
   cpus                 = 4
   # keep_registered = true
 
@@ -284,9 +284,11 @@ build {
 
   provisioner "shell" {
     inline = [
+      "echo 'Updating and upgrading system packages'",
       "sudo apt update",
       "sudo apt upgrade -y",
       "sudo apt install git vim -y",
+      "sudo apt-get remove -y --autoremove gnome-initial-setup",
       "sudo reboot"
     ]
     expect_disconnect = true
@@ -330,16 +332,17 @@ build {
     only = ["vmware-iso.cape-server"]
   }
 
-  # provisioner "file" {
-  #   source      = "packer/cape-server/cape-repo/conf/default"
-  #   destination = "/tmp/cape-conf"
-  # }
+  provisioner "file" {
+    source      = "packer/cape-server/cape-repo/conf/default"
+    destination = "/tmp/cape-conf"
+  }
 
-  # provisioner "shell" {
-  #   inline = [
-  #     "for f in /tmp/cape-conf/*.conf.default; do sudo cp \"$f\" \"/opt/CAPEv2/conf/$(basename \"$f\" .default)\"; done"
-  #   ]
-  # }
+  provisioner "shell" {
+    inline = [
+      "echo 'Copying CAPE config files to /opt/CAPEv2/conf'",
+      "for f in /tmp/cape-conf/*.conf.default; do sudo cp \"$f\" \"/opt/CAPEv2/conf/$(basename \"$f\" .default)\"; done"
+    ]
+  }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
@@ -425,6 +428,16 @@ build {
     inline = [
       "echo 'Setting CAPE resultserver IP address in cuckoo.conf'",
       "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf resultserver ip \"$(ip -j r s default | jq -r '.[0].prefsrc')\""
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "install -d -m 0755 /home/${var.ssh_username}/Downloads",
+      "cd /home/${var.ssh_username}/Downloads",
+      "echo 'Downloading sample malware to $(pwd)'",
+      "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish.exe",
+      "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish64.exe"
     ]
   }
 
