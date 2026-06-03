@@ -1,6 +1,6 @@
 # VM Configuration
-iso_sha256     = "SHA256:768984706b909479417b2368438909440f2967ff05c6a9195ed2667254e465e3"
-iso_url        = "assets/Win11_25H2_English_x64_v2.iso"
+iso_sha256     = "SHA256:2d3f0c35fd345e664a7a4e8d631e945802e7406e59887ddccfdd33de26e2843f"
+iso_url        = "assets/Win11_23H2_English_x64_v2.iso"
 user           = "admin"
 password       = "password"
 cpus           = 4

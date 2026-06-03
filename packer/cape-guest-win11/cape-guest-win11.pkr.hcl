@@ -237,20 +237,20 @@ source "qemu" "cape-guest-win11" {
     # ["-drive", "media=cdrom,file=packer/cape-guest-win11/drivers/virtio-win-0.1.285.iso"],
 
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
-    ["-device", "virtio-net,netdev=user.0,mac=${var.mac_nat_qemu}"],
+    ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
 
     # ["-netdev", "user,id=user.1"],
     # ["-device", "e1000,netdev=user.1,mac=${var.mac_hostonly_qemu}"]
 
     ["-netdev", "bridge,id=hn1,br=virbr1"],
-    ["-device", "virtio-net,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
+    ["-device", "e1000,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
   ]
 
   ssh_username = var.user
   ssh_password = var.password
   ssh_timeout  = "4h"
   vm_name      = var.vm_name
-  net_device     = "virtio-net"
+  net_device     = "e1000"
   disk_interface = "virtio"
   # disk_discard = "unmap"
   # efi_boot = true

@@ -24,10 +24,19 @@ cape_guests = [
     name              = "cape-guest-win10"
     platform          = "windows"
     arch              = "x64"
-    replicas          = 3
+    replicas          = 2
     hostonly_offset   = 101
     mac_base_hostonly = "52:54:00:10:20"
     mac_base_nat      = "52:54:00:20:10"
+  },
+  {
+    name              = "cape-guest-win11"
+    platform          = "windows"
+    arch              = "x64"
+    replicas          = 2
+    hostonly_offset   = 201
+    mac_base_hostonly = "52:54:00:20:30"
+    mac_base_nat      = "52:54:00:30:20"
   }
 ]
 
