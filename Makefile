@@ -48,11 +48,15 @@ cape-guest-win10-qemu:
 	packer init packer/cape-guest-win10/cape-guest-win10.pkr.hcl 
 	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win10 -var-file=packer/cape-guest-win10/cape-guest-win10.pkrvars.hcl packer/cape-guest-win10/cape-guest-win10.pkr.hcl
 
-
 cape-guest-win11-qemu: 
 	@echo "Building CAPE guest Windows 11..."
 	packer init packer/cape-guest-win11/cape-guest-win11.pkr.hcl 
 	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win11 -var-file=packer/cape-guest-win11/cape-guest-win11.pkrvars.hcl packer/cape-guest-win11/cape-guest-win11.pkr.hcl
+
+cape-guest-win7-qemu: 
+	@echo "Building CAPE guest Windows 7..."
+	packer init packer/cape-guest-win7/cape-guest-win7.pkr.hcl 
+	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win7 -var-file=packer/cape-guest-win7/cape-guest-win7.pkrvars.hcl packer/cape-guest-win7/cape-guest-win7.pkr.hcl
 
 cape-guest-ubuntu24-qemu: 
 	@echo "Building CAPE guest Ubuntu 24..."

@@ -122,6 +122,7 @@ source "qemu" "cape-guest-ubuntu24" {
   shutdown_command = "sudo shutdown -h now"
   disk_size        = var.disk_size
   memory           = var.memory
+  vga              = "std"
   format           = "qcow2"
   accelerator      = "kvm"
   machine_type     = "q35"
@@ -283,8 +284,8 @@ build {
       "sudo apt update",
       # "sudo apt upgrade -y",
       # "sudo apt install git vim -y",
-      # "sudo apt-get remove -y --autoremove gnome-initial-setup",
-      # "sudo reboot"
+      "sudo apt-get remove -y --autoremove gnome-initial-setup",
+      "sudo reboot"
     ]
     expect_disconnect = true
     only              = ["qemu.cape-guest-ubuntu24"]
@@ -326,8 +327,7 @@ build {
       "",
       "[Service]",
       "Type=simple",
-      "User=${var.ssh_username}",
-      "Group=${var.ssh_username}",
+      "User=root",
       "WorkingDirectory=/home/${var.ssh_username}/CAPEv2",
       "ExecStart=/usr/bin/python3 -u /home/${var.ssh_username}/CAPEv2/agent/agent.py",
       "Restart=on-failure",
@@ -341,6 +341,32 @@ build {
       "sudo systemctl start cape-agent.service"
     ]
     only = ["qemu.cape-guest-ubuntu24"]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "export DEBIAN_FRONTEND=noninteractive",
+
+      "sudo apt-get update",
+      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
+
+      "sudo install -m 0755 -d /etc/apt/keyrings",
+      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg",
+      "sudo chmod a+r /etc/apt/keyrings/docker.gpg",
+
+      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
+
+      "sudo apt-get update",
+      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+
+      "sudo systemctl enable docker",
+      "sudo systemctl start docker",
+
+      "sudo usermod -aG docker ${var.ssh_username}",
+
+      "sudo docker pull docker.io/aquasec/tracee:0.20.0",
+      "sudo docker image tag docker.io/aquasec/tracee:0.20.0 aquasec/tracee:latest"
+    ]
   }
 
 

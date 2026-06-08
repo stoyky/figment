@@ -10,7 +10,6 @@
     url: https://raw.githubusercontent.com/kevoreilly/CAPEv2/3eaf9b6260ad2edab8766bea72ddf35d80825dab/agent/agent.py
     dest: C:\Users\{{ user }}\Documents\updater.pyw
 
-
 - name: Pause before running agent
   ansible.builtin.pause:
     seconds: 20
