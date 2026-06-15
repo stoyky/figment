@@ -124,12 +124,17 @@ locals {
   guest_hostonly_range_end       = cidrhost(var.guest_hostonly_subnet, -2)
   guest_hostonly_netmask         = cidrnetmask(var.guest_hostonly_subnet)
 
+  enabled_cape_guests = [
+    for g in var.cape_guests : g
+    if g.replicas > 0
+  ]
+
   cape_guest_box_names = distinct([
-    for g in var.cape_guests : g.name
+    for g in local.enabled_cape_guests : g.name
   ])
 
   cape_guest_instances = flatten([
-    for g in var.cape_guests : [
+    for g in local.enabled_cape_guests : [
       for replica in range(1, g.replicas + 1) : {
         base_name = g.name
         name      = "${g.name}-${g.arch}-${replica}"

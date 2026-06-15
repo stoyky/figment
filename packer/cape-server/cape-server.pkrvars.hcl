@@ -14,7 +14,7 @@ ssh_timeout  = "20m"
 boot_wait    = "30s"
 
 # CAPE Settings
-cape_commit              = "3eaf9b"
+cape_commit              = "01a0b268eba19423078b70d6ece76e69780a47a8"
 cape_nested_virt         = true
 cape_machinery           = "kvm"
 cape_machinery_interface = "virbr1"
@@ -24,7 +24,7 @@ cape_guests = [
     name              = "cape-guest-win10"
     platform          = "windows"
     arch              = "x64"
-    replicas          = 2
+    replicas          = 1
     hostonly_offset   = 101
     mac_base_hostonly = "52:54:00:10:20"
     mac_base_nat      = "52:54:00:20:10"
@@ -33,16 +33,16 @@ cape_guests = [
     name              = "cape-guest-win11"
     platform          = "windows"
     arch              = "x64"
-    replicas          = 2
+    replicas          = 0
     hostonly_offset   = 151
     mac_base_hostonly = "52:54:00:20:30"
     mac_base_nat      = "52:54:00:30:20"
   },
   {
-    name              = "cape-guest-ubuntu24"
+    name              = "cape-guest-ubuntu"
     platform          = "linux"
     arch              = "x64"
-    replicas          = 2
+    replicas          = 1
     hostonly_offset   = 201
     mac_base_hostonly = "52:54:00:30:40"
     mac_base_nat      = "52:54:00:40:30"
