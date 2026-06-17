@@ -109,7 +109,7 @@
       Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
     Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
       Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ default_gateway }} -AddressFamily IPv4;
+    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ hostonly_gateway }} -AddressFamily IPv4;
   become: yes
   become_user: '{{ user }}'
   become_method: runas
@@ -118,7 +118,7 @@
   ansible.windows.win_dns_client:
     adapter_names: hostonly
     ipv4_addresses:
-      - "{{ dns_ip }}"
+      - "{{ hostonly_gateway }}"
   become: yes
   become_user: '{{ user }}'
   become_method: runas

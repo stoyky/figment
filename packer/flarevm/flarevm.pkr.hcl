@@ -56,11 +56,7 @@ variable "hostonly_ip" {
   type = string
 }
 
-variable "default_gateway" {
-  type = string
-}
-
-variable "dns_ip" {
+variable "hostonly_gateway" {
   type = string
 }
 
@@ -79,6 +75,15 @@ variable "mac_nat_virtualbox" {
 variable "mac_hostonly_virtualbox" {
   type = string
 }
+
+variable "mac_nat_qemu" {
+  type = string
+}
+
+variable "mac_hostonly_qemu" {
+  type = string
+}
+
 
 variable "ethernet0_pcislotnumber" {
   type = string
@@ -189,10 +194,47 @@ source "virtualbox-iso" "flarevm" {
   output_directory = "temp/flarevm-virtualbox"
 }
 
+# QEMU
+source "qemu" "flarevm" {
+  iso_url          = var.iso_url
+  iso_checksum     = var.iso_sha256
+  shutdown_command = "shutdown /s /t 10 /f"
+  disk_size        = var.disk_size
+  memory           = var.memory
+  format           = "qcow2"
+  accelerator      = "kvm"
+  machine_type     = "q35"
+  cpus             = var.cpus
+  output_directory = "temp/flarevm-qemu"
+
+  floppy_files = [
+    "packer/flarevm/autounattend/autounattend.xml",
+    "packer/flarevm/scripts/enable-ssh.ps1"
+  ]
+
+  qemuargs = [
+    ["-cpu", "host"],
+
+    ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
+    ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
+
+    ["-netdev", "bridge,id=hn1,br=virbr1"],
+    ["-device", "e1000,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
+  ]
+
+  ssh_username = var.user
+  ssh_password = var.password
+  ssh_timeout  = "4h"
+  vm_name      = var.vm_name
+  net_device     = "e1000"
+  disk_interface = "ide"
+}
+
 build {
   sources = [
     "source.vmware-iso.flarevm",
-    "source.virtualbox-iso.flarevm"
+    "source.virtualbox-iso.flarevm",
+    "source.qemu.flarevm"
   ]
 
   provisioner "ansible" {
@@ -213,8 +255,7 @@ build {
       "-e", "ansible_host_key_checking=false",
       "-e", "pipelining=true",
       "-e", "hostonly_ip=${var.hostonly_ip}",
-      "-e", "default_gateway=${var.default_gateway}",
-      "-e", "dns_ip=${var.dns_ip}",
+      "-e", "hostonly_gateway=${var.hostonly_gateway}",
       "-e", "mac_nat=${source.type == "vmware-iso" ? var.mac_nat_vmware : var.mac_nat_virtualbox}",
       "-e", "mac_hostonly=${source.type == "vmware-iso" ? var.mac_hostonly_vmware : var.mac_hostonly_virtualbox}",
       "-e", "user=${var.user}",
@@ -231,10 +272,10 @@ build {
 
     post-processor "vagrant" {
       keep_input_artifact  = true
-      output               = source.type == "vmware-iso" ? "boxes/flarevm-vmware.box" : "boxes/flarevm-virtualbox.box"
-      provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+      output               = source.type == "vmware-iso" ? "boxes/flarevm-vmware.box" : source.type == "virtualbox-iso" ? "boxes/flarevm-virtualbox.box" : "boxes/flarevm-qemu.box"
+      provider_override    = source.type == "vmware-iso" ? "vmware" : source.type == "virtualbox-iso" ? "virtualbox" : "libvirt"
       vagrantfile_template = "vagrant/flarevm/Vagrantfile"
-      only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm"] : []
+      only                 = var.export_vagrant ? ["vmware-iso.flarevm", "virtualbox-iso.flarevm", "qemu.flarevm"] : []
     }
   }
 }

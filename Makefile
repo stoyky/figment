@@ -8,6 +8,11 @@ flarevm-virtualbox:
 	packer init packer/flarevm/flarevm.pkr.hcl 
 	packer build -on-error=ask --only virtualbox-iso.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
 
+flarevm-qemu:
+	@echo "Building FLARE VM qemu..."
+	packer init packer/flarevm/flarevm.pkr.hcl 
+	packer build -on-error=ask --only qemu.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
+
 convert:
 	@echo "Converting OVA to VMX..."
 	packer init packer/remnux/remnux.pkr.hcl 
@@ -22,6 +27,11 @@ remnux-virtualbox:
 	@echo "Building REMnux..."
 	packer init packer/remnux/remnux.pkr.hcl 
 	packer build --force -on-error=ask --only virtualbox-ovf.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
+
+remnux-qemu:
+	@echo "Building REMnux..."
+	packer init packer/remnux/remnux.pkr.hcl 
+	PACKER_LOG=1 packer build --force -on-error=ask --only qemu.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 convert-cape-server:
 	@echo "Converting OVA to VMX..."
