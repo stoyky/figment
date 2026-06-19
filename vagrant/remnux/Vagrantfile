@@ -43,5 +43,22 @@ Vagrant.configure("2") do |config|
       virtualbox.gui    = true
     end
   
+    remnux.vm.provider "libvirt" do |libvirt|
+      libvirt.management_network_name = "vagrant-libvirt"
+      libvirt.management_network_mac = "52:54:00:07:66:ea"
+
+      remnux.vm.network "private_network",
+        ip: "192.168.55.10",
+        libvirt__network_name: "virbr1",
+        libvirt__dhcp_enabled: false,
+        auto_config: false,
+        mac: "52:54:00:07:66:eb"
+
+      libvirt.video_vram = 131072
+      libvirt.video_accel3d = true
+      libvirt.memory = 2048
+      libvirt.gui = true rescue nil
+    end
+
   end
 end

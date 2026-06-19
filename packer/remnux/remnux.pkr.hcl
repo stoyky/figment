@@ -179,6 +179,7 @@ source "qemu" "remnux" {
   machine_type     = "q35"
   output_directory = "temp/remnux-qemu"
   skip_resize_disk = true
+  memory = 2048
   
   boot_wait = "30s"
   boot_command = [
@@ -189,15 +190,17 @@ source "qemu" "remnux" {
     "sudo systemctl start ssh<enter>",
     "<wait5>",
     "sudo sed -i 's/ens18/enp0s${var.eth0_pcislot_qemu}/g' /etc/netplan/50-cloud-init.yaml<enter>",
-    "<wait5>",
     "sudo chmod 600 /etc/netplan/50-cloud-init.yaml<enter>",
     "<wait5>",
     "sudo netplan generate && sudo netplan apply<enter>",
-    "<wait5>"
+    "<wait5>",
   ]
 
   qemuargs = [
     ["-cpu", "host"],
+    ["-device", "virtio-vga-gl"],
+    ["-display", "sdl,gl=on"],
+
 
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
     ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
@@ -231,10 +234,25 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo remnux install --mode=cloud"
+      "sudo apt update"
     ]
-    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "source.qemu.remnux"]
+    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "qemu.remnux"]
   }
+
+  provisioner "shell" {
+    inline = [
+      "sudo apt update && sudo apt install -y qemu-guest-agent spice-vdagent",
+      "sudo systemctl enable --now qemu-guest-agent"
+    ]
+    only = ["qemu.remnux"]
+  }
+
+  # provisioner "shell" {
+  #   inline = [
+  #     "sudo remnux install --mode=cloud"
+  #   ]
+  #   only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "qemu.remnux"]
+  # }
 
   provisioner "shell" {
     inline = [
@@ -279,15 +297,19 @@ build {
       "  version: 2",
       "  renderer: networkd",
       "  ethernets:",
-      "    enp0s${var.eth0_pcislot_virtualbox}:",
+      "    enp0s${var.eth0_pcislot_qemu}:",
       "      dhcp4: true",
-      "    enp0s${var.eth1_pcislot_virtualbox}:",
+      "    enp0s${var.eth1_pcislot_qemu}:",
       "      addresses: [${var.hostonly_ip}/24]",
       "EOF",
       "sudo chmod 600 /etc/netplan/99-remnux.yaml",
       "sudo netplan generate && sudo netplan apply"
     ]
-    only = ["virtualbox-ovf.remnux", "source.qemu.remnux"]
+    only = ["qemu.remnux"]
+  }
+
+  provisioner "breakpoint" {
+    
   }
 
   post-processor "vagrant" {
