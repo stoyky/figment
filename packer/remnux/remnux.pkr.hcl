@@ -198,8 +198,8 @@ source "qemu" "remnux" {
 
   qemuargs = [
     ["-cpu", "host"],
-    ["-device", "virtio-vga-gl"],
-    ["-display", "sdl,gl=on"],
+    ["-device", "qxl-vga,id=video0,ram_size=134217728,vram_size=65536,vgamem_mb=256,max_outputs=1"],
+    # ["-display", "sdl,gl=on"],
 
 
     ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
@@ -241,18 +241,19 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo apt update && sudo apt install -y qemu-guest-agent spice-vdagent",
-      "sudo systemctl enable --now qemu-guest-agent"
+      "sudo apt install -y qemu-guest-agent spice-vdagent",
+      "sudo systemctl enable --now qemu-guest-agent",
+      "sudo systemctl enable --now spice-vdagent",
     ]
     only = ["qemu.remnux"]
   }
 
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo remnux install --mode=cloud"
-  #   ]
-  #   only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "qemu.remnux"]
-  # }
+  provisioner "shell" {
+    inline = [
+      "sudo remnux install --mode=cloud"
+    ]
+    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "qemu.remnux"]
+  }
 
   provisioner "shell" {
     inline = [
@@ -306,10 +307,6 @@ build {
       "sudo netplan generate && sudo netplan apply"
     ]
     only = ["qemu.remnux"]
-  }
-
-  provisioner "breakpoint" {
-    
   }
 
   post-processor "vagrant" {

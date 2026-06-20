@@ -63,16 +63,6 @@ cape-guest-win11-qemu:
 	packer init packer/cape-guest-win11/cape-guest-win11.pkr.hcl 
 	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win11 -var-file=packer/cape-guest-win11/cape-guest-win11.pkrvars.hcl packer/cape-guest-win11/cape-guest-win11.pkr.hcl
 
-cape-guest-win7-qemu: 
-	@echo "Building CAPE guest Windows 7..."
-	packer init packer/cape-guest-win7/cape-guest-win7.pkr.hcl 
-	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win7 -var-file=packer/cape-guest-win7/cape-guest-win7.pkrvars.hcl packer/cape-guest-win7/cape-guest-win7.pkr.hcl
-
-cape-guest-ubuntu24-qemu: 
-	@echo "Building CAPE guest Ubuntu 24..."
-	packer init packer/cape-guest-ubuntu24/cape-guest-ubuntu24.pkr.hcl 
-	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-ubuntu24 -var-file=packer/cape-guest-ubuntu24/cape-guest-ubuntu24.pkrvars.hcl packer/cape-guest-ubuntu24/cape-guest-ubuntu24.pkr.hcl
-
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."
 	rm -rf temp/flarevm-virtualbox/
