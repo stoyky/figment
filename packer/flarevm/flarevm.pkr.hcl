@@ -132,6 +132,7 @@ source "vmware-iso" "flarevm" {
 
   tools_upload_flavor = "windows"
   tools_upload_path   = "vmtools.iso"
+  tools_mode = "upload"
 
   vmx_data = {
     "ethernet0.present"        = "TRUE"

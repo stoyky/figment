@@ -24,7 +24,7 @@ variable "source_path_vmware" {
   type = string
 }
 
-variable "source_path_vmware_raw" {
+variable "temp_path_vmware" {
   type = string
 }
 
@@ -169,7 +169,7 @@ source "vmware-iso" "cape-server" {
   cd_files             = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
   cd_label             = "cidata"
   output_directory     = "temp/cape-server"
-  iso_url              = var.source_path_vmware_raw
+  iso_url              = var.source_path_vmware
   iso_checksum         = "SHA256:3a4c9877b483ab46d7c3fbe165a0db275e1ae3cfe56a5657e5a47c2f99a99d1e"
   vm_name              = var.vm_name
   display_name         = var.display_name

@@ -13,12 +13,7 @@ flarevm-qemu:
 	packer init packer/flarevm/flarevm.pkr.hcl 
 	packer build -on-error=ask --only qemu.flarevm -var-file=packer/flarevm/flarevm.pkrvars.hcl packer/flarevm/flarevm.pkr.hcl 
 
-convert:
-	@echo "Converting OVA to VMX..."
-	packer init packer/remnux/remnux.pkr.hcl 
-	packer build -on-error=ask --only null.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
-
-remnux-vmware: convert
+remnux-vmware: 
 	@echo "Building REMnux..."
 	packer init packer/remnux/remnux.pkr.hcl 
 	packer build -on-error=ask --only vmware-vmx.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl

@@ -1,6 +1,7 @@
 # Source Image Paths
-source_path_vmware_raw = "assets/ubuntu-24.04.4-desktop-amd64.iso"
-source_path_vmware     = "temp/cape-server/cape-server.vmx"
+source_path_vmware = "assets/ubuntu-24.04.4-desktop-amd64.iso"
+temp_path_vmware     = "temp/cape-server/cape-server.vmx"
+
 source_path_virtualbox = "assets/noble-server-cloudimg-amd64.ova"
 
 # VM Identity
@@ -37,15 +38,6 @@ cape_guests = [
     hostonly_offset   = 151
     mac_base_hostonly = "52:54:00:20:30"
     mac_base_nat      = "52:54:00:30:20"
-  },
-  {
-    name              = "cape-guest-ubuntu"
-    platform          = "linux"
-    arch              = "x64"
-    replicas          = 1
-    hostonly_offset   = 201
-    mac_base_hostonly = "52:54:00:30:40"
-    mac_base_nat      = "52:54:00:40:30"
   }
 ]
 

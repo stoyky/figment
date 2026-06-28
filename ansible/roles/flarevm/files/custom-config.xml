@@ -22,8 +22,7 @@
         <env name="RAW_TOOLS_DIR" value="%SystemDrive%\Tools"/>
     </envs>
     <packages>
-        <package name="internet_detector.vm"/>
-        <!-- <package name="010editor.vm"/>
+        <package name="010editor.vm"/>
         <package name="7zip.vm"/>
         <package name="advanced-installer.vm"/>
         <package name="angr.vm"/>
@@ -55,13 +54,14 @@
         <package name="dnlib.vm"/>
         <package name="dnspyex.vm"/>
         <package name="dotdumper.vm"/>
-        <package name="dotnet3.5"/>
+        <package name="dotnet3.5"/> <!-- To run old .NET binaries -->
         <package name="exeinfope.vm"/>
         <package name="explorersuite.vm"/>
         <package name="extreme_dumper.vm"/>
         <package name="ezviewer.vm"/>
         <package name="fakenet-ng.vm"/>
         <package name="file.vm"/>
+        <package name="fiddler.vm"/>
         <package name="floss.vm"/>
         <package name="garbageman.vm"/>
         <package name="ghidra.vm"/>
@@ -72,9 +72,12 @@
         <package name="hxd.vm"/>
         <package name="ida.plugin.capa.vm"/>
         <package name="ida.plugin.comida.vm"/>
+        <package name="ida.plugin.delphihelper.vm"/>
         <package name="ida.plugin.dereferencing.vm"/>
         <package name="ida.plugin.diaphora.vm"/>
+        <package name="ida.plugin.flare-emu.vm"/>
         <package name="ida.plugin.flare.vm"/>
+        <package name="ida.plugin.hashdb.vm"/>
         <package name="ida.plugin.hrtng.vm"/>
         <package name="ida.plugin.ifl.vm"/>
         <package name="ida.plugin.xray.vm"/>
@@ -85,6 +88,7 @@
         <package name="ilspy.vm"/>
         <package name="innoextract.vm"/>
         <package name="innounp.vm"/>
+        <package name="internet_detector.vm"/>
         <package name="ipython.vm"/>
         <package name="isd.vm"/>
         <package name="js-beautify.vm"/>
@@ -119,6 +123,7 @@
         <package name="psnotify.vm"/>
         <package name="pycdas.vm"/>
         <package name="pycdc.vm"/>
+        <package name="pylingual.vm"/>
         <package name="rat-king-parser.vm"/>
         <package name="recaf.vm"/>
         <package name="reg_export.vm"/>
@@ -153,7 +158,7 @@
         <package name="x64dbg.plugin.scyllahide.vm"/>
         <package name="x64dbg.plugin.x64dbgpy.vm"/>
         <package name="x64dbg.vm"/>
-        <package name="yara.vm"/> -->
+        <package name="yara.vm"/>
     </packages>
     <apps>
         <!--
