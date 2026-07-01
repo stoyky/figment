@@ -1,12 +1,13 @@
 Vagrant.configure("2") do |config|
   # FLARE VM
   config.vm.define "flarevm" do |flarevm|
-    flarevm.vm.box = "figment/flarevm-win10"
+    flarevm.vm.box = "flarevm-qemu"
     flarevm.vm.hostname = "flarevm"
     flarevm.vm.guest = :windows
     flarevm.ssh.username = "admin"
     flarevm.ssh.password = "password"
     flarevm.ssh.insert_key = false
+    flarevm.ssh.shell = "powershell"
 
     flarevm.vm.synced_folder '.', '/vagrant', disabled: true
 
@@ -47,6 +48,48 @@ Vagrant.configure("2") do |config|
           
       virtualbox.memory = "4096"
       virtualbox.gui    = true
+    end
+
+    flarevm.vm.network "forwarded_port", guest: 22, host: 2223, auto_correct: true
+    
+    flarevm.vm.network "private_network",
+      libvirt__network_name: "default",
+      mac: "52:54:00:07:66:ea"
+
+    flarevm.vm.network "private_network",
+      libvirt__network_name: "hostonly",
+      # libvirt__dhcp_enabled: false,
+      mac: "52:54:00:07:66:eb"
+
+    flarevm.vm.provider "libvirt" do |libvirt|
+      libvirt.uri            = "qemu:///system"
+      libvirt.driver         = "kvm"
+      # libvirt.machine_type   = "q35"
+      libvirt.cpu_mode       = "host-passthrough"
+      libvirt.memory         = 4096
+      libvirt.cpus           = 2
+      libvirt.nic_model_type = "e1000"
+      libvirt.disk_bus       = "ide"
+      libvirt.graphics_type  = "spice"
+      libvirt.mgmt_attach = false
+      # libvirt.management_network_name    = "default"         # Strategy A
+      # # libvirt.management_network_address = "192.168.122.0/24"
+      # libvirt.management_network_mode    = "nat"
+      # libvirt.management_network_mac     = "52:54:00:00:00:01"
+
+      # libvirt.vm.network "forwarded_port", guest: 22, host: 2222, id: "ssh"
+      # libvirt.network "public_network", bridge: "virbr1"
+
+      # libvirt.qemuargs :value => "-netdev"
+      # libvirt.qemuargs :value => "user,id=user.0,hostfwd=tcp::2222-:22"
+      # libvirt.qemuargs :value => "-device"
+      # libvirt.qemuargs :value => "e1000,netdev=user.0,mac=52:54:00:00:00:01"
+
+
+      # libvirt.qemuargs :value => "-netdev"
+      # libvirt.qemuargs :value => "bridge,id=hn1,br=virbr1"
+      # libvirt.qemuargs :value => "-device"
+      # libvirt.qemuargs :value => "e1000,netdev=hn1,mac=52:54:00:00:00:02"
     end
   
   end
