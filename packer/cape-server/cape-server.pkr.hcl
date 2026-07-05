@@ -24,11 +24,27 @@ variable "source_path_vmware" {
   type = string
 }
 
+variable "source_path_virtualbox" {
+  type = string
+}
+
+variable "source_path_qemu" {
+  type = string
+}
+
 variable "temp_path_vmware" {
   type = string
 }
 
-variable "source_path_virtualbox" {
+variable "checksum_vmware" {
+  type = string
+}
+
+variable "checksum_virtualbox" {
+  type = string
+}
+
+variable "checksum_qemu" {
   type = string
 }
 
@@ -57,9 +73,37 @@ variable "display_name" {
   type = string
 }
 
-# variable "mac_hostonly" {
-#   type = string
-# }
+variable "mac_nat_vmware" {
+  type = string
+}
+
+variable "mac_hostonly_vmware" {
+  type = string
+}
+
+variable "mac_nat_virtualbox" {
+  type = string
+}
+
+variable "mac_hostonly_virtualbox" {
+  type = string
+}
+
+variable "mac_nat_virtualbox_norm" {
+  type = string
+}
+
+variable "mac_hostonly_virtualbox_norm" {
+  type = string
+}
+
+variable "mac_nat_qemu" {
+  type = string
+}
+
+variable "mac_hostonly_qemu" {
+  type = string
+}
 
 variable "eth0_pcislot_vmware" {
   type = number
@@ -168,9 +212,9 @@ locals {
 source "vmware-iso" "cape-server" {
   cd_files             = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
   cd_label             = "cidata"
-  output_directory     = "temp/cape-server"
+  output_directory     = "temp/cape-server-vmware"
   iso_url              = var.source_path_vmware
-  iso_checksum         = "SHA256:3a4c9877b483ab46d7c3fbe165a0db275e1ae3cfe56a5657e5a47c2f99a99d1e"
+  iso_checksum         = var.checksum_vmware
   vm_name              = var.vm_name
   display_name         = var.display_name
   ssh_username         = var.ssh_username
@@ -201,81 +245,93 @@ source "vmware-iso" "cape-server" {
   vmx_data = {
     "ide1:0.present"        = "TRUE"
     "ide1:0.startConnected" = "TRUE"
-
-    # "ethernet1.present"        = "TRUE"
-    # "ethernet1.connectionType" = "hostonly"
-    # "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-    # "ethernet1.virtualDev"     = "e1000"
   }
 
 }
 
-# source "vmware-iso" "cape-server" {
-#   format        = "ova"
-#   guest_os_type = "ubuntu-64"
-#   cd_files      = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
-#   cd_label      = "cidata"
-#   source_path   = var.source_path_vmware_raw
-#   vm_name       = var.vm_name
-#   display_name  = var.display_name
-#   ssh_username  = var.ssh_username
-#   ssh_password  = var.ssh_password
-#   ssh_timeout   = var.ssh_timeout
-#   disk_additional_size = [10240]
-
-#   # keep_registered = true
-
-#   shutdown_command = "sudo shutdown -h now"
-#   boot_wait        = var.boot_wait
-
-#   # vmx_remove_ethernet_interfaces = false
-#   # skip_compaction                = true
-#   # headless                       = false
-
-#   vmx_data = {
-#     "memsize"              = "8192"
-#     "numvcpus"             = "4"
-
-#     "ide1:0.present"        = "TRUE"
-#     "ide1:0.startConnected" = "TRUE"
-#     "vhv.enable"            = "TRUE"
-#   }
-
-#   # vmx_data = {
-#   #   "ethernet1.present"        = "TRUE"
-#   #   "ethernet1.connectionType" = "hostonly"
-#   #   "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-#   #   "ethernet1.virtualDev"     = "e1000"
-#   # }
-
-# }
-
-
 ## Virtualbox
-# source "virtualbox-ovf" "remnux" {
-#   source_path = var.source_path_virtualbox
+source "virtualbox-iso" "cape-server" {
+  cd_files         = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
+  cd_label         = "cidata"
+  iso_url          = var.source_path_virtualbox
+  iso_checksum     = var.checksum_virtualbox
+  vm_name          = "capeserver"
+  gfx_vram_size    = 128
+  nested_virt = true
+  cpus = 4
+  # gfx_accelerate_3d = true 
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  ssh_timeout      = var.ssh_timeout
+  output_directory = "temp/cape-server-virtualbox"
+  disk_size        = 102400
+  memory           = 8192
+  skip_export      = false
+  shutdown_command = "sudo shutdown -h now"
+  headless         = false
+  # guest_additions_mode = "disable"
 
-#   vm_name          = var.vm_name
-#   ssh_username     = var.ssh_username
-#   ssh_password     = var.ssh_password
-#   ssh_timeout      = var.ssh_timeout
-#   skip_export      = false
-#   keep_registered  = true
-#   shutdown_command = "sudo shutdown -h now"
+  boot_wait        = "5s"
+  boot_command = [
+    "<wait>",
+    "e<wait>",
+    "<down><down><down><end>",
+    " autoinstall ds=nocloud-net;s=file:///cdrom/",
+    "<wait30s>",
+    "<f10>"
+  ]
 
-#   headless = false
+  vboxmanage_post = [
+    ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
+    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
+    ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly_virtualbox}"]
+  ]
+}
 
-#   vboxmanage_post = [
-#     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
-#     ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
-#     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
-#   ]
-# }
+source "qemu" "cape-server" {
+  iso_url          = var.source_path_qemu
+  iso_checksum     = "SHA256:95adcfd293b29aee77c0c95b2d0a9a7f8f2f7829c49f20b3def16b5b28638e93"
+  disk_image       = true
+  shutdown_command = "sudo shutdown -h now"
+  format           = "qcow2"
+  accelerator      = "kvm"
+  machine_type     = "q35"
+  output_directory = "temp/cape-server-qemu"
+  skip_resize_disk = true
+  disk_size        = 102400
+  memory           = 8192
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  ssh_timeout      = "4h"
+  vm_name          = var.vm_name
+  net_device       = "e1000"
+  disk_interface   = "ide"
+
+  boot_wait        = "5s"
+  boot_command = [
+    "<wait>",
+    "e<wait>",
+    "<down><down><down><end>",
+    " autoinstall ds=nocloud-net;s=file:///cdrom/",
+    "<f10>"
+  ]
+
+  qemuargs = [
+    ["-cpu", "host"],
+    
+    ["-netdev", "user,id=user.0,hostfwd=tcp::{{ .SSHHostPort }}-:22"],
+    ["-device", "e1000,netdev=user.0,mac=${var.mac_nat_qemu}"],
+
+    ["-netdev", "bridge,id=hn1,br=virbr1"],
+    ["-device", "e1000,netdev=hn1,mac=${var.mac_hostonly_qemu}"]
+  ]
+}
 
 build {
   sources = [
-    "source.vmware-iso.cape-server",
-    # "source.virtualbox-ovf.remnux"
+    "vmware-iso.cape-server",
+    "virtualbox-iso.cape-server",
+    "qemu.cape-server"
   ]
 
   provisioner "shell" {
@@ -297,7 +353,6 @@ build {
       "sudo reboot"
     ]
     expect_disconnect = true
-    only              = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
@@ -311,7 +366,6 @@ build {
       "sudo reboot",
     ]
     expect_disconnect = true
-    only              = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
@@ -323,7 +377,6 @@ build {
       "sudo reboot",
     ]
     expect_disconnect = true
-    only              = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
@@ -334,20 +387,7 @@ build {
       "echo $PATH",
       "sudo -u cape /etc/poetry/bin/poetry install",
     ]
-    only = ["vmware-iso.cape-server"]
   }
-
-  # provisioner "file" {
-  #   source      = "packer/cape-server/cape-repo/conf/default"
-  #   destination = "/tmp/cape-conf"
-  # }
-
-  # provisioner "shell" {
-  #   inline = [
-  #     "echo 'Copying CAPE config files to /opt/CAPEv2/conf'",
-  #     "for f in /tmp/cape-conf/*.conf.default; do sudo cp \"$f\" \"/opt/CAPEv2/conf/$(basename \"$f\" .default)\"; done"
-  #   ]
-  # }
 
   provisioner "shell" {
     inline = var.cape_nested_virt ? [
@@ -384,7 +424,6 @@ build {
       ] : [
       "echo 'Skipping libvirt host-only network creation'"
     ]
-    only = ["vmware-iso.cape-server"]
   }
 
   provisioner "shell" {
@@ -456,58 +495,11 @@ build {
     ]
   }
 
-  # provisioner "shell" {
-  #   inline = [
-  #     "echo 'Hardcoding static IP configuration for host VM with Netplan'",
-  #     "sudo chmod 600 /etc/netplan/*.yaml",
-  #     "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
-  #     "network:",
-  #     "  version: 2",
-  #     "  renderer: NetworkManager",
-  #     "  ethernets:",
-  #     "    ens${var.eth0_pcislot_vmware}:",
-  #     "      dhcp4: false",
-  #     "      addresses:",
-  #     "        - ${var.server_nat_ip}/24",
-  #     "      routes:",
-  #     "        - to: default",
-  #     "          via: ${var.server_nat_default_gateway}",
-  #     "      nameservers:",
-  #     "        addresses:",
-  #     "          - ${var.server_nat_default_gateway}",
-  #     "          - 1.1.1.1",
-  #     "EOF",
-  #     "sudo netplan generate && sudo netplan apply",
-  #     "sudo shutdown -h now"
-  #   ]
-  #   only = ["vmware-iso.cape-server"]
-  #   expect_disconnect = true
-  # }
-
-
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo tee /etc/netplan/50-cloud-init.yaml >/dev/null <<'EOF'",
-  #     "network:",
-  #     "  version: 2",
-  #     "  renderer: networkd",
-  #     "  ethernets:",
-  #     "    enp0s${var.eth0_pcislot_virtualbox}:",
-  #     "      dhcp4: true",
-  #     "    enp0s${var.eth1_pcislot_virtualbox}:",
-  #     "      addresses: [${var.host_hostonly_ip}/24]",
-  #     "EOF",
-  #     "sudo chmod 600 /etc/netplan/50-cloud-init.yaml",
-  #     "sudo netplan generate && sudo netplan apply"
-  #   ]
-  #   only = ["virtualbox-ovf.cape-server"]
-  # }
-
   post-processor "vagrant" {
-    output               = source.type == "vmware-iso" ? "boxes/cape-server-vmware.box" : "boxes/cape-server-virtualbox.box"
     keep_input_artifact  = true
-    provider_override    = source.type == "vmware-iso" ? "vmware" : "virtualbox"
+    output               = source.type == "vmware-iso" ? "boxes/cape-server-vmware.box" : source.type == "virtualbox-iso" ? "boxes/cape-server-virtualbox.box" : "boxes/cape-server-qemu.box"
+    provider_override    = source.type == "vmware-iso" ? "vmware" : source.type == "virtualbox-iso" ? "virtualbox" : "libvirt"
     vagrantfile_template = "vagrant/cape-server/Vagrantfile"
-    only                 = var.export_vagrant ? ["vmware-iso.cape-server", "virtualbox-ovf.cape-server"] : []
+    only                 = var.export_vagrant ? ["vmware-iso.cape-server", "virtualbox-iso.cape-server", "qemu.cape-server"] : []
   }
 }

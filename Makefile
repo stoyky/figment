@@ -29,7 +29,7 @@ remnux-virtualbox:
 remnux-qemu:
 	@echo "Building REMnux..."
 	packer init packer/remnux/remnux.pkr.hcl 
-	PACKER_LOG=1 packer build --force -on-error=ask --only qemu.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
+	packer build --force -on-error=ask --only qemu.remnux -var-file=packer/remnux/remnux.pkrvars.hcl packer/remnux/remnux.pkr.hcl
 
 convert-cape-server:
 	@echo "Converting OVA to VMX..."
@@ -39,7 +39,17 @@ convert-cape-server:
 cape-server-vmware: 
 	@echo "Building CAPE Server..."
 	packer init packer/cape-server/cape-server.pkr.hcl 
-	PACKER_LOG=1 packer build -on-error=ask --only vmware-iso.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+	packer build -on-error=ask --only vmware-iso.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+
+cape-server-virtualbox: 
+	@echo "Building CAPE Server..."
+	packer init packer/cape-server/cape-server.pkr.hcl 
+	packer build -on-error=ask --only virtualbox-iso.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
+
+cape-server-qemu: 
+	@echo "Building CAPE Server..."
+	packer init packer/cape-server/cape-server.pkr.hcl 
+	packer build -on-error=ask --only qemu.cape-server -var-file=packer/cape-server/cape-server.pkrvars.hcl packer/cape-server/cape-server.pkr.hcl
 
 cape-guest-win10-vmware: 
 	@echo "Building CAPE guest Windows 10..."
@@ -54,12 +64,12 @@ cape-guest-win10-virtualbox:
 cape-guest-win10-qemu: 
 	@echo "Building CAPE guest Windows 10..."
 	packer init packer/cape-guest-win10/cape-guest-win10.pkr.hcl 
-	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win10 -var-file=packer/cape-guest-win10/cape-guest-win10.pkrvars.hcl packer/cape-guest-win10/cape-guest-win10.pkr.hcl
+	packer build -on-error=ask --only qemu.cape-guest-win10 -var-file=packer/cape-guest-win10/cape-guest-win10.pkrvars.hcl packer/cape-guest-win10/cape-guest-win10.pkr.hcl
 
 cape-guest-win11-qemu: 
 	@echo "Building CAPE guest Windows 11..."
 	packer init packer/cape-guest-win11/cape-guest-win11.pkr.hcl 
-	PACKER_LOG=1 packer build -on-error=ask --only qemu.cape-guest-win11 -var-file=packer/cape-guest-win11/cape-guest-win11.pkrvars.hcl packer/cape-guest-win11/cape-guest-win11.pkr.hcl
+	packer build -on-error=ask --only qemu.cape-guest-win11 -var-file=packer/cape-guest-win11/cape-guest-win11.pkrvars.hcl packer/cape-guest-win11/cape-guest-win11.pkr.hcl
 
 clean-flarevm: 
 	@echo "Cleaning temporary directories for REMnux..."

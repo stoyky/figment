@@ -42,6 +42,29 @@ Vagrant.configure("2") do |config|
       virtualbox.memory = "8192"
       virtualbox.gui    = true
     end
+
+    cape_server.vm.provider "libvirt" do |libvirt, override|
+      libvirt.mgmt_attach    = false
+      
+      override.vm.network "forwarded_port",
+        guest: 22,
+        host: 2223,
+        auto_correct: true
+
+      override.vm.network "private_network",
+        type: "dhcp",
+        libvirt__model_type: "e1000",
+        libvirt__network_name: "default",
+        mac: "52:54:00:00:00:03"
+
+      override.vm.network "private_network",
+        type: "dhcp",
+        libvirt__model_type: "e1000",
+        libvirt__network_name: "hostonly",
+        mac: "52:54:00:00:00:04"
+
+      libvirt.memory = 8192
+    end
   
   end
 end
