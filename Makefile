@@ -1,3 +1,6 @@
+debug:
+	@$(MAKE) PACKER_LOG=1 $(filter-out $@,$(MAKECMDGOALS))
+
 flarevm-vmware:
 	@echo "Building FLARE VM vmware..."
 	packer init packer/flarevm/flarevm.pkr.hcl 

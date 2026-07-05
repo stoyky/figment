@@ -24,8 +24,8 @@ mac_nat_virtualbox      = "080027000001"
 mac_hostonly_virtualbox = "080027000002"
 
 # QEMU valid MAC
-mac_nat_qemu      = "52:54:00:07:66:ea"
-mac_hostonly_qemu = "52:54:00:07:66:eb"
+mac_nat_qemu      = "52:54:00:00:00:01"
+mac_hostonly_qemu = "52:54:00:00:00:02"
 
 # FlareVM Installer Configuration 
 install_args = "-password password -noWait -noChecks -noGui -noReboots -customConfig .\\custom-config.xml"

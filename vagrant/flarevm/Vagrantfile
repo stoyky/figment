@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
         host: 2223,
         auto_correct: true
 
-      override.vm.network "public_network",
+      override.vm.network "private_network",
         type: "dhcp",
         libvirt__network_name: "default",
         mac: "52:54:00:07:66:ea"

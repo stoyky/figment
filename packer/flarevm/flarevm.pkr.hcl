@@ -257,8 +257,16 @@ build {
       "-e", "pipelining=true",
       "-e", "hostonly_ip=${var.hostonly_ip}",
       "-e", "hostonly_gateway=${var.hostonly_gateway}",
-      "-e", "mac_nat=${source.type == "vmware-iso" ? var.mac_nat_vmware : var.mac_nat_virtualbox}",
-      "-e", "mac_hostonly=${source.type == "vmware-iso" ? var.mac_hostonly_vmware : var.mac_hostonly_virtualbox}",
+      "-e", "mac_nat=${
+        source.type == "vmware-iso" ? var.mac_nat_vmware :
+        source.type == "qemu"       ? var.mac_nat_qemu :
+                                      var.mac_nat_virtualbox
+      }",
+      "-e", "mac_hostonly=${
+        source.type == "vmware-iso" ? var.mac_hostonly_vmware :
+        source.type == "qemu"       ? var.mac_hostonly_qemu :
+                                      var.mac_hostonly_virtualbox
+      }",
       "-e", "user=${var.user}",
       "-e", "source_type=${source.type}",
       "--forks=20"

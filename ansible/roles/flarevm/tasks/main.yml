@@ -24,6 +24,7 @@
     image_path: "C:\\Users\\{{ user }}\\vmtools.iso"
     state: absent
   ignore_errors: true
+  when: source_type in ['vmware-iso', 'virtualbox-iso']
 
 - name: Download FlareVM install.ps1 to temp
   ansible.windows.win_get_url:
@@ -79,49 +80,38 @@
   debug: 
     var: content.stdout
 
-- name: Rename NAT adapter (all providers)
-  ansible.windows.win_shell: |
-    $normMac = '{{ mac_nat }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
-    $normMac = $normMac.ToUpper()
-    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
-    if ($adapter -and $adapter.Name -ne 'nat') {
-      Rename-NetAdapter -Name $adapter.Name -NewName 'nat' -Confirm:$false
-    }
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+- name: Configure static IP and DNS on host-only adapter at boot
+  community.windows.win_scheduled_task:
+    name: Configure HostOnly Adapter
+    description: Configure static IP and DNS on host-only adapter at every boot
+    username: SYSTEM
+    runlevel: highest
+    enabled: yes
+    state: present
+    actions:
+      - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+        arguments: >-
+          -NoProfile -ExecutionPolicy Bypass -Command "
+          $normMac = '{{ mac_hostonly }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6';
+          $normMac = $normMac.ToUpper();
+          $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1;
 
-- name: Rename host-only adapter (all providers)
-  ansible.windows.win_shell: |
-    $normMac = '{{ mac_hostonly }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6'
-    $normMac = $normMac.ToUpper()
-    $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1
-    if ($adapter -and $adapter.Name -ne 'hostonly') {
-      Rename-NetAdapter -Name $adapter.Name -NewName 'hostonly' -Confirm:$false
-    }
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+          if (-not $adapter) { exit 1 };
 
-- name: Configure static IP on host-only adapter
-  ansible.windows.win_shell: |
-    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
-      Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
-    Get-NetIPAddress -InterfaceAlias 'hostonly' -AddressFamily IPv4 | 
-      Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
-    New-NetIPAddress -InterfaceAlias 'hostonly' -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ hostonly_gateway }} -AddressFamily IPv4;
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+          Get-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4 |
+            Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
+          Get-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4 |
+            Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
 
-- name: Set static DNS
-  ansible.windows.win_dns_client:
-    adapter_names: hostonly
-    ipv4_addresses:
-      - "{{ hostonly_gateway }}"
-  become: yes
-  become_user: '{{ user }}'
-  become_method: runas
+          New-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ hostonly_gateway }} -AddressFamily IPv4;
+          Set-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -ServerAddresses @('{{ hostonly_gateway }}');
+          "
+    triggers:
+      - type: boot
+
+- name: Run host-only adapter scheduled task immediately
+  ansible.windows.win_command: >
+    schtasks.exe /run /tn "Configure HostOnly Adapter"
 
 - name: Reboot
   ansible.windows.win_reboot:

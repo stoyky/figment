@@ -77,6 +77,14 @@ variable "mac_hostonly_virtualbox" {
   type = string
 }
 
+variable "mac_nat_virtualbox_norm" {
+  type = string
+}
+
+variable "mac_hostonly_virtualbox_norm" {
+  type = string
+}
+
 variable "mac_nat_qemu" {
   type = string
 }
@@ -133,15 +141,13 @@ source "vmware-vmx" "remnux" {
   boot_command = [
     "<esc><esc><esc><wait>",
     "<wait5>",
-    " sudo ssh-keygen -A<enter>",
+    "sudo ssh-keygen -A<enter>",
     "<wait5>",
-    "sudo systemctl start ssh<enter>",
+    "sudo systemctl enable --now ssh<enter>",
     "<wait5>",
     "sudo sed -i 's/ens18/enp0s${var.eth0_pcislot_vmware}/g' /etc/netplan/50-cloud-init.yaml<enter>",
-    "sudo chmod 600 /etc/netplan/50-cloud-init.yaml<enter>",
     "<wait5>",
-    "sudo netplan generate && sudo netplan apply<enter>",
-    "<wait5>",
+    "sudo netplan apply<enter>"
   ]
 
   vmx_data = {
@@ -168,15 +174,13 @@ source "virtualbox-ovf" "remnux" {
   boot_command = [
     "<esc><esc><esc><wait>",
     "<wait5>",
-    " sudo ssh-keygen -A<enter>",
+    "sudo ssh-keygen -A<enter>",
     "<wait5>",
-    "sudo systemctl start ssh<enter>",
+    "sudo systemctl enable --now ssh<enter>",
     "<wait5>",
     "sudo sed -i 's/ens18/enp0s${var.eth0_pcislot_virtualbox}/g' /etc/netplan/50-cloud-init.yaml<enter>",
-    "sudo chmod 600 /etc/netplan/50-cloud-init.yaml<enter>",
     "<wait5>",
-    "sudo netplan generate && sudo netplan apply<enter>",
-    "<wait5>",
+    "sudo netplan apply<enter>"
   ]
 
   vboxmanage_post = [
@@ -208,15 +212,13 @@ source "qemu" "remnux" {
   boot_command = [
     "<esc><esc><esc><wait>",
     "<wait5>",
-    " sudo ssh-keygen -A<enter>",
+    "sudo ssh-keygen -A<enter>",
     "<wait5>",
-    "sudo systemctl start ssh<enter>",
+    "sudo systemctl enable --now ssh<enter>",
     "<wait5>",
     "sudo sed -i 's/ens18/enp0s${var.eth0_pcislot_qemu}/g' /etc/netplan/50-cloud-init.yaml<enter>",
-    "sudo chmod 600 /etc/netplan/50-cloud-init.yaml<enter>",
     "<wait5>",
-    "sudo netplan generate && sudo netplan apply<enter>",
-    "<wait5>",
+    "sudo netplan apply<enter>"
   ]
 
   qemuargs = [
@@ -239,25 +241,81 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo apt update"
+      "sudo apt update",
+      "sudo remnux install --mode=cloud"
     ]
-    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "qemu.remnux"]
   }
 
   provisioner "shell" {
     inline = [
-      "sudo apt install -y qemu-guest-agent spice-vdagent",
-      "sudo systemctl enable --now qemu-guest-agent",
-      "sudo systemctl enable --now spice-vdagent",
+      "sudo tee /etc/netplan/99-figment.yaml >/dev/null <<EOF",
+      "network:",
+      "  version: 2",
+      "  renderer: NetworkManager",
+      "  ethernets:",
+      "    nat:",
+      "      match:",
+      "        macaddress: ${var.mac_nat_vmware}",
+      "      dhcp4: true",
+      "    hostonly:",
+      "      match:",
+      "        macaddress: ${var.mac_hostonly_vmware}",
+      "      addresses:",
+      "        - ${var.hostonly_ip}",
+      "EOF",
+    ]
+    only = ["vmware-vmx.remnux"]
+  }
+
+    provisioner "shell" {
+    inline = [
+      "sudo tee /etc/netplan/99-figment.yaml >/dev/null <<EOF",
+      "network:",
+      "  version: 2",
+      "  renderer: NetworkManager",
+      "  ethernets:",
+      "    nat:",
+      "      match:",
+      "        macaddress: ${var.mac_nat_virtualbox_norm}",
+      "      dhcp4: true",
+      "    hostonly:",
+      "      match:",
+      "        macaddress: ${var.mac_hostonly_virtualbox_norm}",
+      "      addresses:",
+      "        - ${var.hostonly_ip}",
+      "EOF",
+    ]
+    only = ["virtualbox-ovf.remnux"]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo tee /etc/netplan/99-figment.yaml >/dev/null <<EOF",
+      "network:",
+      "  version: 2",
+      "  renderer: NetworkManager",
+      "  ethernets:",
+      "    nat:",
+      "      match:",
+      "        macaddress: ${var.mac_nat_qemu}",
+      "      dhcp4: true",
+      "    hostonly:",
+      "      match:",
+      "        macaddress: ${var.mac_hostonly_qemu}",
+      "      addresses:",
+      "        - ${var.hostonly_ip}",
+      "EOF",
     ]
     only = ["qemu.remnux"]
   }
 
+
   provisioner "shell" {
     inline = [
-      "sudo remnux install --mode=cloud"
+      "sudo chmod 600 /etc/netplan/99-figment.yaml",
+      "sudo netplan generate",
+      "sudo netplan apply"
     ]
-    only = ["vmware-vmx.remnux", "virtualbox-ovf.remnux", "qemu.remnux"]
   }
 
   post-processor "vagrant" {

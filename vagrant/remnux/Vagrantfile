@@ -1,11 +1,12 @@
 Vagrant.configure("2") do |config|
   # REMnux
   config.vm.define "remnux" do |remnux|
-    remnux.vm.box = "figment/remnux"
+    remnux.vm.box = "remnux-qemu"
     remnux.vm.hostname = "remnux"
     remnux.ssh.username = "remnux"
     remnux.ssh.password = "malware"
     remnux.ssh.insert_key = false  # Disable key injection
+    remnux.vm.synced_folder ".", "/vagrant", disabled: true
 
     # remnux.vm.network "public_network", adapter: 0, auto_config: false
     # remnux.vm.network "private_network", adapter: 1, auto_config: false
@@ -43,21 +44,44 @@ Vagrant.configure("2") do |config|
       virtualbox.gui    = true
     end
   
-    remnux.vm.provider "libvirt" do |libvirt|
-      libvirt.management_network_name = "vagrant-libvirt"
-      libvirt.management_network_mac = "52:54:00:07:66:ea"
+    # remnux.vm.network "private_network",
+    #   type: "dhcp",
+    #   libvirt__network_name: "default",
+    #   libvirt__model_type: "e1000",
+    #   libvirt__mac: "52:54:00:07:66:ea",
+    #   auto_config: false
 
-      remnux.vm.network "private_network",
-        ip: "192.168.55.10",
-        libvirt__network_name: "virbr1",
-        libvirt__dhcp_enabled: false,
-        auto_config: false,
-        mac: "52:54:00:07:66:eb"
+    # remnux.vm.network "private_network",
+    #   ip: "192.168.55.10",
+    #   libvirt__network_name: "hostonly",
+    #   libvirt__forward_mode: "none",
+    #   libvirt__dhcp_enabled: false,
+    #   libvirt__model_type: "e1000",
+    #   libvirt__mac: "52:54:00:07:66:eb",
+    #   auto_config: false
 
-      libvirt.video_vram = 131072
-      libvirt.video_accel3d = true
+    
+    remnux.vm.provider "libvirt" do |libvirt, override|
+      libvirt.mgmt_attach    = false
+      
+      override.vm.network "forwarded_port",
+        guest: 22,
+        host: 2223,
+        auto_correct: true
+
+      override.vm.network "private_network",
+        type: "dhcp",
+        libvirt__model_type: "e1000",
+        libvirt__network_name: "default",
+        mac: "52:54:00:00:00:03"
+
+      override.vm.network "private_network",
+        type: "dhcp",
+        libvirt__model_type: "e1000",
+        libvirt__network_name: "hostonly",
+        mac: "52:54:00:00:00:04"
+
       libvirt.memory = 2048
-      libvirt.gui = true rescue nil
     end
 
   end
