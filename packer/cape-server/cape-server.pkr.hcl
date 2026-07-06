@@ -255,11 +255,7 @@ source "virtualbox-iso" "cape-server" {
   cd_label         = "cidata"
   iso_url          = var.source_path_virtualbox
   iso_checksum     = var.checksum_virtualbox
-  vm_name          = "capeserver"
-  gfx_vram_size    = 128
-  nested_virt = true
-  cpus = 4
-  # gfx_accelerate_3d = true 
+  vm_name          = "cape-server"
   ssh_username     = var.ssh_username
   ssh_password     = var.ssh_password
   ssh_timeout      = var.ssh_timeout
@@ -269,17 +265,19 @@ source "virtualbox-iso" "cape-server" {
   skip_export      = false
   shutdown_command = "sudo shutdown -h now"
   headless         = false
-  # guest_additions_mode = "disable"
+
+  guest_os_type = "Ubuntu24_LTS_64"
+  hard_drive_interface = "sata"
 
   boot_wait        = "5s"
   boot_command = [
-    "<wait>",
-    "e<wait>",
-    "<down><down><down><end>",
-    " autoinstall ds=nocloud-net;s=file:///cdrom/",
-    "<wait30s>",
-    "<f10>"
-  ]
+  "<wait>",
+  "e<wait>",
+  "<down><down><down><end>",
+  " autoinstall ds=nocloud-net;s=file:///cdrom/ nomodeset acpi=off",
+  "<f10>",
+  "<wait5s>"
+]
 
   vboxmanage_post = [
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
@@ -289,11 +287,12 @@ source "virtualbox-iso" "cape-server" {
 }
 
 source "qemu" "cape-server" {
+  cd_files         = ["packer/cape-server/cloud-init/user-data", "packer/cape-server/cloud-init/meta-data"]
+  cd_label         = "cidata"
   iso_url          = var.source_path_qemu
-  iso_checksum     = "SHA256:95adcfd293b29aee77c0c95b2d0a9a7f8f2f7829c49f20b3def16b5b28638e93"
+  iso_checksum     = var.checksum_qemu
   disk_image       = true
   shutdown_command = "sudo shutdown -h now"
-  format           = "qcow2"
   accelerator      = "kvm"
   machine_type     = "q35"
   output_directory = "temp/cape-server-qemu"
