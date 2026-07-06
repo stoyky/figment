@@ -18,10 +18,12 @@ autoinstall:
     version: 2
     renderer: NetworkManager
     ethernets:
-        ens33:
-            match:
-                name: "en*"
+        enp0s2:
             dhcp4: true
+            # nameservers:
+            #     addresses: [8.8.8.8, 1.1.1.1]
+        enp0s3:
+            dhcp4: false
   oem:
     install: auto
   source:
@@ -30,7 +32,7 @@ autoinstall:
   ssh:
    allow-pw: true
    authorized-keys: []
-   install-server: true
+   install-server: false
   storage:
     grub:
       reorder_uefi: false
@@ -39,7 +41,7 @@ autoinstall:
       sizing-policy: all
   identity:
     realname: ''
-    hostname: cape-server
+    hostname: cape-guest-ubuntu24
     username: ubuntu
     # openssl passwd -6 -salt "$(openssl rand -hex 8)" 'password'
     password: '$6$2723c7281b2fa96a$zI5lptnAkuRMPJepiXLLCkrmfTRbv6Oal2q.rx.AIeOwhH6KFDR.CpyPduUIj/IdFjhScJo9fpK73X1iG2xGk/'
@@ -47,5 +49,8 @@ autoinstall:
   updates: security
   version: 1
   late-commands:
+    - "curtin in-target -- apt-get update"
+    - "curtin in-target -- apt-get install -y openssh-server"
+    - "curtin in-target -- systemctl enable ssh"
     - "curtin in-target --target=/target -- bash -c 'echo \"ubuntu ALL=(ALL) NOPASSWD:ALL\" > /etc/sudoers.d/ubuntu'"
     - "curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu"

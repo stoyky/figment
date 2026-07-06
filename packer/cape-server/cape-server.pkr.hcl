@@ -291,12 +291,11 @@ source "qemu" "cape-server" {
   cd_label         = "cidata"
   iso_url          = var.source_path_qemu
   iso_checksum     = var.checksum_qemu
-  disk_image       = true
   shutdown_command = "sudo shutdown -h now"
   accelerator      = "kvm"
   machine_type     = "q35"
   output_directory = "temp/cape-server-qemu"
-  skip_resize_disk = true
+  # skip_resize_disk = true
   disk_size        = 102400
   memory           = 8192
   ssh_username     = var.ssh_username
