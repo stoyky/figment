@@ -133,15 +133,14 @@ source "vmware-vmx" "remnux" {
   guest_os_type                  = "ubuntu-64"
   shutdown_command               = "sudo shutdown -h now"
   vmx_remove_ethernet_interfaces = false
-  skip_compaction                = true
   headless                       = false
-
+  output_directory               = "temp/remnux-vmware"
 
   boot_wait = var.boot_wait
   boot_command = [
     "<esc><esc><esc><wait>",
     "<wait5>",
-    "sudo ssh-keygen -A<enter>",
+    " sudo ssh-keygen -A<enter>",
     "<wait5>",
     "sudo systemctl enable --now ssh<enter>",
     "<wait5>",
@@ -151,10 +150,13 @@ source "vmware-vmx" "remnux" {
   ]
 
   vmx_data = {
-    "ethernet1.present"        = "TRUE"
-    "ethernet1.connectionType" = "hostonly"
-    "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-    "ethernet1.virtualDev"     = "e1000"
+      "ethernet1.present"        = "TRUE",
+      "ethernet1.addressType"    = "static",
+      "ethernet1.connectionType" = "hostonly",
+      "ethernet1.virtualDev"     = "e1000",
+      "ethernet1.connect"        = "connected",
+      "ethernet1.startConnected" = "TRUE",
+      "ethernet1.address"        = var.mac_hostonly_vmware,
   }
 
 }
@@ -169,12 +171,13 @@ source "virtualbox-ovf" "remnux" {
   skip_export      = false
   shutdown_command = "sudo shutdown -h now"
   headless         = false
+  output_directory = "temp/remnux-virtualbox"
 
   boot_wait = var.boot_wait
   boot_command = [
     "<esc><esc><esc><wait>",
     "<wait5>",
-    "sudo ssh-keygen -A<enter>",
+    " sudo ssh-keygen -A<enter>",
     "<wait5>",
     "sudo systemctl enable --now ssh<enter>",
     "<wait5>",
@@ -183,7 +186,7 @@ source "virtualbox-ovf" "remnux" {
     "sudo netplan apply<enter>"
   ]
 
-  vboxmanage_post = [
+  vboxmanage = [
     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
     ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly_virtualbox}"]
@@ -212,7 +215,7 @@ source "qemu" "remnux" {
   boot_command = [
     "<esc><esc><esc><wait>",
     "<wait5>",
-    "sudo ssh-keygen -A<enter>",
+    " sudo ssh-keygen -A<enter>",
     "<wait5>",
     "sudo systemctl enable --now ssh<enter>",
     "<wait5>",
@@ -260,8 +263,7 @@ build {
       "    hostonly:",
       "      match:",
       "        macaddress: ${var.mac_hostonly_vmware}",
-      "      addresses:",
-      "        - ${var.hostonly_ip}",
+      "      addresses: [${var.hostonly_ip}]",
       "EOF",
     ]
     only = ["vmware-vmx.remnux"]
@@ -281,8 +283,7 @@ build {
       "    hostonly:",
       "      match:",
       "        macaddress: ${var.mac_hostonly_virtualbox_norm}",
-      "      addresses:",
-      "        - ${var.hostonly_ip}",
+      "      addresses: [${var.hostonly_ip}]",
       "EOF",
     ]
     only = ["virtualbox-ovf.remnux"]
@@ -302,19 +303,16 @@ build {
       "    hostonly:",
       "      match:",
       "        macaddress: ${var.mac_hostonly_qemu}",
-      "      addresses:",
-      "        - ${var.hostonly_ip}",
+      "      addresses: [${var.hostonly_ip}]",
       "EOF",
     ]
     only = ["qemu.remnux"]
   }
 
-
   provisioner "shell" {
     inline = [
       "sudo chmod 600 /etc/netplan/99-figment.yaml",
-      "sudo netplan generate",
-      "sudo netplan apply"
+      "sudo netplan generate && sudo netplan apply"
     ]
   }
 
