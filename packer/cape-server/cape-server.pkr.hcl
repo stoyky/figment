@@ -224,7 +224,6 @@ source "vmware-iso" "cape-server" {
   disk_size            = 102400
   memory               = 16384
   cpus                 = 4
-  # keep_registered = true
 
   vhv_enabled      = true
   shutdown_timeout = "30m"
@@ -295,7 +294,6 @@ source "qemu" "cape-server" {
   accelerator      = "kvm"
   machine_type     = "q35"
   output_directory = "temp/cape-server-qemu"
-  # skip_resize_disk = true
   disk_size        = 102400
   memory           = 8192
   ssh_username     = var.ssh_username
@@ -363,7 +361,6 @@ build {
       "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
       "sudo reboot",
     ]
-    expect_disconnect = true
   }
 
   provisioner "shell" {
@@ -374,7 +371,6 @@ build {
       "sudo ./cape2.sh all cape | tee cape.log",
       "sudo reboot",
     ]
-    expect_disconnect = true
   }
 
   provisioner "shell" {
@@ -469,7 +465,7 @@ build {
   provisioner "shell" {
     inline = [
       "echo 'Setting CAPE resultserver IP address in cuckoo.conf'",
-      "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf resultserver ip \"$(ip -j r s default | jq -r '.[0].prefsrc')\""
+      "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf resultserver ip \"$(ip -j addr show dev ${var.cape_machinery_interface} | jq -r '.[0].addr_info[0].local')\""
     ]
   }
 
@@ -485,11 +481,17 @@ build {
 
   provisioner "shell" {
     inline = [
+      "echo 'Applying commit-specific fixes'",
+      "sudo crudini --set --existing /usr/lib/systemd/system/mongodb.service Service 'Environment' 'GLIBC_TUNABLES=glibc.pthread.rseq=1'",
+      "sudo systemctl daemon-reload",
+      "sudo systemctl restart mongodb || sudo systemctl restart mongod"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
       "echo 'Restarting CAPE services'",
-      "sudo systemctl restart cape-processor",
-      "sudo systemctl restart cape-rooter",
-      "sudo systemctl restart cape-web",
-      "sudo systemctl restart cape"
+      "sudo systemctl restart cape*"
     ]
   }
 

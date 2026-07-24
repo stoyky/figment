@@ -20,7 +20,7 @@ ssh_timeout  = "20m"
 boot_wait    = "30s"
 
 # CAPE Settings
-cape_commit              = "01a0b268eba19423078b70d6ece76e69780a47a8"
+cape_commit              = "e451de454137e0d44ab1ce1f72eae2e2bccfa78a"
 cape_nested_virt         = true
 cape_machinery           = "kvm"
 cape_machinery_interface = "virbr1"
@@ -47,7 +47,7 @@ cape_guests = [
 ]
 
 # Guest Host-Only Network
-guest_hostonly_subnet          = "192.168.55.0/24"
+guest_hostonly_subnet          = "192.168.55.10/24"
 
 # VMware PCI Slots
 eth0_pcislot_vmware = "33"
