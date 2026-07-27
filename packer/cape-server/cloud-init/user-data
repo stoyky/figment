@@ -14,14 +14,15 @@ autoinstall:
     layout: us
     variant: ''
   locale: en_US.UTF-8
-  # network:
-  #   version: 2
-  #   renderer: NetworkManager
-  #   ethernets:
-  #       enp0s2:
-  #           dhcp4: true
-  #       enp0s3:
-  #           dhcp4: false
+  # Needed for QEMU
+  network:
+    version: 2
+    renderer: NetworkManager
+    ethernets:
+        enp0s2:
+            dhcp4: true
+        enp0s3:
+            dhcp4: false
   oem:
     install: auto
   source:

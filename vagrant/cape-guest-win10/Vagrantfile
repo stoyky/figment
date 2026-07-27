@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
   # FLARE VM
   config.vm.define "cape-guest-win10" do | cape_guest_win10 |
-    cape_guest_win10.vm.box = "cape-guest-win10"
+    cape_guest_win10.vm.box = "figment/cape-guest-win10"
     cape_guest_win10.vm.hostname = "cape-guest-win10"
     cape_guest_win10.vm.guest = :windows
     cape_guest_win10.ssh.username = "admin"
