@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
   # cape-server
   config.vm.define "cape-server" do |cape_server|
-    cape_server.vm.box = "figment/cape-server-nested"
+    cape_server.vm.box = "figment/cape-server"
     cape_server.vm.hostname = "cape-server"
     cape_server.ssh.username = "ubuntu"
     cape_server.ssh.password = "password"
@@ -24,6 +24,7 @@ Vagrant.configure("2") do |config|
       
       vmware.memory = "8192"
       vmware.gui    = true
+      vmware.cpus   = 4
     end
 
     cape_server.vm.provider "virtualbox" do |virtualbox|
@@ -38,6 +39,7 @@ Vagrant.configure("2") do |config|
           
       virtualbox.memory = "8192"
       virtualbox.gui    = true
+      virtualbox.cpus   = 4
     end
 
     cape_server.vm.provider "libvirt" do |libvirt, override|
