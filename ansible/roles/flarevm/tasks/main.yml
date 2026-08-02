@@ -91,27 +91,117 @@
     actions:
       - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
         arguments: >-
-          -NoProfile -ExecutionPolicy Bypass -Command "
-          $normMac = '{{ mac_hostonly }}' -replace '[:-]' -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})', '$1-$2-$3-$4-$5-$6';
-          $normMac = $normMac.ToUpper();
-          $adapter = Get-NetAdapter | Where-Object { $_.MacAddress -eq $normMac } | Select-Object -First 1;
+          -NoProfile
+          -ExecutionPolicy Bypass
+          -Command "
+          $targetMac='00:0c:29:00:00:02';
+          $targetIp='192.168.55.20';
+          $prefixLen=24;
+          $gateway='192.168.55.10';
+          $dnsServers=@('192.168.55.10');
+          $maxWaitSeconds=90;
+          $pollSeconds=3;
 
-          if (-not $adapter) { exit 1 };
+          function Normalize-Mac{param([string]$Mac)(($Mac -replace '[:-]','') -replace '(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})','$1-$2-$3-$4-$5-$6').ToUpper()};
 
-          Get-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4 |
-            Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
-          Get-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4 |
-            Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
+          function Get-BaseAlias{
+            param([string]$Alias)
+            if(-not $Alias){return $null};
+            $parts=$Alias.Split(' ',[System.StringSplitOptions]::RemoveEmptyEntries);
+            if($parts.Count -gt 1){
+              $last=$parts[$parts.Count-1];
+              $n=0;
+              if([int]::TryParse($last,[ref]$n)){
+                return (($parts|Select-Object -First ($parts.Count-1)) -join ' ')
+              }
+            }
+            $Alias
+          };
 
-          New-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -IPAddress {{ hostonly_ip }} -PrefixLength 24 -DefaultGateway {{ hostonly_gateway }} -AddressFamily IPv4;
-          Set-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -ServerAddresses @('{{ hostonly_gateway }}');
-          "
+          function Resolve-LiveInterfaceAlias{
+            param([string]$TargetMac,[int]$MaxWaitSeconds=90,[int]$PollSeconds=3);
+            $normMac=Normalize-Mac $TargetMac;
+            $deadline=(Get-Date).AddSeconds($MaxWaitSeconds);
+            $lastReason=$null;
+            do{
+              $macAdapter=Get-NetAdapter -IncludeHidden -ErrorAction SilentlyContinue|Where-Object{$_.MacAddress -eq $normMac}|Sort-Object InterfaceIndex|Select-Object -First 1;
+              if($macAdapter -and $macAdapter.InterfaceAlias){
+                $baseAlias=Get-BaseAlias $macAdapter.InterfaceAlias;
+                $candidateAliases=Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue|Where-Object{$_.IPAddress -notlike '169.254.*' -and $_.InterfaceAlias -like \"$baseAlias*\"}|Select-Object -ExpandProperty InterfaceAlias -Unique;
+                if($candidateAliases){
+                  return [pscustomobject]@{
+                    InterfaceAlias=($candidateAliases|Select-Object -First 1);
+                    MacAdapterAlias=$macAdapter.InterfaceAlias;
+                    MatchBaseAlias=$baseAlias;
+                    MatchType='MAC->AliasPrefix->IPv4'
+                  }
+                }
+                $lastReason=\"No live IPv4 alias matched '$baseAlias*'\"
+              }else{
+                $lastReason=\"No adapter found with MAC $normMac\"
+              };
+              $singleLive=Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue|Where-Object{$_.IPAddress -notlike '169.254.*'}|Select-Object -ExpandProperty InterfaceAlias -Unique;
+              if(@($singleLive).Count -eq 1){
+                return [pscustomobject]@{
+                  InterfaceAlias=$singleLive[0];
+                  MacAdapterAlias=if($macAdapter){$macAdapter.InterfaceAlias}else{$null};
+                  MatchBaseAlias=if($baseAlias){$baseAlias}else{$null};
+                  MatchType='SingleLiveIPv4Fallback'
+                }
+              };
+              Start-Sleep -Seconds $PollSeconds
+            }while((Get-Date) -lt $deadline);
+            throw $lastReason
+          };
+
+          function Test-NetworkConfig{
+            param([string]$InterfaceAlias,[string]$ExpectedIp,[string]$ExpectedGateway,[string[]]$ExpectedDns);
+            $ipOk=@(Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue|Where-Object{$_.IPAddress -eq $ExpectedIp}).Count -gt 0;
+            $gwOk=@(Get-NetRoute -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue|Where-Object{$_.NextHop -eq $ExpectedGateway}).Count -gt 0;
+            $dnsCurrent=@(Get-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue).ServerAddresses;
+            $dnsOk=(@($dnsCurrent) -join ',') -eq (@($ExpectedDns) -join ',');
+            ($ipOk -and $gwOk -and $dnsOk)
+          };
+
+          try{
+            $resolved=Resolve-LiveInterfaceAlias -TargetMac $targetMac -MaxWaitSeconds $maxWaitSeconds -PollSeconds $pollSeconds;
+            $ifAlias=$resolved.InterfaceAlias;
+            Set-NetIPInterface -InterfaceAlias $ifAlias -AddressFamily IPv4 -Dhcp Disabled -ErrorAction Stop;
+            Get-NetIPAddress -InterfaceAlias $ifAlias -AddressFamily IPv4 -ErrorAction SilentlyContinue|Remove-NetIPAddress -Confirm:$false -ErrorAction SilentlyContinue;
+            Get-NetRoute -InterfaceAlias $ifAlias -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue|Remove-NetRoute -Confirm:$false -ErrorAction SilentlyContinue;
+            Set-DnsClientServerAddress -InterfaceAlias $ifAlias -ResetServerAddresses -ErrorAction SilentlyContinue;
+            if(-not (Test-NetworkConfig -InterfaceAlias $ifAlias -ExpectedIp $targetIp -ExpectedGateway $gateway -ExpectedDns $dnsServers)){
+              New-NetIPAddress -InterfaceAlias $ifAlias -AddressFamily IPv4 -IPAddress $targetIp -PrefixLength $prefixLen -DefaultGateway $gateway -ErrorAction Stop;
+              Set-DnsClientServerAddress -InterfaceAlias $ifAlias -ServerAddresses $dnsServers -ErrorAction Stop
+            };
+            $verified=$false;
+            for($i=0;$i -lt 10;$i++){
+              Start-Sleep -Seconds 2;
+              if(Test-NetworkConfig -InterfaceAlias $ifAlias -ExpectedIp $targetIp -ExpectedGateway $gateway -ExpectedDns $dnsServers){
+                $verified=$true;
+                break
+              }
+            };
+            if(-not $verified){
+              throw \"Configuration was applied to '$ifAlias' but verification did not succeed in time.\"
+            };
+            Write-Host \"Applied static IPv4 to '$ifAlias'.\";
+            Write-Host \"Match type: $($resolved.MatchType)\";
+            if($resolved.MacAdapterAlias){
+              Write-Host \"MAC source alias: $($resolved.MacAdapterAlias)\"
+            }
+          }catch{
+            Write-Host \"FAILED: $($_.Exception.Message)\";
+            if($ifAlias){
+              Write-Host \"InterfaceAlias: $ifAlias\"
+            }
+          }"
     triggers:
       - type: boot
 
 - name: Run host-only adapter scheduled task immediately
-  ansible.windows.win_command: >
-    schtasks.exe /run /tn "Configure HostOnly Adapter"
+  ansible.windows.win_command:
+    cmd: schtasks.exe /run /tn "Configure HostOnly Adapter"
 
 - name: Reboot
   ansible.windows.win_reboot:
