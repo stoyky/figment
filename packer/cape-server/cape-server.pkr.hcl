@@ -354,12 +354,23 @@ build {
   provisioner "shell" {
     pause_before = "10s"
     inline = [
-      "echo 'Cloning CAPE and running KVM-QEMU installer'",
+      "echo 'Cloning CAPEv2...'",
       "git clone https://github.com/kevoreilly/CAPEv2.git",
       "cd CAPEv2 && git checkout ${var.cape_commit} && cd installer",
+    ]
+  }
+
+
+  provisioner "shell" {
+    pause_before = "10s"
+    inline = var.cape_nested_virt ? [
+      "echo 'Running KVM-QEMU installer'",
+      "cd CAPEv2/installer",
       "sed -i 's/<WOOT>/ACPI/g' kvm-qemu.sh",
       "sudo ./kvm-qemu.sh all ${var.ssh_username} | tee kvm-qemu.log",
       "sudo reboot",
+    ] : [
+      "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
 
