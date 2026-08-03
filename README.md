@@ -179,7 +179,8 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
       2. Run `nslookup` to check whether your DNS is returning the correct IP.
       3. Browse to any website to check whether requests are intercepted by INetSim / FakeDNS. 
      - Note: if your hostonly settings happen to be removed during build or reboot you can easily reset them by running the scheduled task "Configure HostOnly Adapter"
-       - schtasks
+       - Run it from Start -> Task Scheduler -> Task Scheduler Library -> Configure HostOnly Adapter or
+       - schtasks.exe /run /tn "Configure HostOnly Adapter"
 
 ## Project Structure
 
