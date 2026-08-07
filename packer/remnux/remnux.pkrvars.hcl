@@ -1,9 +1,6 @@
 source_path_vmware = "assets/remnux-noble-amd64.ova"
-temp_path_vmware   = "temp/remnux/remnux.vmx"
-
-source_path_qemu = "assets/remnux-noble-amd64-proxmox.qcow2"
-
 source_path_virtualbox = "assets/remnux-noble-amd64-virtualbox.ova"
+source_path_qemu = "assets/remnux-noble-amd64-proxmox.qcow2"
 
 vm_name      = "remnux"
 display_name = "remnux"

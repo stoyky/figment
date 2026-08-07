@@ -256,14 +256,11 @@ build {
       "  version: 2",
       "  renderer: NetworkManager",
       "  ethernets:",
-      "    nat:",
-      "      match:",
-      "        macaddress: ${var.mac_nat_vmware}",
-      "      dhcp4: true",
       "    hostonly:",
       "      match:",
       "        macaddress: ${var.mac_hostonly_vmware}",
-      "      addresses: [${var.hostonly_ip}]",
+      "      addresses:", 
+      "        - ${var.hostonly_ip}",
       "EOF",
     ]
     only = ["vmware-vmx.remnux"]
@@ -276,10 +273,6 @@ build {
       "  version: 2",
       "  renderer: NetworkManager",
       "  ethernets:",
-      "    nat:",
-      "      match:",
-      "        macaddress: ${var.mac_nat_virtualbox_norm}",
-      "      dhcp4: true",
       "    hostonly:",
       "      match:",
       "        macaddress: ${var.mac_hostonly_virtualbox_norm}",
@@ -296,10 +289,6 @@ build {
       "  version: 2",
       "  renderer: NetworkManager",
       "  ethernets:",
-      "    nat:",
-      "      match:",
-      "        macaddress: ${var.mac_nat_qemu}",
-      "      dhcp4: true",
       "    hostonly:",
       "      match:",
       "        macaddress: ${var.mac_hostonly_qemu}",
@@ -311,9 +300,12 @@ build {
 
   provisioner "shell" {
     inline = [
+      "echo 'Applying Netplan config'",
       "sudo chmod 600 /etc/netplan/99-figment.yaml",
-      "sudo netplan generate && sudo netplan apply"
+      "sudo netplan generate",
+      "sudo nohup sh -c 'sleep 5 && netplan apply' > /dev/null 2>&1 &"
     ]
+    expect_disconnect = true
   }
 
   post-processor "vagrant" {
