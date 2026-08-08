@@ -482,11 +482,19 @@ build {
 
   provisioner "shell" {
     inline = [
+      "echo 'General configuration'",
+      "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf resultserver ip \"$(ip -j addr show dev ${var.cape_machinery_interface} | jq -r '.[0].addr_info[0].local')\""
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
       "install -d -m 0755 /home/${var.ssh_username}/Downloads",
       "cd /home/${var.ssh_username}/Downloads",
       "echo 'Downloading sample malware to $(pwd)'",
       "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish.exe",
-      "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish64.exe"
+      "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish64.exe",
+      "curl -fL -O https://github.com/citronneur/pamspy/releases/download/v0.3/pamspy"
     ]
   }
 

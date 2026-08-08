@@ -1,0 +1,56 @@
+#cloud-config
+# See the autoinstall documentation at:
+# https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html
+autoinstall:
+  refresh-installer:
+    update: false
+  codecs:
+    install: true
+  drivers:
+    install: true
+  kernel:
+    package: linux-generic-hwe-24.04
+  keyboard:
+    layout: us
+    variant: ''
+  locale: en_US.UTF-8
+  network:
+    version: 2
+    renderer: NetworkManager
+    ethernets:
+        enp0s2:
+            dhcp4: true
+            # nameservers:
+            #     addresses: [8.8.8.8, 1.1.1.1]
+        enp0s3:
+            dhcp4: false
+  oem:
+    install: auto
+  source:
+    id: ubuntu-desktop-minimal
+    search_drivers: true
+  ssh:
+   allow-pw: true
+   authorized-keys: []
+   install-server: false
+  storage:
+    grub:
+      reorder_uefi: false
+    layout:
+      name: lvm
+      sizing-policy: all
+  identity:
+    realname: ''
+    hostname: cape-guest-ubuntu
+    username: ubuntu
+    # openssl passwd -6 -salt "$(openssl rand -hex 8)" 'password'
+    password: '$6$2723c7281b2fa96a$zI5lptnAkuRMPJepiXLLCkrmfTRbv6Oal2q.rx.AIeOwhH6KFDR.CpyPduUIj/IdFjhScJo9fpK73X1iG2xGk/'
+  timezone: Europe/Amsterdam
+  updates: security
+  version: 1
+  late-commands:
+    - "curtin in-target -- apt-get update"
+    - "curtin in-target -- apt-get install -y openssh-server"
+    - "curtin in-target -- systemctl enable ssh"
+    - "curtin in-target --target=/target -- bash -c 'echo \"ubuntu ALL=(ALL) NOPASSWD:ALL\" > /etc/sudoers.d/ubuntu'"
+    - "curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu"
