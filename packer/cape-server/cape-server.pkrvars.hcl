@@ -20,10 +20,17 @@ ssh_timeout  = "20m"
 boot_wait    = "30s"
 
 # CAPE Settings
-cape_commit              = "e451de454137e0d44ab1ce1f72eae2e2bccfa78a"
-cape_nested_virt         = true
-cape_machinery           = "kvm"
-cape_machinery_interface = "virbr1"
+cape_commit               = "e451de454137e0d44ab1ce1f72eae2e2bccfa78a"
+cape_nested_virt          = true
+cape_machinery            = "kvm"
+cape_machinery_interface  = "virbr1"
+cape_freespace            = 5000
+cape_freespace_processing = 1500
+cape_auxiliary_tracee_linux         = "yes"
+cape_processing_tracee_enabled = "yes"
+cape_processing_strace_enabled = "yes"
+cape_processing_strace_processtree = "yes"
+cape_web_linux_enabled = "yes"
 
 cape_guests = [
   {
