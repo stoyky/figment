@@ -310,11 +310,9 @@ build {
   provisioner "shell" {
     inline = [
       "echo 'Installing recommended dependencies'",
-      # "sudo dpkg --add-architecture i386",
       "sudo apt-get update",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-setuptools python3-wheel curl systemtap-runtime",
+      "sudo apt-get install -y python3 python3-pip python3-setuptools python3-wheel python3-pyinotify curl systemtap-runtime",
       "sudo python3 -m pip install --break-system-packages pyasyncore Pillow pyscreenshot pyautogui",
-      "sudo apt install -y python3-pyinotify"
     ]
     expect_disconnect = true
     only              = ["qemu.cape-guest-ubuntu"]
