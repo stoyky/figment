@@ -86,6 +86,10 @@ variable "cape_commit" {
   type = string
 }
 
+variable "cape_tracee_version" {
+  type = string
+}
+
 variable "eth0_pcislot_vmware" {
   type = number
 }
@@ -168,112 +172,72 @@ source "qemu" "cape-guest-ubuntu" {
   disk_interface = "ide"
 }
 
-# source "vmware-iso" "cape-guest-ubuntu" {
-#   cd_files             = ["packer/cape-guest-ubuntu/cloud-init/user-data", "packer/cape-guest-ubuntu/cloud-init/meta-data"]
-#   cd_label             = "cidata"
-#   output_directory     = "temp/cape-guest-ubuntu"
-#   iso_url              = var.source_path_vmware_raw
-#   iso_checksum         = "SHA256:3a4c9877b483ab46d7c3fbe165a0db275e1ae3cfe56a5657e5a47c2f99a99d1e"
-#   vm_name              = var.vm_name
-#   display_name         = var.display_name
-#   ssh_username         = var.ssh_username
-#   ssh_password         = var.ssh_password
-#   ssh_timeout          = var.ssh_timeout
-#   network_adapter_type = "e1000"
-#   disk_size            = 60000
-#   memory               = 4096
-#   cpus                 = 2
-#   # keep_registered = true
+source "vmware-iso" "cape-guest-ubuntu" {
+  cd_files             = ["packer/cape-guest-ubuntu/cloud-init/user-data", "packer/cape-guest-ubuntu/cloud-init/meta-data"]
+  cd_label             = "cidata"
+  output_directory     = "temp/cape-guest-ubuntu"
+  iso_url              = var.source_path_vmware_raw
+  iso_checksum         = "SHA256:3a4c9877b483ab46d7c3fbe165a0db275e1ae3cfe56a5657e5a47c2f99a99d1e"
+  vm_name              = var.vm_name
+  display_name         = var.display_name
+  ssh_username         = var.ssh_username
+  ssh_password         = var.ssh_password
+  ssh_timeout          = var.ssh_timeout
+  network_adapter_type = "e1000"
+  disk_size            = 60000
+  memory               = 4096
+  cpus                 = 2
+  # keep_registered = true
 
-#   vhv_enabled      = true
-#   shutdown_timeout = "30m"
-#   shutdown_command = "sudo shutdown -h now"
-#   boot_wait        = "5s"
-#   boot_command = [
-#     "<wait>",
-#     "e<wait>",
-#     "<down><down><down><end>",
-#     " autoinstall ds=nocloud-net;s=file:///cdrom/",
-#     "<f10>"
-#   ]
+  vhv_enabled      = true
+  shutdown_timeout = "30m"
+  shutdown_command = "sudo shutdown -h now"
+  boot_wait        = "5s"
+  boot_command = [
+    "<wait>",
+    "e<wait>",
+    "<down><down><down><end>",
+    " autoinstall ds=nocloud-net;s=file:///cdrom/",
+    "<f10>"
+  ]
 
-#   vmx_remove_ethernet_interfaces = false
-#   skip_compaction                = true
-#   headless                       = false
+  vmx_remove_ethernet_interfaces = false
+  skip_compaction                = true
+  headless                       = false
 
-#   vmx_data = {
-#     "ide1:0.present"        = "TRUE"
-#     "ide1:0.startConnected" = "TRUE"
+  vmx_data = {
+    "ide1:0.present"        = "TRUE"
+    "ide1:0.startConnected" = "TRUE"
 
-#     # "ethernet1.present"        = "TRUE"
-#     # "ethernet1.connectionType" = "hostonly"
-#     # "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-#     # "ethernet1.virtualDev"     = "e1000"
-#   }
+    # "ethernet1.present"        = "TRUE"
+    # "ethernet1.connectionType" = "hostonly"
+    # "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
+    # "ethernet1.virtualDev"     = "e1000"
+  }
 
-# }
-
-# source "vmware-iso" "cape-guest-ubuntu" {
-#   format        = "ova"
-#   guest_os_type = "ubuntu-64"
-#   cd_files      = ["packer/cape-guest-ubuntu/cloud-init/user-data", "packer/cape-guest-ubuntu/cloud-init/meta-data"]
-#   cd_label      = "cidata"
-#   source_path   = var.source_path_vmware_raw
-#   vm_name       = var.vm_name
-#   display_name  = var.display_name
-#   ssh_username  = var.ssh_username
-#   ssh_password  = var.ssh_password
-#   ssh_timeout   = var.ssh_timeout
-#   disk_additional_size = [10240]
-
-#   # keep_registered = true
-
-#   shutdown_command = "sudo shutdown -h now"
-#   boot_wait        = var.boot_wait
-
-#   # vmx_remove_ethernet_interfaces = false
-#   # skip_compaction                = true
-#   # headless                       = false
-
-#   vmx_data = {
-#     "memsize"              = "8192"
-#     "numvcpus"             = "4"
-
-#     "ide1:0.present"        = "TRUE"
-#     "ide1:0.startConnected" = "TRUE"
-#     "vhv.enable"            = "TRUE"
-#   }
-
-#   # vmx_data = {
-#   #   "ethernet1.present"        = "TRUE"
-#   #   "ethernet1.connectionType" = "hostonly"
-#   #   "ethernet1.pcislotnumber"  = var.eth1_pcislot_vmware
-#   #   "ethernet1.virtualDev"     = "e1000"
-#   # }
-
-# }
+}
 
 
 ## Virtualbox
-# source "virtualbox-ovf" "remnux" {
-#   source_path = var.source_path_virtualbox
+source "virtualbox-ovf" "remnux" {
+  source_path = var.source_path_virtualbox
 
-#   vm_name          = var.vm_name
-#   ssh_username     = var.ssh_username
-#   ssh_password     = var.ssh_password
-#   ssh_timeout      = var.ssh_timeout
-#   skip_export      = false
-#   keep_registered  = true
-#   shutdown_command = "sudo shutdown -h now"
+  vm_name          = var.vm_name
+  ssh_username     = var.ssh_username
+  ssh_password     = var.ssh_password
+  ssh_timeout      = var.ssh_timeout
+  skip_export      = false
+  keep_registered  = true
+  shutdown_command = "sudo shutdown -h now"
 
-#   headless = false
+  headless = false
 
-#   vboxmanage_post = [
-#     ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
-#     ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
-#     ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
-#   ]
-# }
+  vboxmanage_post = [
+    ["modifyvm", "${var.vm_name}", "--nic2", "hostonly"],
+    ["modifyvm", "${var.vm_name}", "--hostonlyadapter2", "vboxnet0"],
+    ["modifyvm", "${var.vm_name}", "--macaddress2", "${var.mac_hostonly}"]
+  ]
+}
 
 build {
   sources = [
@@ -317,7 +281,6 @@ build {
     expect_disconnect = true
     only              = ["qemu.cape-guest-ubuntu"]
   }
-
 
   provisioner "shell" {
     inline = [
@@ -367,8 +330,8 @@ build {
 
       "sudo usermod -aG docker ${var.ssh_username}",
 
-      "sudo docker pull docker.io/aquasec/tracee:0.24.1",
-      "sudo docker image tag docker.io/aquasec/tracee:0.24.1 aquasec/tracee:latest"
+      "sudo docker pull docker.io/aquasec/tracee:${var.cape_tracee_version}",
+      "sudo docker image tag docker.io/aquasec/tracee:${var.cape_tracee_version} aquasec/tracee:latest"
     ]
   }
 
