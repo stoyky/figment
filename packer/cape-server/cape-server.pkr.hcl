@@ -162,34 +162,6 @@ variable "cape_machinery_interface" {
   default = "virbr0"
 }
 
-variable "cape_freespace" {
-  type    = string
-}
-
-variable "cape_freespace_processing" {
-  type    = string
-}
-
-variable "cape_auxiliary_tracee_linux" {
-  type    = string
-}
-
-variable "cape_processing_tracee_enabled" {
-  type    = string
-}
-
-variable "cape_processing_strace_enabled" {
-  type    = string
-}
-
-variable "cape_processing_strace_processtree" {
-  type    = string
-}
-
-variable "cape_web_linux_enabled" {
-  type    = string
-}
-
 locals {
   guest_hostonly_default_gateway = cidrhost(var.guest_hostonly_subnet, 1)
   guest_hostonly_range_start     = cidrhost(var.guest_hostonly_subnet, 2)
@@ -508,21 +480,17 @@ build {
     ]
   }
 
-  provisioner "shell" {
+ provisioner "shell" {
     inline = [
-      "echo 'General configuration'",
-      # cuckoo.conf
-      "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf cuckoo freespace ${var.cape_freespace}",
-      "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf cuckoo freespace_processing ${var.cape_freespace_processing}",
-      # auxiliary.conf
-      "sudo crudini --set /opt/CAPEv2/conf/auxiliary.conf auxiliary_modules tracee_linux ${var.cape_auxiliary_tracee_linux}",
-      # processing.conf
-      "sudo crudini --set /opt/CAPEv2/conf/processing.conf tracee enabled ${var.cape_processing_tracee_enabled}",
-      "sudo crudini --set /opt/CAPEv2/conf/processing.conf strace enabled ${var.cape_processing_strace_enabled}",
-      "sudo crudini --set /opt/CAPEv2/conf/processing.conf strace processtree ${var.cape_processing_strace_processtree}",
-      # web.conf
-      "sudo crudini --set /opt/CAPEv2/conf/web.conf linux enabled ${var.cape_web_linux_enabled}",
+      "echo 'Create custom configuration directory for conf overrides'",
+      "sudo mkdir -p /opt/CAPEv2/custom/conf",
+      "sudo chown $USER:$USER /opt/CAPEv2/custom/conf"
     ]
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/custom/conf/"
+    destination = "/opt/CAPEv2/custom/conf/"
   }
 
   provisioner "shell" {
