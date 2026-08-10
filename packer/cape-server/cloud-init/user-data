@@ -14,7 +14,7 @@ autoinstall:
     layout: us
     variant: ''
   locale: en_US.UTF-8
-  # Needed for QEMU
+  # Comment network block out for VMWare / Virtualbox, Keep for QEMU
   network:
     version: 2
     renderer: NetworkManager
