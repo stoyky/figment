@@ -284,7 +284,8 @@ This project is explicitly intended for malware analysis and should be used only
 * v1.0.0 - Initial release
 * v1.0.1 - (FlareVM) adjusted autounattend to also work for Windows 11
 * v1.1.0 - Major update: Now supports building CAPEv2 Server and Win10/11 Guest images, all builds have a QEMU target.
-* v1.1.1 - Added experimental Ubuntu 24.04 LTS Guest image for Linux analysis
+* v1.1.1 - (CAPE) Added experimental Ubuntu 24.04 LTS Guest image for Linux analysis
+* v1.1.2 - (CAPE) Added support for providing custom configurations in custom/conf to override defaults
 
 ## Credits
 - [FlareVM](https://github.com/mandiant/flare-vm) - Installation scripts for FlareVM
