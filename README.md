@@ -134,6 +134,10 @@ Follow these steps if you want to customize the resulting VMs / Vagrant boxes:
     - ansible/roles/flarevm/files/custom-config-xml
       - Adjust this file to change the FlareVM tools you wish to install.
 
+    CAPE:
+    - packer/cape-server/custom/conf
+      - Place custom configuration here to override the defaults set by the installer.
+
 6. **Build images**
     - To ensure a clean build:
   
