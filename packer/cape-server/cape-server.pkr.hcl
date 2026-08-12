@@ -238,7 +238,7 @@ source "vmware-iso" "cape-server" {
   ]
 
   vmx_remove_ethernet_interfaces = false
-  skip_compaction                = true
+  skip_compaction                = false
   headless                       = false
 
   vmx_data = {
@@ -302,6 +302,8 @@ source "qemu" "cape-server" {
   vm_name          = var.vm_name
   net_device       = "e1000"
   disk_interface   = "ide"
+  skip_compaction  = false
+  disk_compression = true
 
   boot_wait        = "5s"
   boot_command = [
@@ -474,9 +476,11 @@ build {
   }
 
   provisioner "shell" {
-    inline = [
+    inline = var.cape_nested_virt ? [
       "echo 'Setting CAPE resultserver IP address in cuckoo.conf'",
       "sudo crudini --set /opt/CAPEv2/conf/cuckoo.conf resultserver ip \"$(ip -j addr show dev ${var.cape_machinery_interface} | jq -r '.[0].addr_info[0].local')\""
+    ] : [
+      "echo 'Skipping install of nested-virt guest VMs'"
     ]
   }
 
@@ -501,17 +505,21 @@ build {
       "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish.exe",
       "curl -fL -O https://github.com/a0rtega/pafish/releases/download/v0.6/pafish64.exe",
       "curl -fL -O https://github.com/citronneur/pamspy/releases/download/v0.3/pamspy"
-    ]
+    ] 
   }
 
-  provisioner "shell" {
-    inline = [
-      "echo 'Applying commit-specific fixes'",
-      "sudo crudini --set --existing /usr/lib/systemd/system/mongodb.service Service 'Environment' 'GLIBC_TUNABLES=glibc.pthread.rseq=1'",
-      "sudo systemctl daemon-reload",
-      "sudo systemctl restart mongodb || sudo systemctl restart mongod"
-    ]
-  }
+ provisioner "shell" {
+  inline = [
+    "echo 'Applying commit-specific fixes'",
+    "sudo crudini --set --existing /usr/lib/systemd/system/mongodb.service Service 'Environment' 'GLIBC_TUNABLES=glibc.pthread.rseq=1'",
+    "sudo systemctl daemon-reload",
+    "sudo systemctl stop mongodb || true",
+    "sudo systemctl stop mongod || true",
+    "sleep 5",
+    "sudo systemctl start mongodb",
+    "sudo systemctl enable mongodb"
+  ]
+}
 
   provisioner "shell" {
     inline = [
