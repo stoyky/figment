@@ -293,7 +293,7 @@ source "qemu" "cape-server" {
   shutdown_command = "sudo shutdown -h now"
   accelerator      = "kvm"
   machine_type     = "q35"
-  output_directory = "temp/cape-server-qemu"
+  output_directory = "temp/cape-server-qemu.qcow2"
   disk_size        = 102400
   memory           = 8192
   ssh_username     = var.ssh_username
@@ -519,6 +519,7 @@ build {
     "sudo systemctl start mongodb",
     "sudo systemctl enable mongodb"
   ]
+  continue_on_error = true
 }
 
   provisioner "shell" {
